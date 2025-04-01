@@ -64,46 +64,10 @@ enum class BottomNavigationItem(
     )
 }
 
-//sealed class Screens(val route: String) {
-//    object Home : Screens("home")
-//    object Chat : Screens("chat")
-//    object Settings : Screens("settings")
-//}
-
 @Composable
 fun AppNavigationBar(navController: NavHostController) {
-//    val items = listOf(
-//        BottomNavigationItem(
-//            title = "Home",
-//            selectedIcon = Icons.Filled.Home,
-//            unselectedIcon = Icons.Outlined.Home,
-//            hasNews = false,
-//            route = Screens.Home.route
-//        ),
-//        BottomNavigationItem(
-//            title = "Chat",
-//            selectedIcon = Icons.Filled.Email,
-//            unselectedIcon = Icons.Outlined.MailOutline,
-//            hasNews = false,
-//            route = Screens.Chat.route,
-//            badgeCount = 45
-//        ),
-//        BottomNavigationItem(
-//            title = "Settings",
-//            selectedIcon = Icons.Default.Settings,
-//            unselectedIcon = Icons.Outlined.Settings,
-//            hasNews = true,
-//            route = Screens.Settings.route
-//        )
-//    )
-
     val items = BottomNavigationItem.entries.toTypedArray()
-
-    var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
-    }
-
-
+    var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
 
     NavigationBar {
         items.forEachIndexed { index, item ->
@@ -164,9 +128,6 @@ fun NavigationBarWithScaffold(navController: NavHostController) {
 fun HomeScreen(navController: NavHostController) {
     Column {
         Text("Home Screen")
-//        Button(onClick = { navController.navigate(Screens.Chat.route) }) {
-//            Text("Go to Chat")
-//        }
     }
 }
 
