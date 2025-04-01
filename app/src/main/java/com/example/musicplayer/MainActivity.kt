@@ -30,110 +30,36 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.musicplayer.ui.navigation.NavigationBarWithScaffold
 import com.example.musicplayer.ui.theme.MusicPlayerTheme
 
-data class BottomNavigationItem(
-    val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val hasNews: Boolean,
-    val badgeCount: Int? = null
-)
+
 
 class MainActivity : ComponentActivity() {
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MusicPlayerTheme {
+                val navController = rememberNavController() // Khởi tạo NavController
 
-
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun Preview() {
-    MusicPlayerTheme {
-        NavigationBar()
-    }
-}
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Composable
-fun NavigationBar() {
-    val items = listOf(
-        BottomNavigationItem(
-            title = "Home",
-            selectedIcon = Icons.Filled.Home,
-            unselectedIcon = Icons.Outlined.Home,
-            hasNews = false,
-        ),
-        BottomNavigationItem(
-            title = "Chat",
-            selectedIcon = Icons.Filled.Email,
-            unselectedIcon = Icons.Outlined.MailOutline,
-            hasNews = false,
-            badgeCount = 45
-        ),
-        BottomNavigationItem(
-            title = "Settings",
-            selectedIcon = Icons.Default.Settings,
-            unselectedIcon = Icons.Outlined.Settings,
-            hasNews = true,
-        )
-    )
-
-    var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
-    }
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Scaffold(
-            bottomBar = {
-                NavigationBar {
-                    items.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            selected = selectedItemIndex == index,
-                            onClick = {
-                                selectedItemIndex = index
-                                // TODO: Navigate to the selected screen
-                            },
-                            label = { Text(text = item.title) },
-                            alwaysShowLabel = false,
-                            icon = {
-                                BadgedBox(
-                                    badge = {
-                                        if (item.badgeCount != null) {
-                                            Badge {
-                                                Text(text = item.badgeCount.toString())
-                                            }
-                                        } else if (item.hasNews) {
-                                            Badge()
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = if (index == selectedItemIndex) {
-                                            item.selectedIcon
-                                        } else item.unselectedIcon,
-                                        contentDescription = item.title
-                                    )
-                                }
-                            }
-                        )
+                MusicPlayerTheme {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        NavigationBarWithScaffold(navController)
                     }
                 }
-            }
 
-        ) {
+            }
         }
     }
 }
+
+
+
+
 
