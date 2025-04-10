@@ -18,6 +18,7 @@ android {
         buildConfigField("String", "VERSION_NAME", "\"$versionName\"")
     }
 
+
     buildTypes {
         release {
             isMinifyEnabled = false
