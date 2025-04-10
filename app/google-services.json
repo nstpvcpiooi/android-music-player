@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "749241698822",
+    "project_id": "music-player-kotlin-e0c5c",
+    "storage_bucket": "music-player-kotlin-e0c5c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749241698822:android:5007ca551e914c1d095187",
+        "android_client_info": {
+          "package_name": "com.example.musicplayer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWD072JSG_vPAm_fkLLUcmde8hKGI_YF4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
