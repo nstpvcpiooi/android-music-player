@@ -41,7 +41,10 @@ class MainActivity : AppCompatActivity() {
             R.style.coolBlack
         )
         val currentThemeNav = arrayOf(
-            R.style.coolPinkNav, R.style.coolBlueNav, R.style.coolPurpleNav, R.style.coolGreenNav,
+            R.style.coolPinkNav,
+            R.style.coolBlueNav,
+            R.style.coolPurpleNav,
+            R.style.coolGreenNav,
             R.style.coolBlackNav
         )
         val currentGradient = arrayOf(
@@ -112,12 +115,14 @@ class MainActivity : AppCompatActivity() {
         binding.favouriteBtn.setOnClickListener {
             startActivity(Intent(this@MainActivity, FavouriteActivity::class.java))
         }
-        binding.playlistBtn.setOnClickListener {
-            startActivity(Intent(this@MainActivity, PlaylistActivity::class.java))
-        }
-        binding.playNextBtn.setOnClickListener {
-            startActivity(Intent(this@MainActivity, PlayNext::class.java))
-        }
+
+//        binding.playlistBtn.setOnClickListener {
+//            startActivity(Intent(this@MainActivity, PlaylistActivity::class.java))
+//        }
+//        binding.playNextBtn.setOnClickListener {
+//            startActivity(Intent(this@MainActivity, PlayNext::class.java))
+//        }
+
 //        binding.navView.setNavigationItemSelectedListener{
 //            when(it.itemId)
 //            {

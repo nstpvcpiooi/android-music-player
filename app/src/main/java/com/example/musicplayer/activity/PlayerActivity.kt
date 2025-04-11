@@ -58,9 +58,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         var repeat: Boolean = false
 
-        var min15: Boolean = false
+        var min5: Boolean = false
+        var min10: Boolean = false
         var min30: Boolean = false
-        var min60: Boolean = false
 
         var nowPlayingId: String = ""
         var isFavourite: Boolean = false
@@ -80,11 +80,15 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         setContentView(binding.root)
 
 
+        //để nghe file nhạc từ trong file điện thoại
         if(intent.data?.scheme.contentEquals("content")){
             songPosition = 0
+
+            //connect to music service
             val intentService = Intent(this, MusicService::class.java)
             bindService(intentService, this, BIND_AUTO_CREATE)
             startService(intentService)
+
             musicListPA = ArrayList()
             musicListPA.add(getMusicDetails(intent.data!!))
             Glide.with(this)
@@ -93,9 +97,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 .into(binding.songImgPA)
             binding.songNamePA.text = musicListPA[songPosition].title
         }
+
         else initializeLayout()
 
-        //audio booster feature
+        //tăng âm lượng custom
         binding.boosterBtnPA.setOnClickListener {
             val customDialogB = LayoutInflater.from(this).inflate(R.layout.audio_booster, binding.root, false)
             val bindingB = AudioBoosterBinding.bind(customDialogB)
@@ -118,6 +123,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             setDialogBtnBackground(this, dialogB)
         }
 
+        //utils buttons
         binding.backBtnPA.setOnClickListener { finish() }
         binding.playPauseBtnPA.setOnClickListener{ if(isPlaying) pauseMusic() else playMusic() }
         binding.previousBtnPA.setOnClickListener { prevNextSong(increment = false) }
@@ -141,6 +147,8 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.cool_pink))
             }
         }
+
+
         binding.equalizerBtnPA.setOnClickListener {
         try {
             val eqIntent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
@@ -148,19 +156,19 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, baseContext.packageName)
             eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
             startActivityForResult(eqIntent, 13)
-        }catch (e: Exception){Toast.makeText(this,  "Equalizer Feature not Supported!!", Toast.LENGTH_SHORT).show()}
+        }catch (e: Exception){Toast.makeText(this,  "Bad Android version", Toast.LENGTH_SHORT).show()}
         }
         binding.timerBtnPA.setOnClickListener {
-            val timer = min15 || min30 || min60
+            val timer = min5 || min10 || min30
             if(!timer) showBottomSheetDialog()
             else {
                 val builder = MaterialAlertDialogBuilder(this)
                 builder.setTitle("Stop Timer")
                     .setMessage("Do you want to stop timer?")
                     .setPositiveButton("Yes"){ _, _ ->
-                        min15 = false
+                        min5 = false
+                        min10 = false
                         min30 = false
-                        min60 = false
                         binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this,
                             R.color.cool_pink
                         ))
@@ -195,7 +203,8 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             FavouriteActivity.favouritesChanged = true
         }
     }
-//Important Function
+
+    //handles intents aka data comes from other resources
     private fun initializeLayout(){
         songPosition = intent.getIntExtra("index", 0)
         when(intent.getStringExtra("class")){
@@ -232,7 +241,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         if(repeat) binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(applicationContext,
             R.color.purple_500
         ))
-        if(min15 || min30 || min60) binding.timerBtnPA.setColorFilter(ContextCompat.getColor(applicationContext,
+        if(min5 || min10 || min30) binding.timerBtnPA.setColorFilter(ContextCompat.getColor(applicationContext,
             R.color.purple_500
         ))
         if(isFavourite) binding.favouriteBtnPA.setImageResource(R.drawable.favourite_icon)
@@ -302,6 +311,8 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
 
 
+    //sau khi kết nối tới musicservice thành công sẽ gọi hàm này
+    //
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         if(musicService == null){
             val binder = service as MusicService.MyBinder
@@ -340,34 +351,35 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             return
     }
 
+
     private fun showBottomSheetDialog(){
         val dialog = BottomSheetDialog(this@PlayerActivity)
         dialog.setContentView(R.layout.bottom_sheet_dialog)
         dialog.show()
         dialog.findViewById<LinearLayout>(R.id.min_15)?.setOnClickListener {
-            Toast.makeText(baseContext,  "Music will stop after 15 minutes", Toast.LENGTH_SHORT).show()
+            Toast.makeText(baseContext,  "Music will stop after 5 minutes", Toast.LENGTH_SHORT).show()
             binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
-            min15 = true
-            Thread{Thread.sleep((15 * 60000).toLong())
-            if(min15) exitApplication()
+            min5 = true
+            Thread{Thread.sleep((5 * 60000).toLong())
+            if(min5) exitApplication()
             }.start()
             dialog.dismiss()
         }
         dialog.findViewById<LinearLayout>(R.id.min_30)?.setOnClickListener {
+            Toast.makeText(baseContext,  "Music will stop after 10 minutes", Toast.LENGTH_SHORT).show()
+            binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
+            min10 = true
+            Thread{Thread.sleep((10 * 60000).toLong())
+                if(min10) exitApplication()
+            }.start()
+            dialog.dismiss()
+        }
+        dialog.findViewById<LinearLayout>(R.id.min_60)?.setOnClickListener {
             Toast.makeText(baseContext,  "Music will stop after 30 minutes", Toast.LENGTH_SHORT).show()
             binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
             min30 = true
             Thread{Thread.sleep((30 * 60000).toLong())
                 if(min30) exitApplication()
-            }.start()
-            dialog.dismiss()
-        }
-        dialog.findViewById<LinearLayout>(R.id.min_60)?.setOnClickListener {
-            Toast.makeText(baseContext,  "Music will stop after 60 minutes", Toast.LENGTH_SHORT).show()
-            binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
-            min60 = true
-            Thread{Thread.sleep((60 * 60000).toLong())
-                if(min60) exitApplication()
             }.start()
             dialog.dismiss()
         }

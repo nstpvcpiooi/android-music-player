@@ -19,25 +19,29 @@
 <!--    Back Button-->
         <ImageButton
             android:id="@+id/backBtnPA"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:src="@drawable/back_icon"
-            android:background="?attr/selectableItemBackground"
+            android:background="#FFFFFF"
             android:layout_marginStart="5dp"
             android:contentDescription="@string/back_btn"
             app:tint="?colorOnPrimary"
+            app:shapeAppearanceOverlay="@style/curved"
             android:padding="10dp" />
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
             android:textColor="?colorOnPrimary"
             android:text="@string/world_of_music"
             android:textSize="20sp"
             android:gravity="center"
-            android:layout_weight="1"
-            tools:ignore="NestedWeights"
-            android:textStyle="bold"/>
+            android:background="#80DEA756"
+            android:textStyle="bold"
+            app:shapeAppearanceOverlay="@style/curved"
+            android:layout_gravity="center" />
 
 <!--        Favourite Button-->
         <ImageButton
@@ -54,14 +58,14 @@
 <!--    Current Song Image-->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/songImgPA"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:layout_margin="10dp"
         android:padding="5dp"
         android:src="@drawable/music_player_icon_slash_screen"
         app:shapeAppearanceOverlay="@style/curved"
-        app:strokeColor="@color/cool_blue"
-        app:strokeWidth="5dp"/>
+        app:strokeColor="#727576"
+        app:strokeWidth="2dp"/>
 
 <!--    Current Song Name-->
     <TextView
@@ -82,7 +86,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_margin="10dp"
-         android:gravity="center"
+        android:gravity="center"
         android:layout_weight="1">
 
 <!--        Previous Button-->
@@ -90,8 +94,10 @@
             android:id="@+id/previousBtnPA"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="#DEA361"
             app:icon="@drawable/previous_icon"
             app:iconSize="40dp"/>
+
 
 <!--        Play & Pause Button-->
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -102,7 +108,7 @@
             app:iconSize="50dp"
             android:layout_marginHorizontal="25dp"
             app:shapeAppearanceOverlay="@style/curved"
-            android:backgroundTint="@android:color/holo_red_light"
+            android:backgroundTint="#0E9571"
             app:iconTint="@color/white"/>
 
 <!--        Next Button-->
@@ -110,6 +116,7 @@
             android:id="@+id/nextBtnPA"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="#CC722E"
             app:icon="@drawable/next_icon"
             app:iconSize="40dp"/>
 
@@ -166,7 +173,7 @@
             android:contentDescription="@string/repeat_btn"
             android:layout_weight="1"
             tools:ignore="NestedWeights"
-            app:tint="@color/cool_pink" />
+            app:tint="#891414" />
 
 <!--        Equalizer Button-->
         <ImageButton
@@ -177,7 +184,7 @@
             android:background="?attr/selectableItemBackground"
             android:contentDescription="@string/equalizer_btn"
             android:layout_weight="1"
-            app:tint="@color/cool_pink" />
+            app:tint="#891414" />
 
 <!--        Timer Button-->
         <ImageButton
@@ -188,7 +195,7 @@
             android:background="?attr/selectableItemBackground"
             android:contentDescription="@string/timer_btn"
             android:layout_weight="1"
-            app:tint="@color/cool_pink" />
+            app:tint="#891414" />
 
 <!--        Share Button-->
         <ImageButton
@@ -199,7 +206,7 @@
             android:background="?attr/selectableItemBackground"
             android:contentDescription="@string/share_btn"
             android:layout_weight="1"
-            app:tint="@color/cool_pink" />
+            app:tint="#891414" />
 
 
         <!--       Volume Button-->
@@ -211,7 +218,7 @@
             android:background="?attr/selectableItemBackground"
             android:contentDescription="@string/share_btn"
             android:layout_weight="1"
-            app:tint="@color/cool_pink" />
+            app:tint="#891414" />
 
     </LinearLayout>
 

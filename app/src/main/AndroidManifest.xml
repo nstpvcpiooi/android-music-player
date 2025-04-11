@@ -31,13 +31,13 @@
             android:exported="false" />
 
         <activity
-            android:name=".unused.AboutActivity"
+            android:name=".onprg.AboutActivity"
             android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
 
         <activity
-            android:name=".unused.SettingsActivity"
+            android:name=".onprg.SettingsActivity"
             android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
