@@ -55,9 +55,7 @@ data class PlayerState(
 fun MiniPlayer(playerState: PlayerState) {
     var openBottomSheet by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     if (openBottomSheet) {
         ModalBottomSheet(
