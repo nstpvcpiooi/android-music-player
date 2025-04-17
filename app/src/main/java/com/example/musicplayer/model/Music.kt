@@ -1,5 +1,7 @@
 package com.example.musicplayer.model
 
+import java.io.File
+
 
 data class Music(
     val id: String,
@@ -10,6 +12,10 @@ data class Music(
     val path: String,
     val artUri: String
 )
+
+fun Music.toFile(): File {
+    return File(path)
+}
 
 class Playlist {
     lateinit var name: String

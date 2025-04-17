@@ -14,6 +14,11 @@
     <!-- Notification Permission for Android 14 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+
 
     <application
         android:name=".ApplicationClass"
@@ -27,7 +32,7 @@
         tools:ignore="AllowBackup">
 
         <activity
-            android:name=".PlayNext"
+            android:name=".onprg.PlayNext"
             android:exported="false" />
 
         <activity
@@ -49,13 +54,13 @@
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
 
         <activity
-            android:name=".PlaylistDetails"
+            android:name=".onprg.PlaylistDetails"
             android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
 
         <activity
-            android:name=".activity.PlaylistActivity"
+            android:name=".onprg.PlaylistActivity"
             android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />

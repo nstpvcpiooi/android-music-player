@@ -56,6 +56,8 @@
     </LinearLayout>
 
 <!--    Current Song Image-->
+
+    <!--    Current Song Name-->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/songImgPA"
         android:layout_width="300dp"
@@ -65,9 +67,8 @@
         android:src="@drawable/music_player_icon_slash_screen"
         app:shapeAppearanceOverlay="@style/curved"
         app:strokeColor="#727576"
-        app:strokeWidth="2dp"/>
+        app:strokeWidth="2dp" />
 
-<!--    Current Song Name-->
     <TextView
         android:id="@+id/songNamePA"
         android:layout_width="match_parent"
@@ -222,4 +223,25 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:orientation="horizontal"
+        android:layout_margin="20dp"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/stoprecordingBtnPA"
+            android:layout_width="184dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:srcCompat="@android:drawable/presence_audio_busy" />
+
+        <ImageButton
+            android:id="@+id/recordingBtnPA"
+            android:layout_width="191dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:srcCompat="@android:drawable/presence_audio_online" />
+    </LinearLayout>
 </LinearLayout>

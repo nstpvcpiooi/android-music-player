@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
@@ -21,19 +22,25 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.model.Music
 import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.NowPlaying
-import com.example.musicplayer.PlayNext
-import com.example.musicplayer.PlaylistDetails
+import com.example.musicplayer.onprg.PlayNext
+import com.example.musicplayer.onprg.PlaylistDetails
 import com.example.musicplayer.R
+import com.example.musicplayer.audio.AudioMixer
+import com.example.musicplayer.audio.AudioRecorder
+import com.example.musicplayer.audio.AudioSaver
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.example.musicplayer.databinding.ActivityPlayerBinding
 import com.example.musicplayer.databinding.AudioBoosterBinding
+import com.example.musicplayer.model.toFile
+import com.example.musicplayer.onprg.PlaylistActivity
 import com.example.musicplayer.utils.exitApplication
 import com.example.musicplayer.utils.favouriteChecker
 import com.example.musicplayer.utils.formatDuration
@@ -41,12 +48,14 @@ import com.example.musicplayer.utils.getImgArt
 import com.example.musicplayer.utils.getMainColor
 import com.example.musicplayer.utils.setDialogBtnBackground
 import com.example.musicplayer.utils.setSongPosition
+import java.io.File
 
 
 class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCompletionListener {
 
     companion object {
         lateinit var musicListPA : ArrayList<Music>
+
 
         var songPosition: Int = 0
         var isPlaying:Boolean = false
@@ -66,6 +75,11 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         var isFavourite: Boolean = false
         var fIndex: Int = -1
         lateinit var loudnessEnhancer: LoudnessEnhancer
+
+        lateinit var audioRecorder: AudioRecorder
+        lateinit var voiceFile: File
+        lateinit var mixedFile: File
+
     }
 
     @SuppressLint("SetTextI18n")
@@ -96,9 +110,13 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
                 .into(binding.songImgPA)
             binding.songNamePA.text = musicListPA[songPosition].title
-        }
+        } else initializeLayout()
 
-        else initializeLayout()
+
+        //karaoke
+        voiceFile = File(cacheDir, "recorded_voice.m4a")
+        mixedFile = File(cacheDir, "mixed_output.mp3")
+
 
         //tăng âm lượng custom
         binding.boosterBtnPA.setOnClickListener {
@@ -150,13 +168,16 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
 
         binding.equalizerBtnPA.setOnClickListener {
-        try {
-            val eqIntent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
-            eqIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, musicService!!.mediaPlayer!!.audioSessionId)
-            eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, baseContext.packageName)
-            eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
-            startActivityForResult(eqIntent, 13)
-        }catch (e: Exception){Toast.makeText(this,  "Bad Android version", Toast.LENGTH_SHORT).show()}
+            try {
+                val eqIntent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
+                eqIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, musicService!!.mediaPlayer!!.audioSessionId)
+                eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, baseContext.packageName)
+                eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
+                startActivityForResult(eqIntent, 13)
+            }catch (e: Exception){Toast.makeText(this,  "Bad Android version", Toast.LENGTH_SHORT).show()}
+
+
+
         }
         binding.timerBtnPA.setOnClickListener {
             val timer = min5 || min10 || min30
@@ -187,8 +208,71 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             shareIntent.type = "audio/*"
             shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(musicListPA[songPosition].path))
             startActivity(Intent.createChooser(shareIntent, "Sharing Music File!!"))
-            
+
+
+
+
+
         }
+
+        binding.recordingBtnPA.setOnClickListener {
+
+
+            //record
+
+//            if (!PermissionsHelper.hasRecordingPermission(this)) {
+//                PermissionsHelper.requestRecordingPermission(this)
+//                return@setOnClickListener
+//            }
+
+            audioRecorder = AudioRecorder(voiceFile)
+            audioRecorder.startRecording()
+            Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show()
+
+        }
+
+        binding.stoprecordingBtnPA.setOnClickListener {
+
+            audioRecorder.stopRecording()
+//
+//            val mixer = AudioMixer()
+//            val songPath = "currentSongPath" // đường dẫn nhạc đang phát
+//            val success = mixer.mixAudio(songPath, voiceFile.absolutePath, mixedFile.absolutePath)
+
+
+            try {
+
+
+                val uri = AudioSaver.saveToRecordings(this, voiceFile, "my_voice_${System.currentTimeMillis()}.m4a")
+            } catch (e:Exception) {
+                Toast.makeText(this, "loi", Toast.LENGTH_LONG).show()
+            }
+            //Toast.makeText(this, "Đã lưu file tại: $uri", Toast.LENGTH_LONG).show()
+
+
+            // Tạo file kết quả lưu vào bộ nhớ ngoài
+            var outputFile = File(getExternalFilesDir(null), "mixed_audio_${System.currentTimeMillis()}.mp3")
+
+            var musicFile = musicListPA[songPosition].toFile();
+            // Gọi hàm mix audio
+            AudioMixer.mixAudio(this, musicFile, voiceFile, outputFile) { success ->
+                if (success) {
+                    // Nếu mix thành công, lưu vào thư mục Recordings
+                    val savedUri = AudioSaver.saveToRecordings(this, outputFile)
+                    if (savedUri != null) {
+                        // Thông báo hoặc mở file vừa lưu
+                        Toast.makeText(this, "File đã được lưu thành công!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Lưu file thất bại!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "Mix thất bại!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+
+        }
+
         binding.favouriteBtnPA.setOnClickListener {
             fIndex = favouriteChecker(musicListPA[songPosition].id)
             if(isFavourite){
@@ -417,4 +501,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         setLayout()
         if(!playNext) PlayNext.playNextList = ArrayList()
     }
+
+
 }

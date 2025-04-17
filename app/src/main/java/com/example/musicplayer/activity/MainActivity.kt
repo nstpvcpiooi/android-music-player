@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,13 +14,14 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.musicplayer.model.Music
 import com.example.musicplayer.adapter.MusicAdapter
-import com.example.musicplayer.PlayNext
 import com.example.musicplayer.R
 import com.google.gson.GsonBuilder
 import com.example.musicplayer.databinding.ActivityMainBinding
+import com.example.musicplayer.onprg.PlaylistActivity
 import com.example.musicplayer.utils.exitApplication
 import java.io.File
 
@@ -67,6 +69,11 @@ class MainActivity : AppCompatActivity() {
         themeIndex = themeEditor.getInt("themeIndex", 0)
         setTheme(currentThemeNav[themeIndex])
 
+        // Đặt màu trắng cho status bar
+        window.statusBarColor = Color.WHITE
+
+        // Đặt icon của status bar thành màu tối (đen)
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         //chuyen doi file xml -> view object
         binding = ActivityMainBinding.inflate(layoutInflater)
 
@@ -74,35 +81,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-        //side bar
-//        toggle = ActionBarDrawerToggle(this, binding.root, R.string.open, R.string.close)
-//        binding.root.addDrawerListener(toggle)
-//        toggle.syncState()
-//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-
-        //kiem tra theme dark
-        if(themeIndex == 4 &&  resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_NO)
-            Toast.makeText(this, "Black Theme Works Best in Dark Mode!!", Toast.LENGTH_LONG).show()
+//        //kiem tra theme dark
+//        if(themeIndex == 4 &&  resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_NO)
+//            Toast.makeText(this, "Black Theme Works Best in Dark Mode!!", Toast.LENGTH_LONG).show()
 
         //yeu cau quyen truy cap cua ung dung
         if(requestRuntimePermission()){
             initializeLayout()
-            //for retrieving favourites data using shared preferences
-//            FavouriteActivity.favouriteSongs = ArrayList()
-//            val editor = getSharedPreferences("FAVOURITES", MODE_PRIVATE)
-//            val jsonString = editor.getString("FavouriteSongs", null)
-//            val typeToken = object : TypeToken<ArrayList<Music>>(){}.type
-//            if(jsonString != null){
-//                val data: ArrayList<Music> = GsonBuilder().create().fromJson(jsonString, typeToken)
-//                FavouriteActivity.favouriteSongs.addAll(data)
-//            }
-//            PlaylistActivity.musicPlaylist = MusicPlaylist()
-//            val jsonStringPlaylist = editor.getString("MusicPlaylist", null)
-//            if(jsonStringPlaylist != null){
-//                val dataPlaylist: MusicPlaylist = GsonBuilder().create().fromJson(jsonStringPlaylist, MusicPlaylist::class.java)
-//                PlaylistActivity.musicPlaylist = dataPlaylist
-//            }
+
         }
 
 
@@ -116,51 +102,25 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, FavouriteActivity::class.java))
         }
 
-//        binding.playlistBtn.setOnClickListener {
-//            startActivity(Intent(this@MainActivity, PlaylistActivity::class.java))
-//        }
-//        binding.playNextBtn.setOnClickListener {
-//            startActivity(Intent(this@MainActivity, PlayNext::class.java))
-//        }
 
-//        binding.navView.setNavigationItemSelectedListener{
-//            when(it.itemId)
-//            {
-////                R.id.navFeedback -> startActivity(Intent(this@MainActivity, FeedbackActivity::class.java))
-//                R.id.navSettings -> startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-//                R.id.navAbout -> startActivity(Intent(this@MainActivity, AboutActivity::class.java))
-//                R.id.navExit -> {
-//                    val builder = MaterialAlertDialogBuilder(this)
-//                    builder.setTitle("Exit")
-//                        .setMessage("Do you want to close app?")
-//                        .setPositiveButton("Yes"){ _, _ ->
-//                            exitApplication()
-//                        }
-//                        .setNegativeButton("No"){dialog, _ ->
-//                            dialog.dismiss()
-//                        }
-//                    val customDialog = builder.create()
-//                    customDialog.show()
-//
-//                    setDialogBtnBackground(this, customDialog)
-//                }
-//            }
-//            true
-//        }
     }
     //For requesting permission
     private fun requestRuntimePermission() :Boolean{
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
             if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 13)
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.RECORD_AUDIO), 13)
                 return false
             }
+
         }else{
             //android 13 or Higher permission request
             if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_AUDIO)
+                != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_MEDIA_AUDIO), 13)
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_MEDIA_AUDIO, android.Manifest.permission.RECORD_AUDIO), 13)
                 return false
             }
         }
@@ -168,22 +128,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-//    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        if(requestCode == 13){
-//            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-//                Toast.makeText(this, "Permission Granted",Toast.LENGTH_SHORT).show()
-//                initializeLayout()
-//            }
-////            else ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 13)
-//        }
-//    }
-
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        if(toggle.onOptionsItemSelected(item))
-//            return true
-//        return super.onOptionsItemSelected(item)
-//    }
 
     @SuppressLint("SetTextI18n")
     private fun initializeLayout(){
@@ -304,26 +248,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.search_view_menu, menu)
-//        //for setting gradient
-//        findViewById<LinearLayout>(R.id.linearLayoutNav)?.setBackgroundResource(currentGradient[themeIndex])
-//
-//        val searchView = menu?.findItem(R.id.searchView)?.actionView as SearchView
-//        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
-//            override fun onQueryTextSubmit(query: String?): Boolean = true
-//            override fun onQueryTextChange(newText: String?): Boolean {
-//                musicListSearch = ArrayList()
-//                if(newText != null){
-//                    val userInput = newText.lowercase()
-//                    for (song in MusicListMA)
-//                        if(song.title.lowercase().contains(userInput))
-//                            musicListSearch.add(song)
-//                    search = true
-//                    musicAdapter.updateMusicList(searchList = musicListSearch)
-//                }
-//                return true
-//            }
-//        })
+
         return super.onCreateOptionsMenu(menu)
     }
 }

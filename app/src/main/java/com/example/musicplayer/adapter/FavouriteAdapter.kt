@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.model.Music
-import com.example.musicplayer.PlayNext
+import com.example.musicplayer.onprg.PlayNext
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.PlayerActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
