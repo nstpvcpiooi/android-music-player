@@ -31,13 +31,10 @@ import com.example.musicplayer.utils.formatDuration
 import com.example.musicplayer.utils.setDialogBtnBackground
 
 
-class MusicAdapter(private val context: Context,
-                   private var musicList: ArrayList<Music>,
-                   private val playlistDetails: Boolean = false,
-                   private val selectionActivity: Boolean = false) : RecyclerView.Adapter<MyHolder>() {
+class MusicAdapter(private val context: Context, private var musicList: ArrayList<Music>, private val playlistDetails: Boolean = false,
+                   private val selectionActivity: Boolean = false)
+    : RecyclerView.Adapter<MyHolder>() {
 
-
-    //anh xa item trong layout
     class MyHolder(binding: MusicViewBinding) : RecyclerView.ViewHolder(binding.root) {
         val title = binding.songNameMV
         val album = binding.songAlbumMV
@@ -46,7 +43,6 @@ class MusicAdapter(private val context: Context,
         val root = binding.root
     }
 
-    //inflate layout
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
         return MyHolder(MusicViewBinding.inflate(LayoutInflater.from(context), parent, false))
     }
@@ -55,7 +51,6 @@ class MusicAdapter(private val context: Context,
         holder.title.text = musicList[position].title
         holder.album.text = musicList[position].album
         holder.duration.text = formatDuration(musicList[position].duration)
-        //load image
         Glide.with(context)
             .load(musicList[position].artUri)
             .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
@@ -122,26 +117,22 @@ class MusicAdapter(private val context: Context,
             selectionActivity ->{
                 holder.root.setOnClickListener {
                     if(addSong(musicList[position]))
-                        holder.root.setBackgroundColor(ContextCompat.getColor(context,
-                            R.color.cool_pink
-                        ))
+                        holder.root.setBackgroundColor(ContextCompat.getColor(context, R.color.cool_pink))
                     else
-                        holder.root.setBackgroundColor(ContextCompat.getColor(context,
-                            R.color.white
-                        ))
+                        holder.root.setBackgroundColor(ContextCompat.getColor(context, R.color.white))
 
                 }
             }
             else ->{
                 holder.root.setOnClickListener {
-                when{
-                    MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
-                    musicList[position].id == PlayerActivity.nowPlayingId ->
-                        sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
-                    else->sendIntent(ref="MusicAdapter", pos = position) } }
-        }
+                    when{
+                        MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
+                        musicList[position].id == PlayerActivity.nowPlayingId ->
+                            sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
+                        else->sendIntent(ref="MusicAdapter", pos = position) } }
+            }
 
-         }
+        }
     }
 
     override fun getItemCount(): Int {

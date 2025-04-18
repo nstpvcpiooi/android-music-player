@@ -79,6 +79,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         lateinit var audioRecorder: AudioRecorder
         lateinit var voiceFile: File
         lateinit var mixedFile: File
+        var isRecording: Boolean = false
 
     }
 
@@ -217,59 +218,85 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         binding.recordingBtnPA.setOnClickListener {
 
+            if (isRecording == false) {
+                audioRecorder = AudioRecorder(voiceFile)
+                audioRecorder.startRecording()
+                Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show()
+                isRecording = true
+            } else {
+                audioRecorder.stopRecording()
 
-            //record
+                try {
 
-//            if (!PermissionsHelper.hasRecordingPermission(this)) {
-//                PermissionsHelper.requestRecordingPermission(this)
-//                return@setOnClickListener
-//            }
 
-            audioRecorder = AudioRecorder(voiceFile)
-            audioRecorder.startRecording()
-            Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show()
+                    val uri = AudioSaver.saveToRecordings(this, voiceFile, "my_voice_${System.currentTimeMillis()}.m4a")
+                } catch (e:Exception) {
+                    Toast.makeText(this, "loi", Toast.LENGTH_LONG).show()
+                }
+                //Toast.makeText(this, "Đã lưu file tại: $uri", Toast.LENGTH_LONG).show()
+
+
+                // Tạo file kết quả lưu vào bộ nhớ ngoài
+                var outputFile = File(getExternalFilesDir(null), "mixed_audio_${System.currentTimeMillis()}.mp3")
+
+                var musicFile = musicListPA[songPosition].toFile();
+                // Gọi hàm mix audio
+                AudioMixer.mixAudio(this, musicFile, voiceFile, outputFile) { success ->
+                    if (success) {
+                        // Nếu mix thành công, lưu vào thư mục Recordings
+                        val savedUri = AudioSaver.saveToRecordings(this, outputFile)
+                        if (savedUri != null) {
+                            // Thông báo hoặc mở file vừa lưu
+                            Toast.makeText(this, "File đã được lưu thành công!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, "Lưu file thất bại!", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(this, "Mix thất bại!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+
+
+                isRecording = false
+            }
 
         }
 
         binding.stoprecordingBtnPA.setOnClickListener {
 
-            audioRecorder.stopRecording()
+//            audioRecorder.stopRecording()
 //
-//            val mixer = AudioMixer()
-//            val songPath = "currentSongPath" // đường dẫn nhạc đang phát
-//            val success = mixer.mixAudio(songPath, voiceFile.absolutePath, mixedFile.absolutePath)
-
-
-            try {
-
-
-                val uri = AudioSaver.saveToRecordings(this, voiceFile, "my_voice_${System.currentTimeMillis()}.m4a")
-            } catch (e:Exception) {
-                Toast.makeText(this, "loi", Toast.LENGTH_LONG).show()
-            }
-            //Toast.makeText(this, "Đã lưu file tại: $uri", Toast.LENGTH_LONG).show()
-
-
-            // Tạo file kết quả lưu vào bộ nhớ ngoài
-            var outputFile = File(getExternalFilesDir(null), "mixed_audio_${System.currentTimeMillis()}.mp3")
-
-            var musicFile = musicListPA[songPosition].toFile();
-            // Gọi hàm mix audio
-            AudioMixer.mixAudio(this, musicFile, voiceFile, outputFile) { success ->
-                if (success) {
-                    // Nếu mix thành công, lưu vào thư mục Recordings
-                    val savedUri = AudioSaver.saveToRecordings(this, outputFile)
-                    if (savedUri != null) {
-                        // Thông báo hoặc mở file vừa lưu
-                        Toast.makeText(this, "File đã được lưu thành công!", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "Lưu file thất bại!", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(this, "Mix thất bại!", Toast.LENGTH_SHORT).show()
-                }
-            }
-
+//            try {
+//
+//
+//                val uri = AudioSaver.saveToRecordings(this, voiceFile, "my_voice_${System.currentTimeMillis()}.m4a")
+//            } catch (e:Exception) {
+//                Toast.makeText(this, "loi", Toast.LENGTH_LONG).show()
+//            }
+//            //Toast.makeText(this, "Đã lưu file tại: $uri", Toast.LENGTH_LONG).show()
+//
+//
+//            // Tạo file kết quả lưu vào bộ nhớ ngoài
+//            var outputFile = File(getExternalFilesDir(null), "mixed_audio_${System.currentTimeMillis()}.mp3")
+//
+//            var musicFile = musicListPA[songPosition].toFile();
+//            // Gọi hàm mix audio
+//            AudioMixer.mixAudio(this, musicFile, voiceFile, outputFile) { success ->
+//                if (success) {
+//                    // Nếu mix thành công, lưu vào thư mục Recordings
+//                    val savedUri = AudioSaver.saveToRecordings(this, outputFile)
+//                    if (savedUri != null) {
+//                        // Thông báo hoặc mở file vừa lưu
+//                        Toast.makeText(this, "File đã được lưu thành công!", Toast.LENGTH_SHORT).show()
+//                    } else {
+//                        Toast.makeText(this, "Lưu file thất bại!", Toast.LENGTH_SHORT).show()
+//                    }
+//                } else {
+//                    Toast.makeText(this, "Mix thất bại!", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+            Toast.makeText(this, "Disabled!", Toast.LENGTH_SHORT).show()
 
         }
 

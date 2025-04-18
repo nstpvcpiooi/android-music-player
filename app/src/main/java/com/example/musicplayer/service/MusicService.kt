@@ -46,38 +46,33 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
 
     @SuppressLint("UnspecifiedImmutableFlag")
     fun showNotification(playPauseBtn: Int) {
-
-        //tạo intent để mở ứng dụng khi bấm zo thông báo
         val intent = Intent(baseContext, MainActivity::class.java)
+
         val flag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             PendingIntent.FLAG_IMMUTABLE
         } else {
             PendingIntent.FLAG_UPDATE_CURRENT
         }
+
         val contentIntent = PendingIntent.getActivity(this, 0, intent, flag)
 
-        //intent cho nút previous trong noti
         val prevIntent = Intent(
             baseContext, NotificationReceiver::class.java
         ).setAction(ApplicationClass.PREVIOUS)
         val prevPendingIntent = PendingIntent.getBroadcast(baseContext, 0, prevIntent, flag)
 
-        //intent cho nút play trong noti
         val playIntent =
             Intent(baseContext, NotificationReceiver::class.java).setAction(ApplicationClass.PLAY)
         val playPendingIntent = PendingIntent.getBroadcast(baseContext, 0, playIntent, flag)
 
-        //intent cho nút next trong noti
         val nextIntent =
             Intent(baseContext, NotificationReceiver::class.java).setAction(ApplicationClass.NEXT)
         val nextPendingIntent = PendingIntent.getBroadcast(baseContext, 0, nextIntent, flag)
 
-        //exit
         val exitIntent =
             Intent(baseContext, NotificationReceiver::class.java).setAction(ApplicationClass.EXIT)
         val exitPendingIntent = PendingIntent.getBroadcast(baseContext, 0, exitIntent, flag)
 
-        //chèn background image vào thanh thông báo
         val imgArt = getImgArt(PlayerActivity.musicListPA[PlayerActivity.songPosition].path)
         val image = if (imgArt != null) {
             BitmapFactory.decodeByteArray(imgArt, 0, imgArt.size)
@@ -87,11 +82,10 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
 
         val notification =
             androidx.core.app.NotificationCompat.Builder(baseContext, ApplicationClass.CHANNEL_ID)
-                .setContentIntent(contentIntent) //mở mainactivity khi bấm vào
+                .setContentIntent(contentIntent)
                 .setContentTitle(PlayerActivity.musicListPA[PlayerActivity.songPosition].title)
                 .setContentText(PlayerActivity.musicListPA[PlayerActivity.songPosition].artist)
-                .setSmallIcon(R.drawable.music_icon)
-                .setLargeIcon(image)
+                .setSmallIcon(R.drawable.music_icon).setLargeIcon(image)
                 .setStyle(androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(mediaSession.sessionToken))
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
                 .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
@@ -154,7 +148,6 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
             })
         }
 
-        //chạy notification
         startForeground(13, notification)
     }
 
