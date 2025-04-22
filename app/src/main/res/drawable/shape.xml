@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle"   >
+    android:shape="rectangle">
 
     <solid
-        android:color="#FFFBF6" >
+        android:color="#f2f2f2" >
     </solid>
 
 <!--    <stroke-->
@@ -20,8 +20,8 @@
 <!--    </padding>-->
 
     <corners
-        android:topLeftRadius="20dp"
-        android:topRightRadius="20dp">
+        android:topLeftRadius="30dp"
+        android:topRightRadius="30dp">
     </corners>
 
 </shape>

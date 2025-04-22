@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="70dp"
+    android:layout_height="90dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".NowPlaying"
     android:orientation="horizontal"
@@ -20,7 +20,7 @@
 
     <TextView
         android:id="@+id/songNameNP"
-        android:layout_width="190dp"
+        android:layout_width="180dp"
         android:layout_height="40dp"
         android:ellipsize="marquee"
         android:gravity="center_vertical"
@@ -28,12 +28,12 @@
         android:singleLine="true"
         android:text="@string/song_name"
         android:textColor="#2E2E2E"
-        android:textSize="14sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <ImageView
         android:id="@+id/playPauseBtnNP"
-        android:layout_width="45dp"
+        android:layout_width="48dp"
         android:layout_height="38dp"
         android:padding="7dp"
         android:src="@drawable/play_icon"
@@ -41,7 +41,7 @@
 
     <ImageView
         android:id="@+id/nextBtnNP"
-        android:layout_width="45dp"
+        android:layout_width="48dp"
         android:layout_height="38dp"
         android:padding="7dp"
         app:tint="#2E2E2E"
