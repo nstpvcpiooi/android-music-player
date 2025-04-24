@@ -3,4 +3,9 @@
     <style name="curved">
         <item name="cornerSize">15%</item>
     </style>
+
+    <style name="cover_curved_in_player">
+        <item name="cornerSize">5%</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
 </resources>

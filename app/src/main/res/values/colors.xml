@@ -25,5 +25,6 @@
 
     <color name="tonal_button_background_yellow">#fef9e6</color>
     <color name="tonal_button_icon_yellow">#daab00</color>
-
+    <color name="black_level1">#353535</color>
+    <color name="black_level2">#595959</color>
 </resources>

@@ -4,7 +4,7 @@
     <string name="favourites_btn">Favourites</string>
     <string name="playlist_btn">Playlists</string>
     <string name="total_songs">Total Songs</string>
-    <string name="world_of_music">World of Music</string>
+    <string name="music_player">NOW PLAYING</string>
     <string name="song_name">Song Name</string>
     <string name="back_btn">Back</string>
     <string name="start_tv">00:00</string>
@@ -45,4 +45,5 @@
     <string name="playlist_note">Tip: Click On ➕ To Create New Playlist. </string>
     <string name="interpunction">·</string>
     <string name="music_view_detail">Music View Detail\n</string>
+    <string name="previousBtnPA">previousBtnPA</string>
 </resources>

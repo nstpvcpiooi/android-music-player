@@ -163,7 +163,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
             }else{
                 repeat = false
-                binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.cool_pink))
+                binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.black_level2))
             }
         }
 
@@ -192,7 +192,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                         min10 = false
                         min30 = false
                         binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this,
-                            R.color.cool_pink
+                            R.color.black_level2
                         ))
                     }
                     .setNegativeButton("No"){dialog, _ ->
@@ -325,8 +325,8 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
                 binding.seekBarPA.progress = musicService!!.mediaPlayer!!.currentPosition
                 binding.seekBarPA.max = musicService!!.mediaPlayer!!.duration
-                if(isPlaying) binding.playPauseBtnPA.setIconResource(R.drawable.pause_icon)
-                else binding.playPauseBtnPA.setIconResource(R.drawable.play_icon)
+                if(isPlaying) binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
+                else binding.playPauseImgPA.setImageResource(R.drawable.play_icon)
             }
             "MusicAdapterSearch"-> initServiceAndPlaylist(MainActivity.musicListSearch, shuffle = false)
             "MusicAdapter" -> initServiceAndPlaylist(MainActivity.MusicListMA, shuffle = false)
@@ -394,14 +394,14 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
     private fun playMusic(){
         isPlaying = true
         musicService!!.mediaPlayer!!.start()
-        binding.playPauseBtnPA.setIconResource(R.drawable.pause_icon)
+        binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
         musicService!!.showNotification(R.drawable.pause_icon)
     }
 
     private fun pauseMusic(){
         isPlaying = false
         musicService!!.mediaPlayer!!.pause()
-        binding.playPauseBtnPA.setIconResource(R.drawable.play_icon)
+        binding.playPauseImgPA.setImageResource(R.drawable.play_icon)
         musicService!!.showNotification(R.drawable.play_icon)
 
 

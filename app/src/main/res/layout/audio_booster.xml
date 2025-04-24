@@ -21,7 +21,7 @@
         android:id="@+id/progressText"
         android:layout_width="250dp"
         android:layout_height="match_parent"
-        android:text="@string/world_of_music"
+        android:text="@string/music_player"
         android:gravity="center"
         android:textSize="18sp"
         android:textColor="@color/white"/>
