@@ -46,4 +46,8 @@
     <string name="interpunction">·</string>
     <string name="music_view_detail">Music View Detail\n</string>
     <string name="previousBtnPA">previousBtnPA</string>
+    <string name="playpausebutton">PlayPauseButton</string>
+    <string name="recordingbutton">recordingButton</string>
+    <string name="stoprecordingbutton">stopRecordingButton</string>
+    <string name="volume_booster">Volume Booster</string>
 </resources>
