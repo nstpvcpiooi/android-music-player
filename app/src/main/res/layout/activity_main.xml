@@ -182,40 +182,30 @@
 
                     </LinearLayout>
 
-                    <Button
-                        android:id="@+id/accountButton"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:contentDescription="@string/account_button"
-                        android:drawableTop="@drawable/play_next_icon"
-                        android:text="@string/account"
-                        android:textAllCaps="false"
-                        android:textColor="?colorOnPrimary" />
-                    <Button
-                        android:id="@+id/downloadButton"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:contentDescription="@string/account_button"
-                        android:drawableTop="@drawable/play_next_icon"
-                        android:text="Download"
-                        android:textAllCaps="false"
-                        android:textColor="?colorOnPrimary" />
-
                 </LinearLayout>
 
-                <!--Total Songs Button-->
-<!--                <TextView-->
-<!--                    android:id="@+id/totalSongs"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_margin="20dp"-->
-<!--                    android:textAlignment="textEnd"-->
-<!--                    android:text="@string/total_songs"-->
-<!--                    android:textColor="#303030" />-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/accountButton"
+                        android:contentDescription="@string/account_button"
+                        android:text="@string/account"
+                        android:src="@drawable/account_circle"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"/>
+
+                    <ImageButton
+                        android:id="@+id/downloadButton"
+                        android:contentDescription="@string/account_button"
+                        android:src="@android:drawable/arrow_down_float"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"/>
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/musicRV"

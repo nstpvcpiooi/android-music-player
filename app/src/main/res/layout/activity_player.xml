@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal"
-    android:maxWidth="500dp"
+    android:maxWidth="430dp"
     tools:context=".activity.PlayerActivity">
 
     <!-- HEADER -->
@@ -13,34 +13,33 @@
         android:id="@+id/headerPA"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="30dp"
-        android:layout_marginVertical="20dp"
         app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_max="500dp">
+        app:layout_constraintTop_toTopOf="parent">
 
         <!--BACK BUTTON-->
         <ImageView
             android:id="@+id/backBtnPA"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="68dp"
+            android:layout_height="48dp"
             android:layout_alignParentStart="true"
             android:clickable="true"
             android:contentDescription="@string/back_btn"
             android:focusable="true"
-            android:paddingEnd="10dp"
+            android:paddingHorizontal="25dp"
             android:src="@drawable/chevron_down_solid"
-            app:tint="@color/white"
-            tools:ignore="RtlSymmetry" />
+            app:tint="@color/white" />
 
         <!-- NOW PLAYING TEXT-->
         <TextView
             android:id="@+id/now_playing_text"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/moreInfoButtonPA"
+            android:layout_toEndOf="@id/backBtnPA"
             android:gravity="center"
             android:text="@string/music_player"
             android:textColor="@color/white"
@@ -51,12 +50,15 @@
         <!-- MORE BUTTON-->
         <ImageView
             android:id="@+id/moreInfoButtonPA"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="73dp"
+            android:layout_height="48dp"
             android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:clickable="true"
             android:contentDescription="@string/music_view_detail"
             android:focusable="true"
+            android:paddingStart="17dp"
+            android:paddingEnd="25dp"
             android:src="@drawable/ellipsis_vertical_solid"
             android:text="@string/music_view_detail"
             app:tint="@color/white" />
@@ -67,7 +69,7 @@
         android:id="@+id/CoverFrame"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="30dp"
+        android:layout_marginHorizontal="25dp"
         app:layout_constraintBottom_toTopOf="@+id/musicControlButtons"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintEnd_toEndOf="parent"
@@ -88,9 +90,9 @@
         android:id="@+id/musicControlButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="20dp"
+        android:layout_marginBottom="10dp"
         android:orientation="vertical"
-        android:paddingHorizontal="30dp"
+        android:gravity="center"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -108,6 +110,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
+                android:layout_marginStart="25dp"
                 android:layout_toStartOf="@id/favouriteBtnPA"
                 android:gravity="start"
                 android:singleLine="true"
@@ -120,13 +123,15 @@
             <!-- FAVOURTIE BUTTON -->
             <ImageButton
                 android:id="@+id/favouriteBtnPA"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="68dp"
+                android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="20dp"
-                android:background="?attr/selectableItemBackground"
+                android:background="@android:color/transparent"
                 android:contentDescription="@string/favourites_btn"
+                android:paddingStart="20dp"
+                android:paddingEnd="30dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/favourite_empty_icon"
                 app:tint="@android:color/holo_red_dark" />
         </RelativeLayout>
@@ -135,7 +140,8 @@
             android:id="@+id/SongDurationLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="15dp">
+            android:layout_marginVertical="15dp"
+            android:paddingHorizontal="25dp">
 
             <!-- START TIME-->
             <TextView
@@ -183,19 +189,21 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="40dp"
-            android:gravity="center">
+            android:layout_marginBottom="20dp"
+            android:gravity="center"
+            android:paddingHorizontal="25dp">
 
             <!--REPEAT BUTTON-->
+
+            <!-- PLAY PREVIOUS BUTTON -->
             <ImageView
                 android:id="@+id/repeatBtnPA"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
-                android:background="?attr/selectableItemBackground"
                 android:contentDescription="@string/repeat_btn"
-                android:padding="11dp"
+                android:padding="13.5dp"
                 android:src="@drawable/repeat_icon"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/previousBtnPA"
@@ -205,17 +213,16 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/black_level2" />
 
-            <!-- PLAY PREVIOUS BUTTON -->
             <ImageView
                 android:id="@+id/previousBtnPA"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginHorizontal="20dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:contentDescription="@string/previousBtnPA"
                 android:focusable="true"
-                android:padding="5dp"
+                android:padding="10dp"
                 android:src="@drawable/previous_icon"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/playPauseBtnPA"
@@ -229,9 +236,10 @@
                 android:id="@+id/playPauseBtnPA"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="20dp"
                 android:background="@drawable/shadow_circle"
                 android:clickable="true"
+                android:contentDescription="@string/playpausebutton"
                 android:elevation="1dp"
                 android:focusable="true"
                 android:gravity="center"
@@ -245,7 +253,8 @@
                     android:id="@+id/playPauseImgPA"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:padding="5dp"
+                    android:contentDescription="@string/playpausebutton"
+                    android:padding="4dp"
                     android:src="@drawable/pause_icon"
                     app:tint="@color/black_level1" />
             </LinearLayout>
@@ -253,13 +262,14 @@
             <!-- PLAY NEXT -->
             <ImageView
                 android:id="@+id/nextBtnPA"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginHorizontal="20dp"
                 android:layout_weight="1"
                 android:clickable="true"
+                android:contentDescription="@string/play_next"
                 android:focusable="true"
-                android:padding="5dp"
+                android:padding="10dp"
                 android:src="@drawable/next_icon"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/timerBtnPA"
@@ -271,12 +281,12 @@
             <!-- TIMER BUTTON-->
             <ImageView
                 android:id="@+id/timerBtnPA"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="10dp"
                 android:layout_weight="1"
-                android:background="?attr/selectableItemBackground"
                 android:contentDescription="@string/timer_btn"
-                android:padding="11dp"
+                android:padding="12dp"
                 android:src="@drawable/timer_icon"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -289,30 +299,29 @@
         <!-- OPTIONAL BUTTONS ROW -->
         <LinearLayout
             android:id="@+id/optionalButtonsRow"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginHorizontal="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <!-- RECORDING KARAOKE BUTTON -->
             <ImageButton
                 android:id="@+id/recordingBtnPA"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:background="?attr/selectableItemBackground"
-                android:padding="11dp"
+                android:contentDescription="@string/recordingbutton"
+                android:padding="15dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/microphone"
                 app:tint="@color/black_level2" />
 
             <ImageButton
                 android:id="@+id/stoprecordingBtnPA"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:background="?attr/selectableItemBackground"
-                android:padding="11dp"
+                android:contentDescription="@string/stoprecordingbutton"
+                android:padding="15dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/microphone_slash"
                 app:tint="@color/black_level2" />
@@ -320,12 +329,11 @@
             <!-- EQUALIZER BUTTON-->
             <ImageButton
                 android:id="@+id/equalizerBtnPA"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:background="?attr/selectableItemBackground"
                 android:contentDescription="@string/equalizer_btn"
-                android:padding="11dp"
+                android:padding="15dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/equalizer_icon"
                 app:tint="@color/black_level2" />
@@ -333,12 +341,11 @@
             <!-- SHARE BUTTON -->
             <ImageButton
                 android:id="@+id/shareBtnPA"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:background="?attr/selectableItemBackground"
                 android:contentDescription="@string/share_btn"
-                android:padding="11dp"
+                android:padding="15dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/share_icon"
                 app:tint="@color/black_level2" />
@@ -346,12 +353,11 @@
             <!-- VOLUME BOOSTER BUTTON -->
             <ImageButton
                 android:id="@+id/boosterBtnPA"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:background="?attr/selectableItemBackground"
-                android:contentDescription="@string/share_btn"
-                android:padding="11dp"
+                android:contentDescription="@string/volume_booster"
+                android:padding="15dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/volume_icon"
                 app:tint="@color/black_level2" />
