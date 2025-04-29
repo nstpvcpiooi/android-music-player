@@ -14,6 +14,7 @@ gson = "2.10.1"
 verticalseekbar = "1.2.7"
 googleGmsGoogleServices = "4.4.2"
 firebaseAuth = "23.2.0"
+firebaseDatabase = "21.0.0"
 
 
 [libraries]
@@ -29,6 +30,7 @@ androidx-media = { group = "androidx.media", name = "media", version.ref = "medi
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 verticalseekbar = { group = "com.github.lukelorusso", name = "VerticalSeekBar", version.ref = "verticalseekbar" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

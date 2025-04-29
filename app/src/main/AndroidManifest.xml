@@ -20,18 +20,26 @@
         android:theme="@style/splash_screen"
         tools:ignore="AllowBackup">
         <activity
+            android:name=".activity.DownloadActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.AccountActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.SignupActivity"
             android:exported="false" />
         <activity
             android:name=".activity.LoginActivity"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.UploadActivity"
+            android:exported="true" />
         <activity
             android:name=".PlayNext"
             android:exported="false" />
@@ -90,8 +98,7 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="sensorPortrait"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity">
-        </activity> <!-- Updated Permission for Android 14 -->
+            tools:ignore="DiscouragedApi,LockedOrientationActivity" /> <!-- Updated Permission for Android 14 -->
         <service
             android:name=".service.MusicService"
             android:exported="false"

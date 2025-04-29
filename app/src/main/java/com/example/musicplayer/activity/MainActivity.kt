@@ -118,6 +118,12 @@ class MainActivity : AppCompatActivity() {
         binding.playNextBtn.setOnClickListener {
             startActivity(Intent(this@MainActivity, PlayNext::class.java))
         }
+        binding.accountButton.setOnClickListener{
+            startActivity(Intent(this, AccountActivity::class.java))
+        }
+        binding.downloadButton.setOnClickListener{
+            startActivity(Intent(this, DownloadActivity::class.java))
+        }
 //        binding.navView.setNavigationItemSelectedListener{
 //            when(it.itemId)
 //            {

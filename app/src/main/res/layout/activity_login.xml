@@ -80,4 +80,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <CheckBox
+        android:id="@+id/showPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Password"
+        app:layout_constraintStart_toStartOf="@+id/loginPassword"
+        app:layout_constraintTop_toBottomOf="@+id/loginPassword"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/loginButton"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

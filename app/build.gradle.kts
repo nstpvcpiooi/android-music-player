@@ -71,5 +71,7 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation(libs.firebase.auth)
 
-
+    //cloud to server
+    implementation("com.cloudinary:cloudinary-android:3.0.2")
+    implementation(libs.firebase.database)
 }

@@ -36,7 +36,6 @@ class MusicAdapter(private val context: Context,
                    private val playlistDetails: Boolean = false,
                    private val selectionActivity: Boolean = false) : RecyclerView.Adapter<MyHolder>() {
 
-
     //anh xa item trong layout
     class MyHolder(binding: MusicViewBinding) : RecyclerView.ViewHolder(binding.root) {
         val title = binding.songNameMV
@@ -44,6 +43,12 @@ class MusicAdapter(private val context: Context,
         val image = binding.imageMV
         val duration = binding.songDuration
         val root = binding.root
+    }
+
+    private var onItemClick: ((Int) -> Unit)? = null
+
+    fun setOnItemClickListener(listener: (Int) -> Unit) {
+        onItemClick = listener
     }
 
     //inflate layout
@@ -134,11 +139,13 @@ class MusicAdapter(private val context: Context,
             }
             else ->{
                 holder.root.setOnClickListener {
+                    onItemClick?.invoke(position)
                 when{
                     MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
                     musicList[position].id == PlayerActivity.nowPlayingId ->
                         sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
-                    else->sendIntent(ref="MusicAdapter", pos = position) } }
+                    else->sendIntent(ref="MusicAdapter", pos = position) }
+                }
         }
 
          }

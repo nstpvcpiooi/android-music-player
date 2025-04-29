@@ -9,7 +9,9 @@ data class Music(
     val duration: Long = 0,
     val path: String,
     val artUri: String
-)
+) {
+    constructor() : this("", "", "", "", 0,"","")
+}
 
 class Playlist {
     lateinit var name: String
