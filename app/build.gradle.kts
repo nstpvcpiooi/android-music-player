@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.verticalseekbar)
 
     implementation("com.google.android.material:material:1.11.0")
+    implementation ("com.arthenica:ffmpeg-kit-full-gpl:6.0.LTS")
+
     implementation(libs.firebase.auth)
 
     //cloud to server

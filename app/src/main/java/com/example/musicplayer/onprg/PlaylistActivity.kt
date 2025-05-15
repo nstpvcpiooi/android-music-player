@@ -1,4 +1,4 @@
-package com.example.musicplayer.activity
+package com.example.musicplayer.onprg
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.musicplayer.model.MusicPlaylist
 import com.example.musicplayer.adapter.PlaylistViewAdapter
 import com.example.musicplayer.R
+import com.example.musicplayer.activity.MainActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.example.musicplayer.databinding.ActivityPlaylistBinding
 import com.example.musicplayer.databinding.AddPlaylistDialogBinding

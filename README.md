@@ -9,4 +9,4 @@ dùng api MediaStore android để quản lý và truy xuất các file đa phư
 
 pending intent khi ko thể gọi hàm trực tiếp, phù hợp để dùng trong notification
 
-dùng 
+mở bằng app của bạn? 

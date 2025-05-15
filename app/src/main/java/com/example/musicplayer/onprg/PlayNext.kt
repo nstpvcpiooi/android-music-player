@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.example.musicplayer.onprg
 
 import android.os.Bundle
 import android.view.View

@@ -1,5 +1,7 @@
 package com.example.musicplayer.model
 
+import java.io.File
+
 
 data class Music(
     val id: String,
@@ -11,6 +13,10 @@ data class Music(
     val artUri: String
 ) {
     constructor() : this("", "", "", "", 0,"","")
+}
+
+fun Music.toFile(): File {
+    return File(path)
 }
 
 class Playlist {

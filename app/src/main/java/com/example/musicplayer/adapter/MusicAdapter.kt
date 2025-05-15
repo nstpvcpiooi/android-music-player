@@ -15,15 +15,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.model.Music
-import com.example.musicplayer.PlayNext
-import com.example.musicplayer.PlaylistDetails
+import com.example.musicplayer.onprg.PlayNext
+import com.example.musicplayer.onprg.PlaylistDetails
 import com.example.musicplayer.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.example.musicplayer.adapter.MusicAdapter.MyHolder
 import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.activity.PlayerActivity
-import com.example.musicplayer.activity.PlaylistActivity
+import com.example.musicplayer.onprg.PlaylistActivity
 import com.example.musicplayer.databinding.DetailsViewBinding
 import com.example.musicplayer.databinding.MoreFeaturesBinding
 import com.example.musicplayer.databinding.MusicViewBinding
@@ -31,10 +31,9 @@ import com.example.musicplayer.utils.formatDuration
 import com.example.musicplayer.utils.setDialogBtnBackground
 
 
-class MusicAdapter(private val context: Context,
-                   private var musicList: ArrayList<Music>,
-                   private val playlistDetails: Boolean = false,
-                   private val selectionActivity: Boolean = false) : RecyclerView.Adapter<MyHolder>() {
+class MusicAdapter(private val context: Context, private var musicList: ArrayList<Music>, private val playlistDetails: Boolean = false,
+                   private val selectionActivity: Boolean = false)
+    : RecyclerView.Adapter<MyHolder>() {
 
     //anh xa item trong layout
     class MyHolder(binding: MusicViewBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -60,7 +59,6 @@ class MusicAdapter(private val context: Context,
         holder.title.text = musicList[position].title
         holder.album.text = musicList[position].album
         holder.duration.text = formatDuration(musicList[position].duration)
-        //load image
         Glide.with(context)
             .load(musicList[position].artUri)
             .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
@@ -127,28 +125,30 @@ class MusicAdapter(private val context: Context,
             selectionActivity ->{
                 holder.root.setOnClickListener {
                     if(addSong(musicList[position]))
-                        holder.root.setBackgroundColor(ContextCompat.getColor(context,
-                            R.color.cool_pink
-                        ))
+                        holder.root.setBackgroundColor(ContextCompat.getColor(context, R.color.cool_pink))
                     else
-                        holder.root.setBackgroundColor(ContextCompat.getColor(context,
-                            R.color.white
-                        ))
+                        holder.root.setBackgroundColor(ContextCompat.getColor(context, R.color.white))
 
                 }
             }
             else ->{
                 holder.root.setOnClickListener {
-                    onItemClick?.invoke(position)
+                    when{
+                        MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
+                        musicList[position].id == PlayerActivity.nowPlayingId ->
+                            sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
+                        else->sendIntent(ref="MusicAdapter", pos = position) } }
+            }
+                /*    onItemClick?.invoke(position)
                 when{
                     MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
                     musicList[position].id == PlayerActivity.nowPlayingId ->
                         sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
                     else->sendIntent(ref="MusicAdapter", pos = position) }
                 }
-        }
+        }*/
 
-         }
+        }
     }
 
     override fun getItemCount(): Int {
