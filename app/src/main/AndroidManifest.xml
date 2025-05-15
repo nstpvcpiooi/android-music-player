@@ -54,13 +54,11 @@
             android:exported="false" />
         <activity
             android:name=".onprg.AboutActivity"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
             android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
             android:name=".onprg.SettingsActivity"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
             android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
@@ -71,13 +69,11 @@
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
             android:name=".onprg.PlaylistDetails"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
             android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
             android:name=".onprg.PlaylistActivity"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
             android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
@@ -120,6 +116,7 @@
         <receiver
             android:name=".receiver.NotificationReceiver"
             android:enabled="true" />
+
     </application>
 
 </manifest>

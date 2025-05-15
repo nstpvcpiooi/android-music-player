@@ -259,6 +259,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
 
                 isRecording = false
+                Toast.makeText(this, "Dừng ghi âm", Toast.LENGTH_SHORT).show()
             }
 
         }

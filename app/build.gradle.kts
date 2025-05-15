@@ -4,9 +4,11 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
+
 android {
     namespace = "com.example.musicplayer"
     compileSdk = 34
+
 
     defaultConfig {
         applicationId = "com.example.musicplayer"
