@@ -43,4 +43,7 @@
     <string name="play_next_note">Tip: Long Press On Any Video To Add It Into Play Next. &#128522; </string>
     <string name="favourite_note">Tip: Play Music And Click On &#10084; To Add It Into Favourites. </string>
     <string name="playlist_note">Tip: Click On ➕ To Create New Playlist. </string>
+
+    <string name="account_button">Information</string>
+    <string name="account">Account</string>
 </resources>

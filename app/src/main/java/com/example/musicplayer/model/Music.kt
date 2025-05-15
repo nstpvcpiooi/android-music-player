@@ -11,7 +11,9 @@ data class Music(
     val duration: Long = 0,
     val path: String,
     val artUri: String
-)
+) {
+    constructor() : this("", "", "", "", 0,"","")
+}
 
 fun Music.toFile(): File {
     return File(path)
