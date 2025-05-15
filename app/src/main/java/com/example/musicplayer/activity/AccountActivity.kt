@@ -34,6 +34,7 @@ class AccountActivity : AppCompatActivity() {
 
         firebaseAuth = FirebaseAuth.getInstance()
 
+        binding.backBtnAccount.setOnClickListener { finish() }
         binding.logoutButton.setOnClickListener {
             firebaseAuth.signOut()
             startActivity(Intent(this, LoginActivity::class.java))

@@ -24,7 +24,6 @@
             android:src="@drawable/back_icon"
             android:contentDescription="@string/back_btn"
             android:backgroundTint="@android:color/transparent"
-            app:tint="@color/white"
             android:padding="5dp"/>
 
         <TextView

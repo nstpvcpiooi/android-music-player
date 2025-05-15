@@ -33,6 +33,8 @@ class DownloadActivity : AppCompatActivity() {
 
         binding.backBtndown.setOnClickListener { finish() }
 
+        binding.backBtndown.setOnClickListener { finish() }
+
         setupRecyclerView()
         fetchMusicList()
     }
