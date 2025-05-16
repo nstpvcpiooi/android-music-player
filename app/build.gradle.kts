@@ -1,15 +1,18 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.google.gms.google.services)
 }
+
 
 android {
     namespace = "com.example.musicplayer"
     compileSdk = 34
 
+
     defaultConfig {
         applicationId = "com.example.musicplayer"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 34
         versionCode = 11
         versionName = "2.0.1"
@@ -70,11 +73,9 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation ("com.arthenica:ffmpeg-kit-full-gpl:6.0.LTS")
 
+    implementation(libs.firebase.auth)
 
-
-
-
-
-
-
+    //cloud to server
+    implementation("com.cloudinary:cloudinary-android:3.0.2")
+    implementation(libs.firebase.database)
 }
