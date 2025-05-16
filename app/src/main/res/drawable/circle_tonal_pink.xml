@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:shape="oval">
+
+    <solid android:color="@color/tonal_button_background_pink" />
+
+    <!--    <stroke-->
+    <!--        android:width="2dp"-->
+    <!--        android:color="@color/white">-->
+    <!--    </stroke>-->
+
+    <!--    <padding-->
+    <!--        android:left="5dp"-->
+    <!--        android:top="5dp"-->
+    <!--        android:right="5dp"-->
+    <!--        android:bottom="5dp"    >-->
+    <!--    </padding>-->
+
+    <corners
+        android:topLeftRadius="30dp"
+        android:topRightRadius="30dp">
+    </corners>
+
+</shape>

@@ -8,10 +8,13 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
+   
+
                   <option name="appId" value="com.example.musicplayer" />
                   <option name="mobileSdkAppId" value="1:749241698822:android:5007ca551e914c1d095187" />
                   <option name="projectId" value="music-player-kotlin-e0c5c" />
                   <option name="projectNumber" value="749241698822" />
+
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
