@@ -1,5 +1,6 @@
 package com.example.musicplayer.activity
 
+import android.app.AlertDialog
 import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
@@ -48,36 +49,49 @@ class DownloadActivity : AppCompatActivity() {
 
         musicAdapter.setOnItemClickListener { position ->
             val music = musicList[position]
-            downloadMusic(music.title, music.path)           // path lúc này chính là url cloudinary
+            AlertDialog.Builder(this)
+                .setTitle(music.title)
+                .setMessage("Bạn có muốn tải bài nhạc này không?")
+                .setPositiveButton("Tải") { dialog, _ ->
+                    downloadMusic(music.title, music.path)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Hủy") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
         }
+
     }
 
     // --------------------------- Firebase ------------------------------------
 
     private fun fetchMusicList() {
-        val uid = firebaseAuth.currentUser?.uid ?: return
-        database.child("uploads").child(uid)
+        database.child("uploads")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     musicList.clear()
 
-                    for (item in snapshot.children) {
-                        val title = item.child("title").getValue(String::class.java) ?: continue
-                        val url   = item.child("url").getValue(String::class.java)   ?: continue
+                    // Lặp qua tất cả người dùng
+                    for (userSnap in snapshot.children) {
+                        for (item in userSnap.children) {
+                            val title = item.child("title").getValue(String::class.java) ?: continue
+                            val url   = item.child("url").getValue(String::class.java)   ?: continue
 
-                        // Dùng thuộc tính path để tái sử dụng MusicAdapter
-                        musicList.add(
-                            Music(
-                                id = item.key ?: "",
-                                title = title,
-                                album = item.child("album").getValue(String::class.java) ?: "",
-                                artist = item.child("singer").getValue(String::class.java) ?: "",
-                                duration = 0L,                 // không cần cho danh sách tải
-                                artUri = "",
-                                path = url                     // CHÍNH LÀ URL CLOUDINARY
+                            musicList.add(
+                                Music(
+                                    id = item.key ?: "",
+                                    title = title,
+                                    album = item.child("album").getValue(String::class.java) ?: "",
+                                    artist = item.child("singer").getValue(String::class.java) ?: "",
+                                    duration = 0L,
+                                    artUri = "",
+                                    path = url
+                                )
                             )
-                        )
+                        }
                     }
+
                     musicAdapter.notifyDataSetChanged()
                 }
 
@@ -87,6 +101,7 @@ class DownloadActivity : AppCompatActivity() {
                 }
             })
     }
+
 
     // --------------------------- Download -------------------------------------
 
@@ -99,7 +114,7 @@ class DownloadActivity : AppCompatActivity() {
 
             val extension = MimeTypeMap.getFileExtensionFromUrl(fileUrl)
                 ?.takeIf { it.isNotBlank() }
-                ?.let { ".$it" } ?: ".mp3"                  // fallback nếu URL không có đuôi
+                ?.let { ".$it" } ?: ".mp3"
 
             val request = DownloadManager.Request(uri).apply {
                 setTitle("Tải: $title")
