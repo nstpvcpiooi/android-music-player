@@ -18,8 +18,6 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-
-
     <application
         android:name=".ApplicationClass"
         android:allowBackup="true"
@@ -30,47 +28,60 @@
         android:supportsRtl="true"
         android:theme="@style/splash_screen"
         tools:ignore="AllowBackup">
+        <activity
+            android:name=".activity.DownloadActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.AccountActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.SignupActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.UploadActivity"
+            android:exported="true" />
         <activity
             android:name=".onprg.PlayNext"
             android:exported="false" />
-
         <activity
             android:name=".onprg.AboutActivity"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
+            android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
-
         <activity
             android:name=".onprg.SettingsActivity"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
+            android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
-
         <activity
             android:name=".SelectionActivity"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
+            android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
-
         <activity
             android:name=".onprg.PlaylistDetails"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
+            android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
-
         <activity
             android:name=".onprg.PlaylistActivity"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
+            android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
-
         <activity
             android:name=".activity.FavouriteActivity"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="uiMode|orientation"
+            android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
-
         <activity
             android:name=".activity.PlayerActivity"
             android:configChanges="uiMode|orientation"
@@ -90,31 +101,22 @@
                     android:scheme="content" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="uiMode|orientation"
             android:exported="true"
-            android:screenOrientation="sensorPortrait"
             android:launchMode="singleTask"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <!-- Updated Permission for Android 14   -->
+            android:screenOrientation="sensorPortrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity" /> <!-- Updated Permission for Android 14 -->
         <service
             android:name=".service.MusicService"
-            android:foregroundServiceType="mediaPlayback"
             android:exported="false"
-            />
+            android:foregroundServiceType="mediaPlayback" />
 
         <receiver
             android:name=".receiver.NotificationReceiver"
             android:enabled="true" />
+
     </application>
 
 </manifest>

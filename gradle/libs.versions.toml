@@ -1,6 +1,6 @@
 [versions]
 agp = "8.8.1"
-kotlin = "1.9.0"
+kotlin = "2.1.0"
 coreKtx = "1.13.1"
 appcompat = "1.7.0"
 material = "1.12.0"
@@ -12,6 +12,9 @@ glide = "4.16.0"
 media = "1.7.0"
 gson = "2.10.1"
 verticalseekbar = "1.2.7"
+googleGmsGoogleServices = "4.4.2"
+firebaseAuth = "23.2.0"
+firebaseDatabase = "21.0.0"
 
 
 [libraries]
@@ -26,8 +29,11 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 androidx-media = { group = "androidx.media", name = "media", version.ref = "media" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 verticalseekbar = { group = "com.github.lukelorusso", name = "VerticalSeekBar", version.ref = "verticalseekbar" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 

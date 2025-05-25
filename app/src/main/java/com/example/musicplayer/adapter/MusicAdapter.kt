@@ -35,6 +35,7 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
                    private val selectionActivity: Boolean = false)
     : RecyclerView.Adapter<MyHolder>() {
 
+    //anh xa item trong layout
     class MyHolder(binding: MusicViewBinding) : RecyclerView.ViewHolder(binding.root) {
         val title = binding.songNameMV
         val album = binding.songAlbumMV
@@ -43,6 +44,13 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
         val root = binding.root
     }
 
+    private var onItemClick: ((Int) -> Unit)? = null
+
+    fun setOnItemClickListener(listener: (Int) -> Unit) {
+        onItemClick = listener
+    }
+
+    //inflate layout
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
         return MyHolder(MusicViewBinding.inflate(LayoutInflater.from(context), parent, false))
     }
@@ -131,6 +139,14 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
                             sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
                         else->sendIntent(ref="MusicAdapter", pos = position) } }
             }
+                /*    onItemClick?.invoke(position)
+                when{
+                    MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
+                    musicList[position].id == PlayerActivity.nowPlayingId ->
+                        sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
+                    else->sendIntent(ref="MusicAdapter", pos = position) }
+                }
+        }*/
 
         }
     }
