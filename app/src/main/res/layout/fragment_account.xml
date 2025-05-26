@@ -48,7 +48,7 @@
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@+id/email_text">
 
-        <!-- Profile settings -->
+        <!-- Account settings -->
         <LinearLayout
             android:id="@+id/profile_settings"
             android:layout_width="match_parent"
@@ -68,7 +68,37 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Profile Settings"
+                android:text="Account Settings"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E0E0E0" />
+
+        <!-- My Uploaded Files -->
+        <LinearLayout
+            android:id="@+id/my_uploaded_files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/arrow_down_float" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="My Uploaded Files"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -108,9 +138,45 @@
             android:layout_height="1dp"
             android:background="#E0E0E0" />
 
-        <!-- Logout -->
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E0E0E0" />
+
+        <!-- About - nút riêng biệt -->
         <LinearLayout
-            android:id="@+id/logout"
+            android:id="@+id/about_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_info_details" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="About"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E0E0E0" />
+
+        <!-- Exit - nút riêng biệt -->
+        <LinearLayout
+            android:id="@+id/exit_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -128,7 +194,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Logout"
+                android:text="Exit"
                 android:textSize="16sp" />
         </LinearLayout>
     </LinearLayout>

@@ -58,13 +58,13 @@ class LibraryFragment : Fragment() {
             (activity as? MainActivity)?.openPlayNext()
         }
 
-        // Setup account and download buttons
-        view.findViewById<View>(R.id.accountButton).setOnClickListener {
-            startActivity(Intent(requireContext(), AccountActivity::class.java))
-        }
-
-        view.findViewById<View>(R.id.downloadButton).setOnClickListener {
-            startActivity(Intent(requireContext(), DownloadActivity::class.java))
-        }
+//        // Setup account and download buttons
+//        view.findViewById<View>(R.id.accountButton).setOnClickListener {
+//            startActivity(Intent(requireContext(), AccountActivity::class.java))
+//        }
+//
+//        view.findViewById<View>(R.id.downloadButton).setOnClickListener {
+//            startActivity(Intent(requireContext(), DownloadActivity::class.java))
+//        }
     }
 }

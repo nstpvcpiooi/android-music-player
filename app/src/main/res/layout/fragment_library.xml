@@ -164,29 +164,7 @@
 
     </LinearLayout>
 
-    <!--ACCOUNT FIG BUTTONS-->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/accountButton"
-            android:contentDescription="@string/account_button"
-            android:text="@string/account"
-            android:src="@drawable/account_circle"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_weight="1"/>
-
-        <ImageButton
-            android:id="@+id/downloadButton"
-            android:contentDescription="@string/account_button"
-            android:src="@android:drawable/arrow_down_float"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_weight="1"/>
-    </LinearLayout>
+    <!-- Đã loại bỏ ACCOUNT FIG BUTTONS -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/musicRV"

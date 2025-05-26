@@ -15,7 +15,6 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.SearchView
 import android.widget.Toast
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -43,7 +42,6 @@ import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var toggle: ActionBarDrawerToggle
     lateinit var musicAdapter: MusicAdapter  // Changed to public for fragment access
 
     companion object {
@@ -93,11 +91,6 @@ class MainActivity : AppCompatActivity() {
             loadFragment(LibraryFragment())
         }
 
-        //for nav drawer
-        toggle = ActionBarDrawerToggle(this, binding.root, R.string.open, R.string.close)
-        binding.root.addDrawerListener(toggle)
-        toggle.syncState()
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         //checking for dark theme
         if (themeIndex == 4 && resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_NO)
             Toast.makeText(this, "Black Theme Works Best in Dark Mode!!", Toast.LENGTH_LONG).show()
@@ -120,29 +113,6 @@ class MainActivity : AppCompatActivity() {
                     GsonBuilder().create().fromJson(jsonStringPlaylist, MusicPlaylist::class.java)
                 PlaylistActivity.musicPlaylist = dataPlaylist
             }
-        }
-
-        binding.navView.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.navSettings -> startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-                R.id.navAbout -> startActivity(Intent(this@MainActivity, AboutActivity::class.java))
-                R.id.navExit -> {
-                    val builder = MaterialAlertDialogBuilder(this)
-                    builder.setTitle("Exit")
-                        .setMessage("Do you want to close app?")
-                        .setPositiveButton("Yes") { _, _ ->
-                            exitApplication()
-                        }
-                        .setNegativeButton("No") { dialog, _ ->
-                            dialog.dismiss()
-                        }
-                    val customDialog = builder.create()
-                    customDialog.show()
-
-                    setDialogBtnBackground(this, customDialog)
-                }
-            }
-            true
         }
     }
 
@@ -243,13 +213,10 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
                 initializeLayout()
             }
-//            else ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 13)
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (toggle.onOptionsItemSelected(item))
-            return true
         return super.onOptionsItemSelected(item)
     }
 
