@@ -53,6 +53,9 @@ import java.io.File
 
 class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCompletionListener {
 
+    private var isOnlineMusic = false
+    private var onlineMusicUrl: String? = null
+
     companion object {
         lateinit var musicListPA : ArrayList<Music>
 
@@ -95,23 +98,62 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         setContentView(binding.root)
 
 
-        //để nghe file nhạc từ trong file điện thoại
-        if(intent.data?.scheme.contentEquals("content")){
+        // Kiểm tra xem intent có data scheme "content" (file nội bộ) hoặc có extra url phát online
+        val dataUri = intent.data
+        val urlFromIntent = intent.getStringExtra("url")
+
+        if (dataUri?.scheme == "content") {
+            // Phát file nhạc offline từ URI nội bộ
             songPosition = 0
 
-            //connect to music service
             val intentService = Intent(this, MusicService::class.java)
             bindService(intentService, this, BIND_AUTO_CREATE)
             startService(intentService)
 
             musicListPA = ArrayList()
-            musicListPA.add(getMusicDetails(intent.data!!))
+            musicListPA.add(getMusicDetails(dataUri))
+
             Glide.with(this)
                 .load(getImgArt(musicListPA[songPosition].path))
                 .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
                 .into(binding.songImgPA)
+
             binding.songNamePA.text = musicListPA[songPosition].title
-        } else initializeLayout()
+        } else if (urlFromIntent != null && (urlFromIntent.startsWith("http://") || urlFromIntent.startsWith("https://"))) {
+            // Phát nhạc online từ URL
+            songPosition = 0
+            isOnlineMusic = true
+            onlineMusicUrl = urlFromIntent
+
+            val intentService = Intent(this, MusicService::class.java)
+            bindService(intentService, this, BIND_AUTO_CREATE)
+            startService(intentService)
+
+            musicListPA = ArrayList()
+            // Tạo đối tượng Music ảo để phát nhạc online
+            musicListPA.add(
+                Music(
+                    id = "online",
+                    title = intent.getStringExtra("title") ?: "Unknown",
+                    album = intent.getStringExtra("album") ?: "Unknown",
+                    artist = intent.getStringExtra("artist") ?: "Unknown",
+                    duration = 0L,
+                    artUri = "",
+                    path = urlFromIntent
+                )
+            )
+
+            // Cập nhật giao diện
+            Glide.with(this)
+                .load(R.drawable.music_player_icon_slash_screen) // hoặc ảnh online nếu có
+                .into(binding.songImgPA)
+
+            binding.songNamePA.text = musicListPA[songPosition].title
+        } else {
+            // Nếu không thuộc trường hợp trên thì gọi initializeLayout bình thường
+            initializeLayout()
+        }
+
 
 
         //karaoke
@@ -209,11 +251,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             shareIntent.type = "audio/*"
             shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(musicListPA[songPosition].path))
             startActivity(Intent.createChooser(shareIntent, "Sharing Music File!!"))
-
-
-
-
-
         }
 
         binding.recordingBtnPA.setOnClickListener {
@@ -378,7 +415,14 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         try {
             if (musicService!!.mediaPlayer == null) musicService!!.mediaPlayer = MediaPlayer()
             musicService!!.mediaPlayer!!.reset()
-            musicService!!.mediaPlayer!!.setDataSource(musicListPA[songPosition].path)
+
+            // Kiểm tra xem là phát online hay offline
+            if (isOnlineMusic) {
+                musicService!!.mediaPlayer!!.setDataSource(onlineMusicUrl) // Phát nhạc từ URL online
+            } else {
+                musicService!!.mediaPlayer!!.setDataSource(musicListPA[songPosition].path) // Phát nhạc từ file offline
+            }
+
             musicService!!.mediaPlayer!!.prepare()
             binding.tvSeekBarStart.text = formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
             binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
@@ -394,8 +438,14 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
     private fun playMusic(){
         isPlaying = true
-        musicService!!.mediaPlayer!!.start()
-        binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
+        // Kiểm tra nếu là nhạc online
+        if (isOnlineMusic) {
+            musicService!!.mediaPlayer!!.start()
+            binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
+        } else {
+            musicService!!.mediaPlayer!!.start()
+            binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
+        }
         musicService!!.showNotification(R.drawable.pause_icon)
     }
 

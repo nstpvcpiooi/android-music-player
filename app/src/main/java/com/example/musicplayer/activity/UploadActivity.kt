@@ -66,7 +66,7 @@ class UploadActivity : AppCompatActivity() {
 
     private fun pickFileFromStorage() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.setType("*/*")// Cho phép chọn tất cả định dạng
+        intent.setType("audio/*") // Chỉ chọn file audio
         startActivityForResult(intent, FILE_PICK_CODE)
     }
 
@@ -107,12 +107,7 @@ class UploadActivity : AppCompatActivity() {
                     showLoading(false)
                     file.delete()
                     Log.e("Cloudinary", response?.secureUrl.toString())
-                    if (response != null) {
-                        response.secureUrl?.let { Log.e("Cloud", it) }
-                    }
-
-                    var url: String
-                    url = response?.secureUrl.toString()
+                    val url = response?.secureUrl
                     if (url != null) {
                         saveToFirebase(url)
                     } else {
@@ -142,7 +137,7 @@ class UploadActivity : AppCompatActivity() {
         val ref = database.getReference("uploads").child(userId)
 
         val data = mapOf(
-            "url" to fileUrl,
+            "url" to fileUrl,  // Đổi "path" thành "url"
             "title" to binding.uploadTopic.text.toString().trim(),
             "singer" to binding.uploadSinger.text.toString().trim(),
             "album" to binding.uploadAlbum.text.toString().trim(),
@@ -178,9 +173,20 @@ class UploadActivity : AppCompatActivity() {
         if (requestCode == FILE_PICK_CODE && resultCode == Activity.RESULT_OK) {
             fileUri = data?.data
             binding.uploadImage.setImageURI(fileUri) // Nếu là ảnh thì preview, không thì không ảnh hưởng
-            binding.songName.text = getFileNameFromMediaStoreUri(this, fileUri)
-            binding.uploadAlbum.setText(getAlbumNameFromUri(this, fileUri))
-            Log.e("ImageAudio", fileUri.toString())
+
+            // Lấy tên file nhạc (title)
+            val fileName = getFileNameFromMediaStoreUri(this, fileUri)
+            binding.uploadTopic.setText(fileName ?: "")
+
+            // Lấy album
+            val albumName = getAlbumNameFromUri(this, fileUri)
+            binding.uploadAlbum.setText(albumName)
+
+            // Lấy ca sĩ (artist)
+            val artistName = getArtistNameFromUri(this, fileUri)
+            binding.uploadSinger.setText(artistName)
+
+            Log.e("UploadActivity", "FileUri: $fileUri, title=$fileName, album=$albumName, artist=$artistName")
         }
     }
 
@@ -188,7 +194,7 @@ class UploadActivity : AppCompatActivity() {
         if (uri == null) return null
 
         var fileName: String? = null
-        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME) // Or MediaStore.MediaColumns.TITLE
+        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
         context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
             if (cursor.moveToFirst()) {
                 val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
@@ -199,7 +205,7 @@ class UploadActivity : AppCompatActivity() {
     }
 
     fun getAlbumNameFromUri(context: Context, uri: Uri?): String {
-        var albumName = "Unknown Album" // Giá trị mặc định
+        var albumName = "Unknown Album"
         if (uri == null) return albumName
 
         val projection = arrayOf(MediaStore.Audio.Media.ALBUM)
@@ -211,9 +217,23 @@ class UploadActivity : AppCompatActivity() {
                 }
             }
         } catch (e: Exception) {
-            // Xử lý ngoại lệ (ví dụ: log lỗi)
             e.printStackTrace()
         }
         return albumName
+    }
+
+    fun getArtistNameFromUri(context: Context, uri: Uri?): String {
+        if (uri == null) return ""
+        val mmr = android.media.MediaMetadataRetriever()
+        try {
+            mmr.setDataSource(context, uri)
+            val artist = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_ARTIST)
+            return artist ?: ""
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            mmr.release()
+        }
+        return ""
     }
 }

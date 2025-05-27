@@ -133,20 +133,20 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
             }
             else ->{
                 holder.root.setOnClickListener {
-                    when{
-                        MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
-                        musicList[position].id == PlayerActivity.nowPlayingId ->
-                            sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
-                        else->sendIntent(ref="MusicAdapter", pos = position) } }
-            }
-                /*    onItemClick?.invoke(position)
-                when{
-                    MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
-                    musicList[position].id == PlayerActivity.nowPlayingId ->
-                        sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
-                    else->sendIntent(ref="MusicAdapter", pos = position) }
+                    if (onItemClick != null) {
+                        // khi dùng DownloadActivity đã gán listener => chỉ download
+                        onItemClick!!.invoke(position)
+                    } else {
+                        // hành động mặc định: play nhạc
+                        when {
+                            MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
+                            musicList[position].id == PlayerActivity.nowPlayingId ->
+                                sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
+                            else -> sendIntent(ref = "MusicAdapter", pos = position)
+                        }
+                    }
                 }
-        }*/
+            }
 
         }
     }
