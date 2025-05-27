@@ -10,10 +10,10 @@ android {
 
     defaultConfig {
         applicationId = "com.example.musicplayer"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 34
         versionCode = 11
-        versionName = "2.0.1"
+        versionName = "1.9.0"
 
         // For showing build version name
         buildConfigField("String", "VERSION_NAME", "\"$versionName\"")
@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.verticalseekbar)
 
     implementation("com.google.android.material:material:1.11.0")
+    implementation("com.github.arthenica:ffmpeg-kit:v5.1.LTS")
+
     implementation(libs.firebase.auth)
 
     //cloud to server

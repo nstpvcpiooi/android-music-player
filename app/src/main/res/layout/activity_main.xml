@@ -9,7 +9,7 @@
     tools:context=".activity.MainActivity">
 
 
-    <!--refresh ap dung cho tat ca cac cai duoi day-->
+    <!--    for refreshing layout on swipe from top-->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
@@ -114,8 +114,6 @@
                     android:text="@string/total_songs"
                     android:textColor="?colorOnPrimary" />
 
-
-                <!--Recycler view, include stuffs like adapter layoutmanager -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/musicRV"
                     android:layout_width="match_parent"
@@ -135,7 +133,6 @@
                 tools:layout="@layout/fragment_now_playing"
                 android:visibility="gone"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.navigation.NavigationView

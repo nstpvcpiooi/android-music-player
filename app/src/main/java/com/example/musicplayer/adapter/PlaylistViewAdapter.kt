@@ -8,10 +8,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.example.musicplayer.PlaylistDetails
+import com.example.musicplayer.onprg.PlaylistDetails
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.MainActivity
-import com.example.musicplayer.activity.PlaylistActivity
+import com.example.musicplayer.onprg.PlaylistActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.example.musicplayer.databinding.PlaylistViewBinding
 import com.example.musicplayer.model.Playlist
