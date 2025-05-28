@@ -52,4 +52,7 @@
     <string name="volume_booster">Volume Booster</string>
     <string name="account_button">Information</string>
     <string name="account">Account</string>
+    <string name="play_pause_btn">Play or Pause</string>
+    <string name="next_btn">Next</string>
 </resources>
+
