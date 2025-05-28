@@ -9,11 +9,13 @@ import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.audiofx.AudioEffect
 import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
@@ -24,6 +26,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.model.Music
@@ -48,6 +51,11 @@ import com.example.musicplayer.utils.getImgArt
 import com.example.musicplayer.utils.getMainColor
 import com.example.musicplayer.utils.setDialogBtnBackground
 import com.example.musicplayer.utils.setSongPosition
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -145,7 +153,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
             // Cập nhật giao diện
             Glide.with(this)
-                .load(R.drawable.music_player_icon_slash_screen) // hoặc ảnh online nếu có
+                .load(R.drawable.music_player_icon_slash_screen)
                 .into(binding.songImgPA)
 
             binding.songNamePA.text = musicListPA[songPosition].title
@@ -153,7 +161,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             // Nếu không thuộc trường hợp trên thì gọi initializeLayout bình thường
             initializeLayout()
         }
-
 
 
         //karaoke
@@ -411,30 +418,96 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         window?.statusBarColor = bgColor
     }
 
-    private fun createMediaPlayer(){
-        try {
-            if (musicService!!.mediaPlayer == null) musicService!!.mediaPlayer = MediaPlayer()
-            musicService!!.mediaPlayer!!.reset()
+    private fun createMediaPlayer() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val svc = musicService ?: return@launch
+                // 1. Reset hoặc khởi mới MediaPlayer
+                svc.mediaPlayer = svc.mediaPlayer ?: MediaPlayer()
+                svc.mediaPlayer!!.reset()
 
-            // Kiểm tra xem là phát online hay offline
-            if (isOnlineMusic) {
-                musicService!!.mediaPlayer!!.setDataSource(onlineMusicUrl) // Phát nhạc từ URL online
-            } else {
-                musicService!!.mediaPlayer!!.setDataSource(musicListPA[songPosition].path) // Phát nhạc từ file offline
+                // 2. Thiết lập AudioAttributes/StreamType
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    svc.mediaPlayer!!.setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build()
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    svc.mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                }
+
+                // 3. setDataSource tùy local hay online
+                if (isOnlineMusic) {
+                    // phải chạy trên Main để gọi setDataSource(Context, Uri)
+                    withContext(Dispatchers.Main) {
+                        svc.mediaPlayer!!.setDataSource(
+                            this@PlayerActivity,
+                            Uri.parse(onlineMusicUrl!!)
+                        )
+                    }
+                } else {
+                    svc.mediaPlayer!!.setDataSource(musicListPA[songPosition].path)
+                }
+
+                // 4. Đăng ký listener và prepareAsync trên Main
+                withContext(Dispatchers.Main) {
+                    svc.mediaPlayer!!.setOnPreparedListener { mp ->
+                        mp.start()
+                        isPlaying = true
+                        updateUI(mp)
+                        startSeekBarUpdates()
+                    }
+                }
+                svc.mediaPlayer!!.prepareAsync()
+
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@PlayerActivity,
+                        "Lỗi phát nhạc: ${e.localizedMessage}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
-
-            musicService!!.mediaPlayer!!.prepare()
-            binding.tvSeekBarStart.text = formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
-            binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
-            binding.seekBarPA.progress = 0
-            binding.seekBarPA.max = musicService!!.mediaPlayer!!.duration
-            musicService!!.mediaPlayer!!.setOnCompletionListener(this)
-            nowPlayingId = musicListPA[songPosition].id
-            playMusic()
-            loudnessEnhancer = LoudnessEnhancer(musicService!!.mediaPlayer!!.audioSessionId)
-            loudnessEnhancer.enabled = true
-        }catch (e: Exception){Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show()}
+        }
     }
+
+    private var seekBarJob: Job? = null
+
+    private fun startSeekBarUpdates() {
+        seekBarJob?.cancel()
+        seekBarJob = lifecycleScope.launch {
+            while (isPlaying) {
+                musicService?.mediaPlayer?.let { mp ->
+                    binding.tvSeekBarStart.text = formatDuration(mp.currentPosition.toLong())
+                    binding.seekBarPA.progress = mp.currentPosition
+                }
+                delay(500)
+            }
+        }
+    }
+
+    private fun stopSeekBarUpdates() {
+        seekBarJob?.cancel()
+        seekBarJob = null
+    }
+
+    private fun updateUI(mp: MediaPlayer) {
+        // Chuyển nút Play → Pause
+        binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
+
+        // Cập nhật thời gian bắt đầu và kết thúc
+        binding.tvSeekBarStart.text = formatDuration(mp.currentPosition.toLong())
+        binding.tvSeekBarEnd  .text = formatDuration(mp.duration.toLong())
+
+        // Thiết lập SeekBar: bắt đầu từ 0, giới hạn là tổng thời lượng
+        binding.seekBarPA.progress = 0
+        binding.seekBarPA.max      = mp.duration
+    }
+
 
     private fun playMusic(){
         isPlaying = true

@@ -59,10 +59,20 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
         holder.title.text = musicList[position].title
         holder.album.text = musicList[position].album
         holder.duration.text = formatDuration(musicList[position].duration)
-        Glide.with(context)
-            .load(musicList[position].artUri)
-            .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
-            .into(holder.image)
+
+        val artUri = musicList[position].artUri
+        if (artUri.isNullOrEmpty()) {
+            holder.image.setImageResource(R.drawable.music_image)
+            } else {
+                // Có cover riêng, load bằng Glide
+                Glide.with(context)
+                    .load(artUri)
+                    .apply(RequestOptions()
+                        .placeholder(R.drawable.music_image)
+                        .error(R.drawable.music_image)
+                        .centerCrop()
+                    ).into(holder.image)
+            }
 
         //for play next feature
         if(!selectionActivity)

@@ -10,11 +10,16 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.cloudinary.android.MediaManager
+import com.example.musicplayer.R
 import com.example.musicplayer.databinding.ActivityUploadBinding
 import com.example.musicplayer.service.CloudinaryApi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class UploadActivity : AppCompatActivity() {
@@ -77,20 +82,27 @@ class UploadActivity : AppCompatActivity() {
     }
 
     private fun uploadSelectedFile() {
-        try {
-            fileUri?.let { uri ->
-                contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val tempFile = File.createTempFile("upload_", ".tmp", cacheDir).apply {
-                        outputStream().use { output -> inputStream.copyTo(output) }
-                    }
-                    uploadToCloudinary(tempFile)
-                } ?: showToast("Không thể đọc file")
-            } ?: showToast("File chưa được chọn")
-
-        } catch (e: Exception) {
-            showToast("Lỗi xử lý file: ${e.message}")
+        val uri = fileUri ?: return showToast("File chưa được chọn")
+        lifecycleScope.launch {
+            showLoading(true)
+            try {
+                // 1) Đọc file trên IO thread
+                val tempFile = withContext(Dispatchers.IO) {
+                    contentResolver.openInputStream(uri)?.use { inputStream ->
+                        File.createTempFile("upload_", ".tmp", cacheDir).apply {
+                            outputStream().use { output -> inputStream.copyTo(output) }
+                        }
+                    } ?: throw IllegalStateException("Không thể đọc file")
+                }
+                // 2) Upload (CloudinaryApi vẫn dùng callback nội bộ)
+                uploadToCloudinary(tempFile)
+            } catch (e: Exception) {
+                showLoading(false)
+                showToast("Lỗi xử lý file: ${e.localizedMessage}")
+            }
         }
     }
+
 
     private fun uploadToCloudinary(file: File) {
         showLoading(true)
@@ -172,7 +184,6 @@ class UploadActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == FILE_PICK_CODE && resultCode == Activity.RESULT_OK) {
             fileUri = data?.data
-            binding.uploadImage.setImageURI(fileUri) // Nếu là ảnh thì preview, không thì không ảnh hưởng
 
             // Lấy tên file nhạc (title)
             val fileName = getFileNameFromMediaStoreUri(this, fileUri)
