@@ -4,12 +4,13 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.musicplayer.BuildConfig
+import com.example.musicplayer.R // Added import for R class
 import com.example.musicplayer.activity.MainActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.example.musicplayer.databinding.ActivitySettingsBinding
 import com.example.musicplayer.utils.exitApplication
 import com.example.musicplayer.utils.setDialogBtnBackground
-
+import androidx.appcompat.app.AppCompatDelegate
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -51,6 +52,36 @@ class SettingsActivity : AppCompatActivity() {
             customDialog.show()
 
             setDialogBtnBackground(this, customDialog)
+        }
+
+        // Theme Mode Selection
+        val appSettingPrefs = getSharedPreferences("APP_SETTINGS_PREFS", MODE_PRIVATE)
+        val currentNightMode = appSettingPrefs.getInt("NightMode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        when (currentNightMode) {
+            AppCompatDelegate.MODE_NIGHT_NO -> binding.lightModeRb.isChecked = true
+            AppCompatDelegate.MODE_NIGHT_YES -> binding.darkModeRb.isChecked = true
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> binding.systemDefaultRb.isChecked = true
+        }
+
+        binding.themeModeRg.setOnCheckedChangeListener { _, checkedId ->
+            val editor = appSettingPrefs.edit()
+            when (checkedId) {
+                R.id.lightModeRb -> {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    editor.putInt("NightMode", AppCompatDelegate.MODE_NIGHT_NO)
+                }
+                R.id.darkModeRb -> {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    editor.putInt("NightMode", AppCompatDelegate.MODE_NIGHT_YES)
+                }
+                R.id.systemDefaultRb -> {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    editor.putInt("NightMode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                }
+            }
+            editor.apply()
+            // Optional: Restart activity or recreate to apply theme immediately
+            // recreate() // or prompt user to restart
         }
     }
 

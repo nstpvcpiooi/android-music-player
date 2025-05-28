@@ -86,6 +86,52 @@
             android:padding="5dp"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="2dp"
+        android:paddingVertical="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Theme Mode"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="8dp"/>
+
+        <RadioGroup
+            android:id="@+id/themeModeRg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/lightModeRb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Light Mode"
+                android:textColor="@color/black"/>
+
+            <RadioButton
+                android:id="@+id/darkModeRb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dark Mode"
+                android:textColor="@color/black"/>
+
+            <RadioButton
+                android:id="@+id/systemDefaultRb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="System Default"
+                android:textColor="@color/black"/>
+        </RadioGroup>
+    </LinearLayout>
+
     <TextView
         android:id="@+id/versionName"
         android:layout_width="match_parent"
@@ -97,3 +143,4 @@
         android:padding="16dp"/>
 
 </LinearLayout>
+
