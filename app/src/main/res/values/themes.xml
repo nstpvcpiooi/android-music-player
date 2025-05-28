@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="splash_screen" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="splash_screen" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
@@ -12,7 +12,7 @@
     <attr name="dialogBtnBackground" format="color"/>
 
     //Theme for Activities
-    <style name="coolPink" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="coolPink" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="themeColor">@color/cool_pink</item>
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -25,7 +25,7 @@
         <item name="dialogTextColor">@color/white</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
-    <style name="coolBlue" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="coolBlue" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="themeColor">@color/cool_blue</item>
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -38,7 +38,7 @@
         <item name="dialogTextColor">@color/white</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
-    <style name="coolPurple" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="coolPurple" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="themeColor">@color/purple_500</item>
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -51,7 +51,7 @@
         <item name="dialogTextColor">@color/white</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
-    <style name="coolGreen" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="coolGreen" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="themeColor">@color/cool_green</item>
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -66,7 +66,7 @@
     </style>
 
     //Theme for Navigation Drawer
-    <style name="coolPinkNav" parent="Theme.MaterialComponents.Light">
+    <style name="coolPinkNav" parent="Theme.Material3.DayNight">
         <item name="themeColor">@color/cool_pink</item>
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -79,7 +79,7 @@
         <item name="dialogTextColor">@color/white</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
-    <style name="coolBlueNav" parent="Theme.MaterialComponents.Light">
+    <style name="coolBlueNav" parent="Theme.Material3.DayNight">
         <item name="themeColor">@color/cool_blue</item>
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -92,7 +92,7 @@
         <item name="dialogTextColor">@color/white</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
-    <style name="coolPurpleNav" parent="Theme.MaterialComponents.Light">
+    <style name="coolPurpleNav" parent="Theme.Material3.DayNight">
         <item name="themeColor">@color/purple_500</item>
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -105,7 +105,7 @@
         <item name="dialogTextColor">@color/white</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
-    <style name="coolGreenNav" parent="Theme.MaterialComponents.Light">
+    <style name="coolGreenNav" parent="Theme.Material3.DayNight">
         <item name="themeColor">@color/cool_green</item>
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -119,7 +119,7 @@
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
     //new dark Theme
-    <style name="coolBlack" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="coolBlack" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="themeColor">@color/black</item>
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -131,7 +131,7 @@
         <item name="dialogBtnBackground">@color/white</item>
         <item name="dialogTextColor">@color/black</item>
     </style>
-    <style name="coolBlackNav" parent="Theme.MaterialComponents.DayNight">
+    <style name="coolBlackNav" parent="Theme.Material3.DayNight">
         <item name="themeColor">@color/black</item>
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -144,3 +144,4 @@
         <item name="dialogTextColor">@color/black</item>
     </style>
 </resources>
+

@@ -2,17 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/navigation_home"
-        android:icon="@android:drawable/ic_popup_reminder"
+        android:icon="@drawable/selector_home_icon"
         android:title="Home" />
 
     <item
         android:id="@+id/navigation_library"
-        android:icon="@android:drawable/ic_popup_reminder"
+        android:icon="@drawable/selector_library_icon"
         android:title="Library" />
 
     <item
         android:id="@+id/navigation_account"
-        android:icon="@drawable/account_circle"
+        android:icon="@drawable/selector_account_icon"
         android:title="Account" />
 </menu>
 
