@@ -170,7 +170,7 @@
                 android:paddingEnd="10dp"
                 android:progressBackgroundTint="@color/black"
                 android:progressTint="@color/black"
-                android:thumb="@drawable/thumb"
+                android:thumb="@drawable/player_thumb"
                 android:thumbTint="@color/black_level2"
 
                 />

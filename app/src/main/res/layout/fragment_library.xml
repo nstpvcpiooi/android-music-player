@@ -10,7 +10,6 @@
         android:id="@+id/musicRV"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbarThumbVertical="@drawable/scroll_bar_icon"
-        android:scrollbars="vertical" />
+        android:scrollbars="none" />
 
 </LinearLayout>
