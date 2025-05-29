@@ -1,5 +1,6 @@
 package com.example.musicplayer.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,8 +10,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.MainActivity
+import com.example.musicplayer.activity.SearchActivity
+import com.google.android.material.appbar.MaterialToolbar
 
 class LibraryFragment : Fragment() {
+
+    private lateinit var toolbar: MaterialToolbar
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -18,9 +23,25 @@ class LibraryFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_library, container, false)
 
+        // Initialize the toolbar
+        toolbar = view.findViewById(R.id.topToolbar)
+        setupToolbar()
+
         initViews(view)
 
         return view
+    }
+
+    private fun setupToolbar() {
+        toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_search -> {
+                    startActivity(Intent(requireContext(), SearchActivity::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private fun initViews(view: View) {
