@@ -1,16 +1,25 @@
 package com.example.musicplayer.fragments
 
+import android.content.Intent
+import android.graphics.LinearGradient
+import android.graphics.Shader
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.MainActivity
+import com.example.musicplayer.activity.SearchActivity
+import com.google.android.material.appbar.MaterialToolbar
 
 class HomeFragment : Fragment() {
+
+    private lateinit var toolbar: MaterialToolbar
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -18,9 +27,52 @@ class HomeFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
+        // Initialize the toolbar
+        toolbar = view.findViewById(R.id.topToolbar)
+        setupToolbar()
+
         initViews(view)
 
         return view
+    }
+
+    private fun setupToolbar() {
+        // Set up toolbar menu item clicks
+        toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_search -> {
+                    // Launch search activity when search icon is clicked
+                    startActivity(Intent(requireContext(), SearchActivity::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
+
+        // Direct approach - try to find TextView directly
+        val appNameTextView = toolbar.findViewById<TextView>(
+            toolbar.findViewById<View>(View.generateViewId())?.id ?: -1
+        )
+        if (appNameTextView != null) {
+            applyGradientToTextView(appNameTextView)
+        }
+    }
+
+    private fun applyGradientToTextView(textView: TextView) {
+        val startColor = ContextCompat.getColor(requireContext(), android.R.color.transparent)
+        val startActualColor = 0xFF16B0E2.toInt()
+        val endColor = 0xFF6E5AF0.toInt()
+
+        val paint = textView.paint
+        val width = paint.measureText(textView.text.toString())
+        val textShader = LinearGradient(
+            0f, 0f, width, textView.textSize,
+            intArrayOf(startActualColor, endColor),
+            null,
+            Shader.TileMode.CLAMP
+        )
+        textView.paint.shader = textShader
+        textView.invalidate()
     }
 
     private fun initViews(view: View) {

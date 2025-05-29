@@ -58,5 +58,6 @@
     <string name="welcome_message">Welcome to Music Player</string>
     <string name="recently_played">Recently Played</string>
     <string name="recommended_for_you">Recommended for You</string>
+    <string name="music">Music</string>
 </resources>
 

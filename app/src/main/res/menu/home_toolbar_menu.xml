@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/searchView"
-        android:title="@string/search_view"
-        android:icon="@drawable/search_icon"
-        app:showAsAction="ifRoom|collapseActionView"
-        app:actionViewClass="com.google.android.material.search.SearchView"
-        />
-</menu>
 
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/search_icon_with_padding"
+        android:title="@string/search_view"
+        app:showAsAction="always" />
+</menu>

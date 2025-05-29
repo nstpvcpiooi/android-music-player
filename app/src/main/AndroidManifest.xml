@@ -29,6 +29,12 @@
         android:theme="@style/splash_screen"
         tools:ignore="AllowBackup">
         <activity
+            android:name=".activity.SearchActivity"
+            android:configChanges="uiMode|orientation"
+            android:screenOrientation="sensorPortrait"
+            android:exported="false"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity" />
+        <activity
             android:name=".activity.DownloadActivity"
             android:exported="false" />
         <activity
@@ -120,3 +126,4 @@
     </application>
 
 </manifest>
+

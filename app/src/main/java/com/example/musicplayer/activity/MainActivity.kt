@@ -351,28 +351,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.search_view_menu, menu)
+        // Removing search_view_menu inflation as search is now handled by HomeFragment
+
         //for setting gradient
         findViewById<LinearLayout>(R.id.linearLayoutNav)?.setBackgroundResource(currentGradient[themeIndex])
 
-        val searchView =
-            menu?.findItem(R.id.searchView)?.actionView as androidx.appcompat.widget.SearchView
-        searchView.setOnQueryTextListener(object :
-            androidx.appcompat.widget.SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean = true
-            override fun onQueryTextChange(newText: String?): Boolean {
-                musicListSearch = ArrayList()
-                if (newText != null) {
-                    val userInput = newText.lowercase()
-                    for (song in MusicListMA)
-                        if (song.title.lowercase().contains(userInput))
-                            musicListSearch.add(song)
-                    search = true
-                    musicAdapter.updateMusicList(searchList = musicListSearch)
-                }
-                return true
-            }
-        })
-        return super.onCreateOptionsMenu(menu)
+        return true
     }
 }
