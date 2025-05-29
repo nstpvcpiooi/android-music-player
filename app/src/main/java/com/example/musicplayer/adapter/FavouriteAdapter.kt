@@ -18,7 +18,6 @@ import com.example.musicplayer.activity.PlayerActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.example.musicplayer.databinding.FavouriteViewBinding
-import com.example.musicplayer.databinding.MoreFeaturesBinding
 
 class FavouriteAdapter(private val context: Context, private var musicList: ArrayList<Music>, val playNext: Boolean = false) : RecyclerView.Adapter<FavouriteAdapter.MyHolder>() {
 
@@ -49,25 +48,43 @@ class FavouriteAdapter(private val context: Context, private var musicList: Arra
                 ContextCompat.startActivity(context, intent, null)
             }
             holder.root.setOnLongClickListener {
-                val customDialog = LayoutInflater.from(context).inflate(R.layout.more_features, holder.root, false)
-                val bindingMF = MoreFeaturesBinding.bind(customDialog)
-                val dialog = MaterialAlertDialogBuilder(context).setView(customDialog)
-                    .create()
-                dialog.show()
-                dialog.window?.setBackgroundDrawable(ColorDrawable(0x99000000.toInt()))
-                bindingMF.AddToPNBtn.text = "Remove"
-                bindingMF.AddToPNBtn.setOnClickListener {
-                    if(position == PlayerActivity.songPosition)
-                        Snackbar.make((context as Activity).findViewById(R.id.linearLayoutPN),
-                            "Can't Remove Currently Playing Song.", Snackbar.LENGTH_SHORT).show()
-                    else{
-                        if(PlayerActivity.songPosition < position && PlayerActivity.songPosition != 0) --PlayerActivity.songPosition
-                        PlayNext.playNextList.removeAt(position)
-                        PlayerActivity.musicListPA.removeAt(position)
-                        notifyItemRemoved(position)
+                // Replace the old dialog logic with MaterialAlertDialogBuilder
+                MaterialAlertDialogBuilder(context)
+                    .setTitle("Remove from Play Next")
+                    .setMessage("Remove '${musicList[position].title}' from the Play Next queue?")
+                    .setPositiveButton("Remove") { dialogInterface, _ ->
+                        if (position == PlayerActivity.songPosition && PlayerActivity.musicListPA.isNotEmpty() && musicList[position].id == PlayerActivity.musicListPA[PlayerActivity.songPosition].id) {
+                            Snackbar.make((context as Activity).findViewById(R.id.linearLayoutPN) ?: holder.root,
+                                "Can't Remove Currently Playing Song.", Snackbar.LENGTH_SHORT).show()
+                        } else {
+                            val removedSongId = musicList[position].id
+                            PlayNext.playNextList.removeAt(position)
+                            // Also remove from PlayerActivity.musicListPA if it's being used as the source for PlayNext
+                            // and ensure songPosition is updated correctly.
+                            val indexInPlayerActivityList = PlayerActivity.musicListPA.indexOfFirst { it.id == removedSongId }
+                            if (indexInPlayerActivityList != -1) {
+                                PlayerActivity.musicListPA.removeAt(indexInPlayerActivityList)
+                                if (PlayerActivity.songPosition > indexInPlayerActivityList) {
+                                    PlayerActivity.songPosition--
+                                } else if (PlayerActivity.songPosition == indexInPlayerActivityList) {
+                                    // This case should ideally be handled by the check above.
+                                    // If current song is removed, PlayerActivity needs to handle this,
+                                    // e.g., play next, stop, or reset songPosition.
+                                    // For now, we assume the Snackbar prevents this or PlayerActivity handles it.
+                                }
+                            }
+                            notifyItemRemoved(position)
+                            // Notify adapter about data change for items that shift position
+                            if (position < musicList.size) { // Check if position is still valid after removal
+                                notifyItemRangeChanged(position, musicList.size - position)
+                            }
+                        }
+                        dialogInterface.dismiss()
                     }
-                    dialog.dismiss()
-                }
+                    .setNegativeButton("Cancel") { dialogInterface, _ ->
+                        dialogInterface.dismiss()
+                    }
+                    .show()
                 return@setOnLongClickListener true
             }
         }else{
@@ -92,3 +109,4 @@ class FavouriteAdapter(private val context: Context, private var musicList: Arra
     }
 
 }
+

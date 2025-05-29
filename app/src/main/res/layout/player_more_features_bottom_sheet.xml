@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:background="?attr/colorSurfaceContainerLowest"
     app:behavior_peekHeight="256dp"
     style="?attr/bottomSheetStyle">
+
 
     <com.google.android.material.bottomsheet.BottomSheetDragHandleView
         android:id="@+id/drag_handle"
@@ -18,7 +20,7 @@
 <!--        android:id="@+id/bottomSheetTitle"-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="wrap_content"-->
-<!--        android:text="@string/more_options"-->
+<!--        android:text="Song Options"-->
 <!--        style="?attr/textAppearanceTitleMedium"-->
 <!--        android:textColor="?attr/colorOnSurface"-->
 <!--        android:paddingHorizontal="16dp"-->
@@ -27,7 +29,7 @@
 <!--        android:gravity="start"/>-->
 
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/moreFeaturesNavigationView"
+        android:id="@+id/playerFeaturesNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
@@ -35,6 +37,6 @@
         app:itemTextColor="?attr/colorOnSurface"
         app:itemTextAppearance="@style/CustomNavigationItemAppearance"
         app:itemIconSize="18dp"
-        app:menu="@menu/more_features_menu" />
+        app:menu="@menu/player_bottom_sheet_menu" />
 
 </LinearLayout>

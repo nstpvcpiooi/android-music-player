@@ -22,9 +22,10 @@
         <!--BACK BUTTON-->
         <ImageView
             android:id="@+id/backBtnPA"
-            android:layout_width="48dp"
+            android:layout_width="68dp"
             android:layout_height="48dp"
-            android:layout_marginStart="25dp"
+            android:paddingStart="26dp"
+            android:paddingEnd="20dp"
             android:layout_alignParentStart="true"
             android:clickable="true"
             android:contentDescription="@string/back_btn"
@@ -52,10 +53,11 @@
         <!-- MORE BUTTON-->
         <ImageView
             android:id="@+id/moreInfoButtonPA"
-            android:layout_width="48dp"
+            android:layout_width="58dp"
             android:layout_height="48dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="26dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="26dp"
             android:scaleType="fitEnd"
             android:paddingVertical="13dp"
             android:clickable="true"
@@ -340,17 +342,17 @@
                 android:src="@drawable/equalizer_icon"
                 app:tint="@color/black_level2" />
 
-            <!-- SHARE BUTTON -->
-            <ImageButton
-                android:id="@+id/shareBtnPA"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="?attr/selectableItemBackground"
-                android:contentDescription="@string/share_btn"
-                android:padding="15dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/share_icon"
-                app:tint="@color/black_level2" />
+<!--            &lt;!&ndash; SHARE BUTTON &ndash;&gt;-->
+<!--            <ImageButton-->
+<!--                android:id="@+id/shareBtnPA"-->
+<!--                android:layout_width="50dp"-->
+<!--                android:layout_height="50dp"-->
+<!--                android:background="?attr/selectableItemBackground"-->
+<!--                android:contentDescription="@string/share_btn"-->
+<!--                android:padding="15dp"-->
+<!--                android:scaleType="fitCenter"-->
+<!--                android:src="@drawable/share_icon"-->
+<!--                app:tint="@color/black_level2" />-->
 
             <!-- VOLUME BOOSTER BUTTON -->
             <ImageButton

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
@@ -22,7 +21,6 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -39,6 +37,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.example.musicplayer.databinding.ActivityPlayerBinding
 import com.example.musicplayer.databinding.AudioBoosterBinding
+import com.example.musicplayer.fragment.PlayerMoreFeaturesBottomSheet
 import com.example.musicplayer.model.toFile
 import com.example.musicplayer.onprg.PlaylistActivity
 import com.example.musicplayer.utils.exitApplication
@@ -203,18 +202,13 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                     setDialogBtnBackground(this, customDialog)
                 }
         }
-        binding.shareBtnPA.setOnClickListener {
-            val shareIntent = Intent()
-            shareIntent.action = Intent.ACTION_SEND
-            shareIntent.type = "audio/*"
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(musicListPA[songPosition].path))
-            startActivity(Intent.createChooser(shareIntent, "Sharing Music File!!"))
-
-
-
-
-
-        }
+//        binding.shareBtnPA.setOnClickListener {
+//            val shareIntent = Intent()
+//            shareIntent.action = Intent.ACTION_SEND
+//            shareIntent.type = "audio/*"
+//            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(musicListPA[songPosition].path))
+//            startActivity(Intent.createChooser(shareIntent, "Sharing Music File!!"))
+//        }
 
         binding.recordingBtnPA.setOnClickListener {
 
@@ -313,6 +307,16 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 FavouriteActivity.favouriteSongs.add(musicListPA[songPosition])
             }
             FavouriteActivity.favouritesChanged = true
+        }
+
+        binding.moreInfoButtonPA.setOnClickListener {
+            val currentSongId = nowPlayingId
+            if (currentSongId.isNotEmpty()) {
+                val bottomSheet = PlayerMoreFeaturesBottomSheet.newInstance(currentSongId)
+                bottomSheet.show(supportFragmentManager, PlayerMoreFeaturesBottomSheet.TAG)
+            } else {
+                Toast.makeText(this, "Song ID not found", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
