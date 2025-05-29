@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingVertical="12dp"
-        android:paddingEnd="16dp"
+        android:paddingEnd="5dp"
         android:paddingStart="23dp">
 
         <com.google.android.material.imageview.ShapeableImageView
@@ -89,7 +89,7 @@
             android:id="@+id/moreInfoButtonMV"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:padding="12dp"
+            android:padding="13dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:contentDescription="@string/music_view_detail"
