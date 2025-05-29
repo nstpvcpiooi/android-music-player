@@ -53,4 +53,19 @@
         android:scrollbars="none"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabScrollToTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="16dp"
+        android:src="@drawable/scroll_to_top_icon"
+        app:backgroundTint="@color/white"
+        app:tint="@color/blue_app_icon"
+        android:contentDescription="@string/scroll_to_top"
+        app:fabCustomSize="40dp"
+        android:scaleType="fitCenter"
+        app:elevation="2dp"
+        app:pressedTranslationZ="4dp"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

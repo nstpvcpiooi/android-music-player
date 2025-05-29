@@ -2,6 +2,7 @@ package com.example.musicplayer.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,24 +16,43 @@ import com.example.musicplayer.activity.SearchActivity
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.core.content.ContextCompat
 
 class LibraryFragment : Fragment() {
 
     private lateinit var toolbar: MaterialToolbar
     private var appBarLayout: AppBarLayout? = null
-    private lateinit var musicRV: RecyclerView // Declare musicRV as a class member
+    private lateinit var musicRV: RecyclerView
+    private lateinit var fabScrollToTop: FloatingActionButton
 
-    // Store the listener instance to correctly remove it
     private val appBarOffsetChangedListener = AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
         val mainActivity = activity as? MainActivity
         val isToolbarAtTop = verticalOffset == 0
-        // Check if musicRV is initialized before using it
-        val isListAtTop = if (::musicRV.isInitialized) {
+        val isListAtTop = if (::musicRV.isInitialized && musicRV.adapter != null && musicRV.adapter!!.itemCount > 0) {
             !musicRV.canScrollVertically(-1)
         } else {
-            false // If musicRV isn't ready, assume list is not at top for safety
+            true
         }
         mainActivity?.setRefreshLayoutEnabled(isToolbarAtTop && isListAtTop)
+    }
+
+    private val fabStateUpdater = object : RecyclerView.AdapterDataObserver() {
+        override fun onChanged() {
+            updateFabVisibility()
+        }
+
+        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+            updateFabVisibility()
+        }
+
+        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+            updateFabVisibility()
+        }
+
+        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+            updateFabVisibility()
+        }
     }
 
     override fun onCreateView(
@@ -46,11 +66,13 @@ class LibraryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         toolbar = view.findViewById(R.id.topToolbar)
         appBarLayout = view.findViewById(R.id.appBarLayout)
-        musicRV = view.findViewById(R.id.musicRV) // Initialize the class member musicRV
+        musicRV = view.findViewById(R.id.musicRV)
+        fabScrollToTop = view.findViewById(R.id.fabScrollToTop)
+        fabScrollToTop.hide()
 
         setupToolbar()
-        initViews(view) // initViews will configure the musicRV instance
-        // Add the listener
+        initViews(view)
+        setupFabScrollToTop()
         appBarLayout?.addOnOffsetChangedListener(appBarOffsetChangedListener)
     }
 
@@ -71,23 +93,63 @@ class LibraryFragment : Fragment() {
     }
 
     private fun initViews(view: View) {
-        val localMusicRV: RecyclerView = view.findViewById(R.id.musicRV)
-
-        localMusicRV.setHasFixedSize(true)
-        localMusicRV.setItemViewCacheSize(13) // Giữ nguyên giá trị này, nó giúp cache nhiều view hơn
+        musicRV.setHasFixedSize(true)
+        musicRV.setItemViewCacheSize(13)
 
         val layoutManager = LinearLayoutManager(requireContext())
-        // Tăng số lượng item được prefetch. Giá trị mặc định là 2.
-        // Việc này có thể giúp cuộn mượt hơn bằng cách chuẩn bị nhiều view hơn trước khi cần đến.
-        // Bạn có thể thử nghiệm với các giá trị khác nhau (ví dụ: 4, 6) để xem giá trị nào phù hợp nhất.
         layoutManager.initialPrefetchItemCount = 4
-        localMusicRV.layoutManager = layoutManager
+        musicRV.layoutManager = layoutManager
 
         val mainActivity = activity as? MainActivity
-        if (mainActivity != null && MainActivity.MusicListMA.isNotEmpty()) {
-            localMusicRV.adapter = mainActivity.musicAdapter
-            mainActivity.musicAdapter.updateMusicList(MainActivity.MusicListMA)
+        if (mainActivity != null) {
+            try {
+                musicRV.adapter?.unregisterAdapterDataObserver(fabStateUpdater)
+            } catch (e: IllegalStateException) {
+            }
+
+            if (MainActivity.MusicListMA.isNotEmpty()) {
+                musicRV.adapter = mainActivity.musicAdapter
+            } else {
+                musicRV.adapter = null
+            }
+            musicRV.adapter?.registerAdapterDataObserver(fabStateUpdater)
         }
+        updateFabVisibility()
+    }
+
+    private fun setupFabScrollToTop() {
+        fabScrollToTop.setOnClickListener {
+            appBarLayout?.setExpanded(true, true)
+
+            val layoutManager = musicRV.layoutManager as? LinearLayoutManager
+            val firstVisibleItemPosition = layoutManager?.findFirstVisibleItemPosition() ?: 0
+
+            if (firstVisibleItemPosition < 30) {
+                musicRV.smoothScrollToPosition(0)
+            } else {
+                layoutManager?.scrollToPositionWithOffset(0, 0)
+            }
+        }
+
+        musicRV.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (!isAdded || view == null) return
+
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                if (dy > 10 && fabScrollToTop.visibility != View.VISIBLE) {
+                    fabScrollToTop.show()
+                } else if (dy < -10 && fabScrollToTop.visibility == View.VISIBLE) {
+                    if (firstVisibleItemPosition < 3) {
+                        fabScrollToTop.hide()
+                    }
+                } else if (firstVisibleItemPosition == 0 && fabScrollToTop.visibility == View.VISIBLE) {
+                    fabScrollToTop.hide()
+                }
+            }
+        })
     }
 
     private fun showSortDialog() {
@@ -101,8 +163,12 @@ class LibraryFragment : Fragment() {
                     val editor = requireActivity().getSharedPreferences("SORTING", AppCompatActivity.MODE_PRIVATE).edit()
                     editor.putInt("sortOrder", which)
                     editor.apply()
-                    MainActivity.MusicListMA = (activity as MainActivity).getAllAudio()
-                    (activity as MainActivity).musicAdapter.updateMusicList(MainActivity.MusicListMA)
+
+                    val mainActivity = activity as? MainActivity
+                    if (mainActivity != null) {
+                        MainActivity.MusicListMA = mainActivity.getAllAudio()
+                        mainActivity.musicAdapter.updateMusicList(MainActivity.MusicListMA)
+                    }
                 }
                 dialog.dismiss()
             }
@@ -110,34 +176,87 @@ class LibraryFragment : Fragment() {
         customDialog.show()
     }
 
+    private fun updateFabVisibility() {
+        if (!isAdded || view == null || !::musicRV.isInitialized || !::fabScrollToTop.isInitialized) {
+            return
+        }
+
+        musicRV.post {
+            if (!isAdded || view == null) return@post
+
+            val layoutManager = musicRV.layoutManager as? LinearLayoutManager
+            val firstVisibleItemPosition = layoutManager?.findFirstVisibleItemPosition() ?: RecyclerView.NO_POSITION
+
+            if (firstVisibleItemPosition == RecyclerView.NO_POSITION || musicRV.adapter == null || musicRV.adapter!!.itemCount == 0) {
+                fabScrollToTop.hide()
+                return@post
+            }
+
+            val showFabThreshold = 3
+            if (firstVisibleItemPosition >= showFabThreshold) {
+                fabScrollToTop.show()
+            } else {
+                fabScrollToTop.hide()
+            }
+        }
+    }
+
+    /**
+     * Gets a color from a theme attribute
+     * @param attrRes The attribute resource ID to resolve
+     * @return The resolved color
+     */
+    private fun getColorFromAttr(attrRes: Int): Int {
+        val typedValue = TypedValue()
+        requireContext().theme.resolveAttribute(attrRes, typedValue, true)
+        return typedValue.data
+    }
+
     override fun onResume() {
         super.onResume()
-        // When the fragment resumes, ensure the SwipeRefreshLayout's state is correctly set.
-        // Post this to run after the layout pass, ensuring appBarLayout.top is accurate.
-        appBarLayout?.post {
-            val mainActivity = activity as? MainActivity
-            val isToolbarAtTop = appBarLayout?.top == 0
-            // Check if musicRV is initialized before using it
-            val isListAtTop = if (::musicRV.isInitialized) {
-                !musicRV.canScrollVertically(-1)
-            } else {
-                false // If musicRV isn't ready, assume list is not at top
+
+        // Re-register the adapter observer if needed
+        if (::musicRV.isInitialized && musicRV.adapter != null) {
+            try {
+                musicRV.adapter?.unregisterAdapterDataObserver(fabStateUpdater)
+            } catch (e: IllegalStateException) {
+                // Observer not registered, ignore
             }
-            mainActivity?.setRefreshLayoutEnabled(isToolbarAtTop && isListAtTop)
+            musicRV.adapter?.registerAdapterDataObserver(fabStateUpdater)
         }
+
+        // Update FAB visibility when returning to fragment
+        updateFabVisibility()
+
+        // Use app's theme attributes for FAB colors (white background with purple icon)
+//        if (::fabScrollToTop.isInitialized) {
+//            fabScrollToTop.backgroundTintList = android.content.res.ColorStateList.valueOf(
+//                getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
+//            fabScrollToTop.imageTintList = android.content.res.ColorStateList.valueOf(
+//                getColorFromAttr(com.google.android.material.R.attr.colorPrimary))
+//        }
     }
 
     override fun onPause() {
         super.onPause()
-        // When the fragment is paused (not visible), disable SwipeRefreshLayout in MainActivity.
-        val mainActivity = activity as? MainActivity
-        mainActivity?.setRefreshLayoutEnabled(false)
+
+        // Unregister the adapter observer to prevent leaks
+        if (::musicRV.isInitialized && musicRV.adapter != null) {
+            try {
+                musicRV.adapter?.unregisterAdapterDataObserver(fabStateUpdater)
+            } catch (e: IllegalStateException) {
+                // Observer not registered, ignore
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Remove the specific listener instance
+        try {
+            musicRV.adapter?.unregisterAdapterDataObserver(fabStateUpdater)
+        } catch (e: IllegalStateException) {
+        }
         appBarLayout?.removeOnOffsetChangedListener(appBarOffsetChangedListener)
-        appBarLayout = null // Help Garbage Collection
+        appBarLayout = null
     }
 }
