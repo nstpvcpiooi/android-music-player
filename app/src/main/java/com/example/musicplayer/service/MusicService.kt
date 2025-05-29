@@ -202,20 +202,13 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
         mediaSession.setPlaybackState(getPlayBackState())
     }
 
-
-
     private fun prevNextSong(increment: Boolean, context: Context){
 
         setSongPosition(increment = increment)
 
-        PlayerActivity.musicService?.createMediaPlayer()
-        Glide.with(context)
-            .load(PlayerActivity.musicListPA[PlayerActivity.songPosition].artUri)
-            .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
-            .into(PlayerActivity.binding.songImgPA)
+        this.createMediaPlayer() // Gọi createMediaPlayer của MusicService để chuẩn bị bài hát và cập nhật notification
 
-        PlayerActivity.binding.songNamePA.text = PlayerActivity.musicListPA[PlayerActivity.songPosition].title
-
+        // Cập nhật cho NowPlaying Fragment (phần này có thể vẫn ổn nếu NowPlaying.binding là static và đơn giản)
         Glide.with(context)
             .load(PlayerActivity.musicListPA[PlayerActivity.songPosition].artUri)
             .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
@@ -223,8 +216,9 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
 
         NowPlaying.binding.songNameNP.text = PlayerActivity.musicListPA[PlayerActivity.songPosition].title
 
-        playMusic()
+        playMusic() // Phương thức này của service sẽ bắt đầu phát nhạc và cập nhật icon notification
 
+        // Cập nhật nút yêu thích trong PlayerActivity (vẫn là thao tác UI trực tiếp, cần xem xét lại sau)
         PlayerActivity.fIndex = favouriteChecker(PlayerActivity.musicListPA[PlayerActivity.songPosition].id)
         if(PlayerActivity.isFavourite) PlayerActivity.binding.favouriteBtnPA.setImageResource(R.drawable.favourite_icon)
         else PlayerActivity.binding.favouriteBtnPA.setImageResource(R.drawable.favourite_empty_icon)
@@ -260,12 +254,10 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
         showNotification(R.drawable.play_icon)
     }
 
-
-
-
     //for making persistent
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return START_STICKY
     }
 
 }
+

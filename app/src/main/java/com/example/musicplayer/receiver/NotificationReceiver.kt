@@ -46,15 +46,9 @@ class NotificationReceiver:BroadcastReceiver() {
     private fun prevNextSong(increment: Boolean, context: Context){
         setSongPosition(increment = increment)
 
-        //for the bìg playing activity
-        PlayerActivity.musicService!!.createMediaPlayer()
-        Glide.with(context)
-            .load(PlayerActivity.musicListPA[PlayerActivity.songPosition].artUri)
-            .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
-            .into(PlayerActivity.binding.songImgPA)
+        PlayerActivity.musicService!!.createMediaPlayer() // This should trigger UI updates in PlayerActivity
 
-        //for nowplaying
-        PlayerActivity.binding.songNamePA.text = PlayerActivity.musicListPA[PlayerActivity.songPosition].title
+        //for nowplaying (this part is fine)
         Glide.with(context)
             .load(PlayerActivity.musicListPA[PlayerActivity.songPosition].artUri)
             .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
@@ -69,3 +63,4 @@ class NotificationReceiver:BroadcastReceiver() {
         else PlayerActivity.binding.favouriteBtnPA.setImageResource(R.drawable.favourite_empty_icon)
     }
 }
+
