@@ -382,8 +382,51 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         Palette.from(image).generate { palette ->
             val defaultColor = Color.LTGRAY // Fallback color
 
-            val start = palette?.getVibrantColor(defaultColor) ?: defaultColor
-            var end = palette?.getDominantColor(defaultColor) ?: defaultColor
+            var tempStart = palette?.getVibrantColor(defaultColor) ?: defaultColor
+
+            // --- Determine dominant color (tempEnd) based on largest population ---
+            var dominantSwatch: Palette.Swatch? = null
+            palette?.swatches?.forEach { swatch ->
+                if (swatch != null) { // Ensure swatch is not null, though Palette API typically ensures this
+                    if (dominantSwatch == null || swatch.population > dominantSwatch!!.population) {
+                        dominantSwatch = swatch
+                    }
+                }
+            }
+            // Use the most populous swatch's RGB. If none, try getDominantColor(), then fallback.
+            var tempEnd = dominantSwatch?.rgb ?: palette?.getDominantColor(defaultColor) ?: defaultColor
+
+            val brightnessThreshold = 200 // Colors with average RGB component > 200 are considered bright
+            val darkeningFactor = 0.8f // Reduce component values to 80% (mix with 20% black)
+
+            // --- Darken start color if too bright ---
+            var r = Color.red(tempStart)
+            var g = Color.green(tempStart)
+            var b = Color.blue(tempStart)
+            if ((r + g + b) / 3 > brightnessThreshold) {
+                tempStart = Color.argb(
+                    Color.alpha(tempStart),
+                    (r * darkeningFactor).toInt(),
+                    (g * darkeningFactor).toInt(),
+                    (b * darkeningFactor).toInt()
+                )
+            }
+
+            // --- Darken end color if too bright ---
+            r = Color.red(tempEnd)
+            g = Color.green(tempEnd)
+            b = Color.blue(tempEnd)
+            if ((r + g + b) / 3 > brightnessThreshold) {
+                tempEnd = Color.argb(
+                    Color.alpha(tempEnd),
+                    (r * darkeningFactor).toInt(),
+                    (g * darkeningFactor).toInt(),
+                    (b * darkeningFactor).toInt()
+                )
+            }
+
+            val start = tempStart
+            var end = tempEnd // Now 'end' is potentially darkened
 
             // Ensure end color has some transparency for text visibility if it's too strong
             // or to create a softer blend with the vibrant color.
