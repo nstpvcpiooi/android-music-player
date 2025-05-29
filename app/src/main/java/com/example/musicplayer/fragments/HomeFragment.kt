@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.R
+import com.example.musicplayer.activity.MainActivity
 
 class HomeFragment : Fragment() {
 
@@ -36,6 +37,23 @@ class HomeFragment : Fragment() {
         // Load data and set adapters (to be implemented)
         loadRecentlyPlayed(recentlyPlayedRV)
         loadRecommended(recommendedRV)
+
+        // Setup buttons
+        view.findViewById<View>(R.id.shuffleBtn).setOnClickListener {
+            (activity as? MainActivity)?.openShufflePlayer()
+        }
+
+        view.findViewById<View>(R.id.favouriteBtn).setOnClickListener {
+            (activity as? MainActivity)?.openFavorites()
+        }
+
+        view.findViewById<View>(R.id.playlistBtn).setOnClickListener {
+            (activity as? MainActivity)?.openPlaylist()
+        }
+
+        view.findViewById<View>(R.id.playNextBtn).setOnClickListener {
+            (activity as? MainActivity)?.openPlayNext()
+        }
     }
 
     private fun loadRecentlyPlayed(recyclerView: RecyclerView) {

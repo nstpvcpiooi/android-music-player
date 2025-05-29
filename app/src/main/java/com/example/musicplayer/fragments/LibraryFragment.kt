@@ -41,23 +41,6 @@ class LibraryFragment : Fragment() {
             musicRV.adapter = mainActivity.musicAdapter
         }
 
-        // Setup buttons
-        view.findViewById<View>(R.id.shuffleBtn).setOnClickListener {
-            (activity as? MainActivity)?.openShufflePlayer()
-        }
-
-        view.findViewById<View>(R.id.favouriteBtn).setOnClickListener {
-            (activity as? MainActivity)?.openFavorites()
-        }
-
-        view.findViewById<View>(R.id.playlistBtn).setOnClickListener {
-            (activity as? MainActivity)?.openPlaylist()
-        }
-
-        view.findViewById<View>(R.id.playNextBtn).setOnClickListener {
-            (activity as? MainActivity)?.openPlayNext()
-        }
-
 //        // Setup account and download buttons
 //        view.findViewById<View>(R.id.accountButton).setOnClickListener {
 //            startActivity(Intent(requireContext(), AccountActivity::class.java))
