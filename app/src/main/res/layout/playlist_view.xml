@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="15dp"
     app:strokeWidth="2dp"
-    app:strokeColor="?attr/themeColor"
+    app:strokeColor="?attr/colorPrimary"
     android:layout_margin="10dp"
     app:cardBackgroundColor="@color/white">
 
@@ -35,7 +35,7 @@
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:src="@drawable/delete_icon"
-        app:tint="?attr/themeColor"
+        app:tint="?attr/colorPrimary"
         android:layout_marginEnd="5dp"
         android:layout_marginTop="130dp"
         android:layout_marginStart="130dp"
@@ -43,3 +43,4 @@
         android:contentDescription="@string/playlist_delete" />
 
 </com.google.android.material.card.MaterialCardView>
+
