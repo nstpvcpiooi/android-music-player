@@ -356,4 +356,8 @@ class MainActivity : AppCompatActivity() {
 
         return true
     }
+
+    fun setRefreshLayoutEnabled(enabled: Boolean) {
+        binding.refreshLayout.isEnabled = enabled
+    }
 }
