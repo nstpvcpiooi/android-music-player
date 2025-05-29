@@ -70,6 +70,9 @@ dependencies {
     // Vertical Seekbar
     implementation(libs.verticalseekbar)
 
+    // Palette for extracting vibrant colors from images
+    implementation("androidx.palette:palette:1.0.0")
+
     implementation("com.google.android.material:material:1.11.0")
     implementation ("com.arthenica:ffmpeg-kit-full-gpl:6.0.LTS")
 
@@ -79,3 +82,4 @@ dependencies {
     implementation("com.cloudinary:cloudinary-android:3.0.2")
     implementation(libs.firebase.database)
 }
+

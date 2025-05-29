@@ -5,7 +5,9 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.database.Cursor
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.media.AudioManager
@@ -22,6 +24,8 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.model.Music
@@ -85,6 +89,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false) // Allow drawing behind system bars
 
         //chon trung theme ma main actitivy dang dung
         setTheme(MainActivity.currentTheme[MainActivity.themeIndex])
@@ -372,10 +377,28 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 R.drawable.music_player_icon_slash_screen
             )
         }
-        val bgColor = getMainColor(image)
-        val gradient = GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, intArrayOf(0xFFFFFF, bgColor))
-        binding.root.background = gradient
-        window?.statusBarColor = bgColor
+
+        // Create palette
+        Palette.from(image).generate { palette ->
+            val defaultColor = Color.LTGRAY // Fallback color
+
+            val start = palette?.getVibrantColor(defaultColor) ?: defaultColor
+            var end = palette?.getDominantColor(defaultColor) ?: defaultColor
+
+            // Ensure end color has some transparency for text visibility if it's too strong
+            // or to create a softer blend with the vibrant color.
+            // Adjust alpha to around 60-70% opacity if it's very opaque or similar to start
+            val endAlpha = if (Color.alpha(end) > 200 && (start == end || Color.alpha(end) == 255)) 180 else Color.alpha(end)
+            end = Color.argb(endAlpha, Color.red(end), Color.green(end), Color.blue(end))
+
+            val gradient = GradientDrawable(
+                GradientDrawable.Orientation.BL_TR,
+                intArrayOf(start, end)
+            )
+            binding.root.background = gradient
+            window?.statusBarColor = Color.TRANSPARENT // Make status bar transparent
+            window?.navigationBarColor = Color.TRANSPARENT // Make navigation bar transparent
+        }
     }
 
     private fun createMediaPlayer(){
