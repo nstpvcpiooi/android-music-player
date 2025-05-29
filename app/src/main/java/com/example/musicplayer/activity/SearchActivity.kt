@@ -25,6 +25,8 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.search_view_layout)
 
+        MainActivity.search = true // Indicate that a search context is active
+
         initializeViews()
         setupToolbar()
         setupSearchView()
@@ -61,6 +63,7 @@ class SearchActivity : AppCompatActivity() {
                 if (!newText.isNullOrEmpty() && newText.length >= 2) {
                     performSearch(newText)
                 } else if (newText.isNullOrEmpty()) {
+                    MainActivity.musicListSearch.clear() // Clear the global search list
                     searchAdapter.updateMusicList(ArrayList())
                     showStatus("Enter search query")
                 }
@@ -73,7 +76,12 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun performSearch(query: String?) {
-        if (query.isNullOrEmpty()) return
+        if (query.isNullOrEmpty()) {
+            MainActivity.musicListSearch.clear() // Clear the global search list
+            searchAdapter.updateMusicList(ArrayList())
+            showStatus("Enter search query")
+            return
+        }
 
         val filteredList = ArrayList<Music>()
 
@@ -88,7 +96,7 @@ class SearchActivity : AppCompatActivity() {
                 filteredList.add(song)
             }
         }
-
+        MainActivity.musicListSearch = filteredList // Update the global search list for PlayerActivity
         updateSearchResults(filteredList, query)
     }
 
@@ -112,5 +120,13 @@ class SearchActivity : AppCompatActivity() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        MainActivity.search = false // Reset search flag when activity is destroyed
+        // It's generally safer not to clear MainActivity.musicListSearch here,
+        // as PlayerActivity might still be using its copy if a song was just played from search.
+        // PlayerActivity's musicListPA holds its own copy of the list.
     }
 }
