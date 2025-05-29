@@ -140,6 +140,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
+        // Add custom animations for fragment transitions
+        transaction.setCustomAnimations(
+            R.anim.fade_in_fast, // enter
+            R.anim.fade_out_fast, // exit
+            R.anim.fade_in_fast, // popEnter
+            R.anim.fade_out_fast // popExit
+        )
         transaction.replace(R.id.fragment_container, fragment)
         transaction.commit()
     }
