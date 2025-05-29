@@ -254,7 +254,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("Recycle", "Range")
-    private fun getAllAudio(): ArrayList<Music> {
+    fun getAllAudio(): ArrayList<Music> {
         val tempList = ArrayList<Music>()
 
         // Filter Only Music or Audio Files
