@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface">
@@ -9,10 +10,12 @@
         android:id="@+id/search_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
         android:background="?attr/colorSurface"
-        app:title="Search Music"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/back_icon"
+        app:title="Search"
         app:titleTextColor="?attr/colorOnSurface" />
 
     <androidx.appcompat.widget.SearchView
@@ -24,8 +27,9 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp"
         app:iconifiedByDefault="false"
-        app:queryHint="Search for songs, artists, or albums"
-        android:background="@drawable/search_background" />
+        app:queryHint="Search for songs"
+        android:background="@drawable/search_background"
+        app:queryBackground="@null"/>
 
     <TextView
         android:id="@+id/search_status"
@@ -44,8 +48,6 @@
         app:layout_constraintTop_toBottomOf="@id/search_status"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginTop="8dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
         android:paddingBottom="16dp"
         android:clipToPadding="false" />
 

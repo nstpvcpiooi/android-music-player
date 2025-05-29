@@ -54,7 +54,7 @@
     <string name="account">Account</string>
     <string name="play_pause_btn">Play or Pause</string>
     <string name="next_btn">Next</string>
-    <string name="home_header">Home</string>
+    <string name="home_header">Welcome!</string>
     <string name="welcome_message">Welcome to Music Player</string>
     <string name="recently_played">Recently Played</string>
     <string name="recommended_for_you">Recommended for You</string>
