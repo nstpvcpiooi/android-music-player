@@ -118,6 +118,8 @@
                 android:layout_toStartOf="@id/favouriteBtnPA"
                 android:gravity="start"
                 android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
                 android:text="@string/song_name"
                 android:textColor="@color/white"
                 android:textIsSelectable="true"
@@ -370,3 +372,4 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

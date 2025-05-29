@@ -467,6 +467,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         musicService!!.mediaPlayer!!.start()
         binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
         musicService!!.showNotification(R.drawable.pause_icon)
+        binding.songNamePA.isSelected = true // Start marquee when playing
     }
 
     private fun pauseMusic(){
@@ -474,8 +475,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         musicService!!.mediaPlayer!!.pause()
         binding.playPauseImgPA.setImageResource(R.drawable.play_icon)
         musicService!!.showNotification(R.drawable.play_icon)
-
-
+        binding.songNamePA.isSelected = false // Stop marquee when paused
     }
     private fun prevNextSong(increment: Boolean){
         if(increment)
