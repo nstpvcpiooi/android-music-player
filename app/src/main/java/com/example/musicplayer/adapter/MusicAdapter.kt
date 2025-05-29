@@ -8,7 +8,9 @@ import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.text.bold
 import androidx.recyclerview.widget.RecyclerView
@@ -18,15 +20,14 @@ import com.example.musicplayer.model.Music
 import com.example.musicplayer.onprg.PlayNext
 import com.example.musicplayer.onprg.PlaylistDetails
 import com.example.musicplayer.R
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.example.musicplayer.adapter.MusicAdapter.MyHolder
 import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.onprg.PlaylistActivity
 import com.example.musicplayer.databinding.DetailsViewBinding
-import com.example.musicplayer.databinding.MoreFeaturesBinding
 import com.example.musicplayer.databinding.MusicViewBinding
+import com.example.musicplayer.fragment.MoreFeaturesBottomSheet
 import com.example.musicplayer.utils.formatDuration
 import com.example.musicplayer.utils.setDialogBtnBackground
 
@@ -67,50 +68,12 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
         //for play next feature
         if(!selectionActivity)
             holder.root.setOnLongClickListener {
-                val customDialog = LayoutInflater.from(context).inflate(R.layout.more_features, holder.root, false)
-                val bindingMF = MoreFeaturesBinding.bind(customDialog)
-                val dialog = MaterialAlertDialogBuilder(context).setView(customDialog)
-                    .create()
-                dialog.show()
-                dialog.window?.setBackgroundDrawable(ColorDrawable(0x99000000.toInt()))
-
-                bindingMF.AddToPNBtn.setOnClickListener {
-                    try {
-                        if(PlayNext.playNextList.isEmpty()){
-                            PlayNext.playNextList.add(PlayerActivity.musicListPA[PlayerActivity.songPosition])
-                            PlayerActivity.songPosition = 0
-                        }
-
-                        PlayNext.playNextList.add(musicList[position])
-                        PlayerActivity.musicListPA = ArrayList()
-                        PlayerActivity.musicListPA.addAll(PlayNext.playNextList)
-                    }catch (e: Exception){
-                        Snackbar.make(context, holder.root,"Play A Song First!!", 3000).show()
-                    }
-                    dialog.dismiss()
-                }
-
-                bindingMF.infoBtn.setOnClickListener {
-                    dialog.dismiss()
-                    val detailsDialog = LayoutInflater.from(context).inflate(R.layout.details_view, bindingMF.root, false)
-                    val binder = DetailsViewBinding.bind(detailsDialog)
-                    binder.detailsTV.setTextColor(Color.WHITE)
-                    binder.root.setBackgroundColor(Color.TRANSPARENT)
-                    val dDialog = MaterialAlertDialogBuilder(context)
-//                        .setBackground(ColorDrawable(0x99000000.toInt()))
-                        .setView(detailsDialog)
-                        .setPositiveButton("OK"){self, _ -> self.dismiss()}
-                        .setCancelable(false)
-                        .create()
-                    dDialog.show()
-                    dDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.RED)
-                    setDialogBtnBackground(context, dDialog)
-                    dDialog.window?.setBackgroundDrawable(ColorDrawable(0x99000000.toInt()))
-                    val str = SpannableStringBuilder().bold { append("DETAILS\n\nName: ") }
-                        .append(musicList[position].title)
-                        .bold { append("\n\nDuration: ") }.append(DateUtils.formatElapsedTime(musicList[position].duration/1000))
-                        .bold { append("\n\nLocation: ") }.append(musicList[position].path)
-                    binder.detailsTV.text = str
+                if (context is AppCompatActivity) {
+                    // Pass the music ID to the bottom sheet
+                    val moreFeaturesSheet = MoreFeaturesBottomSheet.newInstance(musicList[position].id)
+                    moreFeaturesSheet.show(context.supportFragmentManager, MoreFeaturesBottomSheet.TAG)
+                } else {
+                    Toast.makeText(context, "Cannot show more features here", Toast.LENGTH_SHORT).show()
                 }
 
                 return@setOnLongClickListener true
@@ -139,15 +102,6 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
                             sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
                         else->sendIntent(ref="MusicAdapter", pos = position) } }
             }
-                /*    onItemClick?.invoke(position)
-                when{
-                    MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
-                    musicList[position].id == PlayerActivity.nowPlayingId ->
-                        sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
-                    else->sendIntent(ref="MusicAdapter", pos = position) }
-                }
-        }*/
-
         }
     }
 
@@ -182,3 +136,4 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
         notifyDataSetChanged()
     }
 }
+
