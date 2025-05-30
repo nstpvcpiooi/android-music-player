@@ -328,7 +328,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 //            //Toast.makeText(this, "Đã lưu file tại: $uri", Toast.LENGTH_LONG).show()
 //
 //
-//            // Tạo file kết quả lưu vào bộ nhớ ngoài
+//            // Tạo file kết quả l��u vào bộ nhớ ngoài
 //            var outputFile = File(getExternalFilesDir(null), "mixed_audio_${System.currentTimeMillis()}.mp3")
 //
 //            var musicFile = musicListPA[songPosition].toFile();
@@ -388,6 +388,11 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 binding.seekBarPA.max = musicService!!.mediaPlayer!!.duration
                 if(isPlaying) binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
                 else binding.playPauseImgPA.setImageResource(R.drawable.play_icon)
+
+                // Đảm bảo albumCoverAdapter được khởi tạo với danh sách nhạc hiện tại
+                albumCoverAdapter.updateMusicList(musicListPA)
+                // Đặt ViewPager hiển thị bài hát hiện tại
+                binding.albumCoverViewPager.setCurrentItem(songPosition, false)
             }
             "MusicAdapterSearch"-> initServiceAndPlaylist(MainActivity.musicListSearch, shuffle = false)
             "MusicAdapter" -> initServiceAndPlaylist(MainActivity.MusicListMA, shuffle = false)
