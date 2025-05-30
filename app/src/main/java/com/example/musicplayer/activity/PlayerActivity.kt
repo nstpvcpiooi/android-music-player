@@ -381,12 +381,24 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         songPosition = intent.getIntExtra("index", 0)
         when(intent.getStringExtra("class")){
             "NowPlaying"->{
+
+                // Sync PlayerActivity.isPlaying with the actual state from MusicService
+                if (musicService?.mediaPlayer != null) {
+                    PlayerActivity.isPlaying = musicService!!.mediaPlayer!!.isPlaying
+                }
+                // else: PlayerActivity.isPlaying retains its value. If service/mediaPlayer isn't ready,
+                // it relies on the existing state, which should be accurate from previous interactions.
+
                 setLayout()
-                binding.tvSeekBarStart.text = formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
-                binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
-                binding.seekBarPA.progress = musicService!!.mediaPlayer!!.currentPosition
-                binding.seekBarPA.max = musicService!!.mediaPlayer!!.duration
-                if(isPlaying) binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
+                // Ensure musicService and mediaPlayer are available before accessing them
+                if (musicService?.mediaPlayer != null) {
+                    binding.tvSeekBarStart.text = formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
+                    binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
+                    binding.seekBarPA.progress = musicService!!.mediaPlayer!!.currentPosition
+                    binding.seekBarPA.max = musicService!!.mediaPlayer!!.duration
+                }
+                // Update play/pause button based on the (potentially updated) isPlaying state
+                if (PlayerActivity.isPlaying) binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
                 else binding.playPauseImgPA.setImageResource(R.drawable.play_icon)
 
                 // Đảm bảo albumCoverAdapter được khởi tạo với danh sách nhạc hiện tại
@@ -405,7 +417,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 initServiceAndPlaylist(PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = true)
             "PlayNext"->initServiceAndPlaylist(PlayNext.playNextList, shuffle = false, playNext = true)
         }
-        if (musicService != null && !isPlaying) playMusic()
+//        if (musicService != null && !isPlaying) playMusic()
 
         // Set viewpager to current song position
         binding.albumCoverViewPager.setCurrentItem(songPosition, false)
