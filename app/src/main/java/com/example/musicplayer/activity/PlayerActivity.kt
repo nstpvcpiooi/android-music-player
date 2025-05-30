@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.palette.graphics.Palette
+import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.model.Music
@@ -34,9 +35,11 @@ import com.example.musicplayer.NowPlaying
 import com.example.musicplayer.onprg.PlayNext
 import com.example.musicplayer.onprg.PlaylistDetails
 import com.example.musicplayer.R
+import com.example.musicplayer.adapter.AlbumCoverPagerAdapter
 import com.example.musicplayer.audio.AudioMixer
 import com.example.musicplayer.audio.AudioRecorder
 import com.example.musicplayer.audio.AudioSaver
+import com.example.musicplayer.transformer.AlbumCoverPageTransformer
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.example.musicplayer.databinding.ActivityPlayerBinding
@@ -52,7 +55,7 @@ import com.example.musicplayer.utils.getMainColor
 import com.example.musicplayer.utils.setDialogBtnBackground
 import com.example.musicplayer.utils.setSongPosition
 import java.io.File
-
+import kotlin.math.abs
 
 class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCompletionListener {
 
@@ -84,6 +87,36 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         lateinit var mixedFile: File
         var isRecording: Boolean = false
 
+        // Add the album cover pager adapter
+        lateinit var albumCoverAdapter: AlbumCoverPagerAdapter
+    }
+
+    private var userIsSwiping = false
+
+    // ViewPager page change callback to update song position when swiping
+    private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            if (songPosition != position && !userIsSwiping) {
+                songPosition = position
+                createMediaPlayer()
+                setLayout()
+            }
+        }
+
+        override fun onPageScrollStateChanged(state: Int) {
+            when (state) {
+                ViewPager2.SCROLL_STATE_DRAGGING -> userIsSwiping = true
+                ViewPager2.SCROLL_STATE_IDLE -> {
+                    // Only change song if user actually swiped to a different position
+                    if (userIsSwiping && binding.albumCoverViewPager.currentItem != songPosition) {
+                        songPosition = binding.albumCoverViewPager.currentItem
+                        createMediaPlayer()
+                        setLayout()
+                    }
+                    userIsSwiping = false
+                }
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -98,6 +131,17 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize album cover adapter
+        albumCoverAdapter = AlbumCoverPagerAdapter(ArrayList())
+        binding.albumCoverViewPager.adapter = albumCoverAdapter
+        binding.albumCoverViewPager.setPageTransformer(AlbumCoverPageTransformer())
+        binding.albumCoverViewPager.registerOnPageChangeCallback(pageChangeCallback)
+
+        // Reduce page transition sensitivity to avoid accidental swipes
+        binding.albumCoverViewPager.apply {
+            // Offscreen page limit for smoother transitions
+            offscreenPageLimit = 1
+        }
 
         //để nghe file nhạc từ trong file điện thoại
         if(intent.data?.scheme.contentEquals("content")){
@@ -110,10 +154,17 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
             musicListPA = ArrayList()
             musicListPA.add(getMusicDetails(intent.data!!))
+
+            // Set up album cover pager
+            albumCoverAdapter.updateMusicList(musicListPA)
+            binding.albumCoverViewPager.setCurrentItem(songPosition, false)
+
+            // For backward compatibility
             Glide.with(this)
                 .load(getImgArt(musicListPA[songPosition].path))
                 .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
                 .into(binding.songImgPA)
+
             binding.songNamePA.text = musicListPA[songPosition].title
         } else initializeLayout()
 
@@ -349,15 +400,26 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 initServiceAndPlaylist(PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = true)
             "PlayNext"->initServiceAndPlaylist(PlayNext.playNextList, shuffle = false, playNext = true)
         }
-    if (musicService != null && !isPlaying) playMusic()
+        if (musicService != null && !isPlaying) playMusic()
+
+        // Set viewpager to current song position
+        binding.albumCoverViewPager.setCurrentItem(songPosition, false)
     }
 
     private fun setLayout(){
         fIndex = favouriteChecker(musicListPA[songPosition].id)
+
+        // Update ViewPager to show current song position
+        if (binding.albumCoverViewPager.currentItem != songPosition) {
+            binding.albumCoverViewPager.setCurrentItem(songPosition, true)
+        }
+
+        // Keep the old image view updated for backward compatibility
         Glide.with(applicationContext)
             .load(musicListPA[songPosition].artUri)
             .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
             .into(binding.songImgPA)
+
         binding.songNamePA.text = musicListPA[songPosition].title
         if(repeat) binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(applicationContext,
             R.color.purple_500
@@ -587,6 +649,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
     override fun onDestroy() {
         super.onDestroy()
+        binding.albumCoverViewPager.unregisterOnPageChangeCallback(pageChangeCallback)
         if(musicListPA[songPosition].id == "Unknown" && !isPlaying) exitApplication()
     }
     private fun initServiceAndPlaylist(playlist: ArrayList<Music>, shuffle: Boolean, playNext: Boolean = false){
@@ -596,6 +659,11 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         musicListPA = ArrayList()
         musicListPA.addAll(playlist)
         if(shuffle) musicListPA.shuffle()
+
+        // Update album cover adapter with new playlist
+        albumCoverAdapter.updateMusicList(musicListPA)
+        binding.albumCoverViewPager.setCurrentItem(songPosition, false)
+
         setLayout()
         if(!playNext) PlayNext.playNextList = ArrayList()
     }

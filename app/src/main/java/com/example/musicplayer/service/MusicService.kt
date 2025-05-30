@@ -202,17 +202,25 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
         mediaSession.setPlaybackState(getPlayBackState())
     }
 
-
-
     private fun prevNextSong(increment: Boolean, context: Context){
 
         setSongPosition(increment = increment)
 
         PlayerActivity.musicService?.createMediaPlayer()
-        Glide.with(context)
-            .load(PlayerActivity.musicListPA[PlayerActivity.songPosition].artUri)
-            .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
-            .into(PlayerActivity.binding.songImgPA)
+
+        // Update ViewPager in PlayerActivity if it exists
+        try {
+            // Set ViewPager to current song position
+            if (PlayerActivity.albumCoverAdapter != null) {
+                PlayerActivity.binding.albumCoverViewPager.setCurrentItem(PlayerActivity.songPosition, true)
+            }
+        } catch (e: Exception) {
+            // Fallback to old method if ViewPager is not initialized
+            Glide.with(context)
+                .load(PlayerActivity.musicListPA[PlayerActivity.songPosition].artUri)
+                .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
+                .into(PlayerActivity.binding.songImgPA)
+        }
 
         PlayerActivity.binding.songNamePA.text = PlayerActivity.musicListPA[PlayerActivity.songPosition].title
 
@@ -269,3 +277,4 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
     }
 
 }
+
