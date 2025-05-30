@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/timer_5_min"
+        android:title="@string/timer_5_min"/>
+    <item
+        android:id="@+id/timer_10_min"
+        android:title="@string/timer_10_min"/>
+    <item
+        android:id="@+id/timer_30_min"
+        android:title="@string/timer_30_min"/>
+</menu>
+

@@ -64,5 +64,8 @@
     <string name="delete">Delete from this device</string>
     <string name="share">Share</string>
     <string name="scroll_to_top">Scroll to top\n</string>
+    <string name="timer_5_min">5 Minutes</string>
+    <string name="timer_10_min">10 Minutes</string>
+    <string name="timer_30_min">30 Minutes</string>
 </resources>
 

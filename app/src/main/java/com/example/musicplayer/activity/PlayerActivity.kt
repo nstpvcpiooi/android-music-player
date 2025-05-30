@@ -5,7 +5,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.database.Cursor
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -44,6 +43,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.example.musicplayer.databinding.ActivityPlayerBinding
 import com.example.musicplayer.databinding.AudioBoosterBinding
+import com.example.musicplayer.databinding.TimerBottomSheetBinding
 import com.example.musicplayer.fragment.PlayerMoreFeaturesBottomSheet
 import com.example.musicplayer.model.toFile
 import com.example.musicplayer.onprg.PlaylistActivity
@@ -51,11 +51,9 @@ import com.example.musicplayer.utils.exitApplication
 import com.example.musicplayer.utils.favouriteChecker
 import com.example.musicplayer.utils.formatDuration
 import com.example.musicplayer.utils.getImgArt
-import com.example.musicplayer.utils.getMainColor
 import com.example.musicplayer.utils.setDialogBtnBackground
 import com.example.musicplayer.utils.setSongPosition
 import java.io.File
-import kotlin.math.abs
 
 class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCompletionListener {
 
@@ -215,10 +213,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         binding.repeatBtnPA.setOnClickListener {
             if(!repeat){
                 repeat = true
-                binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
+                binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.yellow))
             }else{
                 repeat = false
-                binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.black_level2))
+                binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.white))
             }
         }
 
@@ -247,7 +245,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                         min10 = false
                         min30 = false
                         binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this,
-                            R.color.black_level2
+                            R.color.white
                         ))
                     }
                     .setNegativeButton("No"){dialog, _ ->
@@ -439,10 +437,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         binding.songNamePA.text = musicListPA[songPosition].title
         if(repeat) binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(applicationContext,
-            R.color.purple_500
+            R.color.yellow
         ))
         if(min5 || min10 || min30) binding.timerBtnPA.setColorFilter(ContextCompat.getColor(applicationContext,
-            R.color.purple_500
+            R.color.yellow
         ))
         if(isFavourite) binding.favouriteBtnPA.setImageResource(R.drawable.favourite_icon)
         else binding.favouriteBtnPA.setImageResource(R.drawable.favourite_empty_icon)
@@ -615,37 +613,49 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
     private fun showBottomSheetDialog(){
         val dialog = BottomSheetDialog(this@PlayerActivity)
-        dialog.setContentView(R.layout.bottom_sheet_dialog)
+        val bottomSheetBinding = TimerBottomSheetBinding.inflate(layoutInflater)
+        dialog.setContentView(bottomSheetBinding.root)
         dialog.show()
-        dialog.findViewById<LinearLayout>(R.id.min_15)?.setOnClickListener {
-            Toast.makeText(baseContext,  "Music will stop after 5 minutes", Toast.LENGTH_SHORT).show()
-            binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
-            min5 = true
-            Thread{Thread.sleep((5 * 60000).toLong())
-            if(min5) exitApplication()
-            }.start()
-            dialog.dismiss()
-        }
-        dialog.findViewById<LinearLayout>(R.id.min_30)?.setOnClickListener {
-            Toast.makeText(baseContext,  "Music will stop after 10 minutes", Toast.LENGTH_SHORT).show()
-            binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
-            min10 = true
-            Thread{Thread.sleep((10 * 60000).toLong())
-                if(min10) exitApplication()
-            }.start()
-            dialog.dismiss()
-        }
-        dialog.findViewById<LinearLayout>(R.id.min_60)?.setOnClickListener {
-            Toast.makeText(baseContext,  "Music will stop after 30 minutes", Toast.LENGTH_SHORT).show()
-            binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
-            min30 = true
-            Thread{Thread.sleep((30 * 60000).toLong())
-                if(min30) exitApplication()
-            }.start()
-            dialog.dismiss()
+
+        bottomSheetBinding.timerOptionsNavigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.timer_5_min -> {
+                    Toast.makeText(baseContext, "Music will stop after 5 minutes", Toast.LENGTH_SHORT).show()
+                    binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.yellow))
+                    min5 = true
+                    Thread {
+                        Thread.sleep((5 * 60000).toLong())
+                        if (min5) exitApplication()
+                    }.start()
+                    dialog.dismiss()
+                    true
+                }
+                R.id.timer_10_min -> {
+                    Toast.makeText(baseContext, "Music will stop after 10 minutes", Toast.LENGTH_SHORT).show()
+                    binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.yellow))
+                    min10 = true
+                    Thread {
+                        Thread.sleep((10 * 60000).toLong())
+                        if (min10) exitApplication()
+                    }.start()
+                    dialog.dismiss()
+                    true
+                }
+                R.id.timer_30_min -> {
+                    Toast.makeText(baseContext, "Music will stop after 30 minutes", Toast.LENGTH_SHORT).show()
+                    binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.yellow))
+                    min30 = true
+                    Thread {
+                        Thread.sleep((30 * 60000).toLong())
+                        if (min30) exitApplication()
+                    }.start()
+                    dialog.dismiss()
+                    true
+                }
+                else -> false
+            }
         }
     }
-
 
     private fun getMusicDetails(contentUri: Uri): Music {
         var cursor: Cursor? = null
