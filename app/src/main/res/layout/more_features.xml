@@ -37,6 +37,8 @@
         app:itemTextColor="?attr/colorOnSurface"
         app:itemTextAppearance="@style/CustomNavigationItemAppearance"
         app:itemIconSize="20dp"
+        app:itemIconPadding="30dp"
+        android:paddingHorizontal="10dp"
         app:menu="@menu/more_features_menu" />
 
 </LinearLayout>

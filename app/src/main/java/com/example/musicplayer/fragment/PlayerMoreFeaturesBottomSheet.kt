@@ -11,10 +11,14 @@ import com.example.musicplayer.R
 import com.example.musicplayer.activity.PlayerActivity.Companion.musicListPA
 import com.example.musicplayer.activity.PlayerActivity.Companion.songPosition
 import com.example.musicplayer.databinding.PlayerMoreFeaturesBottomSheetBinding
-// Import other necessary classes like Activity, Context, etc.
-// For example, if you need to delete a song, you might need access to a ViewModel or a database helper.
-
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.TextPaint
+import android.text.style.MetricAffectingSpan
+import androidx.core.content.res.ResourcesCompat
+import android.util.Log
 
 class PlayerMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
 
@@ -70,6 +74,43 @@ class PlayerMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                 else -> false
             }
         }
+
+        // Apply custom font to NavigationView items
+        try {
+            val menu = binding.playerFeaturesNavigationView.menu
+            val typeface = ResourcesCompat.getFont(requireContext(), R.font.inter_medium)
+            if (typeface != null) {
+                for (i in 0 until menu.size()) {
+                    val menuItem = menu.getItem(i)
+                    applyFontToMenuItem(menuItem, typeface)
+                }
+            } else {
+                Log.w(TAG, "Typeface R.font.inter_semibold not loaded.")
+                Toast.makeText(context, "Failed to load font resource", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error applying custom font to navigation menu.", e)
+            Toast.makeText(context, "Error applying font", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun applyFontToMenuItem(menuItem: android.view.MenuItem, typeface: Typeface) {
+        val title = menuItem.title
+        if (title != null) {
+            val spannableString = SpannableString(title)
+            spannableString.setSpan(CustomTypefaceSpan(typeface), 0, spannableString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            menuItem.title = spannableString
+        }
+
+        if (menuItem.hasSubMenu()) {
+            val subMenu = menuItem.subMenu
+            // Check if subMenu is not null, although hasSubMenu() should imply it.
+            if (subMenu != null) {
+                for (j in 0 until subMenu.size()) {
+                    applyFontToMenuItem(subMenu.getItem(j), typeface)
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -89,5 +130,14 @@ class PlayerMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
             return fragment
         }
     }
-}
 
+    private inner class CustomTypefaceSpan(private val typeface: Typeface) : MetricAffectingSpan() {
+        override fun updateDrawState(ds: TextPaint?) {
+            ds?.typeface = typeface
+        }
+
+        override fun updateMeasureState(paint: TextPaint) {
+            paint.typeface = typeface
+        }
+    }
+}
