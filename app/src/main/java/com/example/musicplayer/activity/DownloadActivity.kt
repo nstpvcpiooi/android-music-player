@@ -17,6 +17,7 @@ import com.example.musicplayer.databinding.ActivityDownloadBinding
 import com.example.musicplayer.model.Music
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import java.io.Serializable
 
 class DownloadActivity : AppCompatActivity() {
 
@@ -25,6 +26,12 @@ class DownloadActivity : AppCompatActivity() {
     private lateinit var database: DatabaseReference
     private lateinit var musicAdapter: MusicAdapter
     private val musicList = ArrayList<Music>()   // chỉ dùng để hiển thị
+
+    companion object {
+        lateinit var downloadPlaylist: ArrayList<Music>
+        var downloadIndex: Int = 0
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,11 +62,10 @@ class DownloadActivity : AppCompatActivity() {
                 .setTitle(music.title)
                 .setMessage("Bạn muốn làm gì với bài này?")
                 .setPositiveButton("Phát nhạc") { dialog, _ ->
-                    val intent = Intent(this, PlayerActivity::class.java).apply {
-                        putExtra("url", music.path)        // truyền url (dù online hay offline)
-                        putExtra("title", music.title)
-                    }
-                    startActivity(intent)
+                    // Phát playlist online với PlayerActivityOnline
+                    downloadPlaylist = ArrayList(musicList)
+                    downloadIndex    = position
+                    startActivity(Intent(this, PlayerActivityOnline::class.java))
                     dialog.dismiss()
                 }
                 .setNeutralButton("Tải về") { dialog, _ ->
@@ -72,36 +78,35 @@ class DownloadActivity : AppCompatActivity() {
                 .show()
         }
 
+
     }
 
     // --------------------------- Firebase ------------------------------------
 
     private fun fetchMusicList() {
-        database.child("uploads")
+        val uid = firebaseAuth.currentUser?.uid ?: return
+        database.child("uploads").child(uid)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     musicList.clear()
 
-                    // Lặp qua tất cả người dùng
-                    for (userSnap in snapshot.children) {
-                        for (item in userSnap.children) {
-                            val title = item.child("title").getValue(String::class.java) ?: continue
-                            val url   = item.child("url").getValue(String::class.java)   ?: continue
+                    for (item in snapshot.children) {
+                        val title = item.child("title").getValue(String::class.java) ?: continue
+                        val url   = item.child("url").getValue(String::class.java)   ?: continue
 
-                            musicList.add(
-                                Music(
-                                    id = item.key ?: "",
-                                    title = title,
-                                    album = item.child("album").getValue(String::class.java) ?: "",
-                                    artist = item.child("singer").getValue(String::class.java) ?: "",
-                                    duration = 0L,
-                                    artUri = "",
-                                    path = url
-                                )
+                        // Dùng thuộc tính path để tái sử dụng MusicAdapter
+                        musicList.add(
+                            Music(
+                                id = item.key ?: "",
+                                title = title,
+                                album = item.child("album").getValue(String::class.java) ?: "",
+                                artist = item.child("singer").getValue(String::class.java) ?: "",
+                                duration = 0L,                 // không cần cho danh sách tải
+                                artUri = "",
+                                path = url                     // CHÍNH LÀ URL CLOUDINARY
                             )
-                        }
+                        )
                     }
-
                     musicAdapter.notifyDataSetChanged()
                 }
 

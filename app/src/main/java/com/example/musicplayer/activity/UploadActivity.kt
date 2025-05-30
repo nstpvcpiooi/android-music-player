@@ -28,26 +28,33 @@ class UploadActivity : AppCompatActivity() {
     private val FILE_PICK_CODE = 1001
     private val cloudApi = CloudinaryApi()
 
+    companion object {
+        private var isCloudinaryInit = false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUploadBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Cloudinary config
-        val config = mapOf(
-            "cloud_name" to "dzr0oakeq",
-            "api_key" to "518386354398875",
-            "api_secret" to "J3CGcuT6eFhgwaXfqBRf72cd7uE",
-            "secure" to true
-        )
-        try {
-            MediaManager.init(this, config)
-            Log.i("Cloudinary", "MediaManager initialized successfully")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("Cloudinary", "Error initializing MediaManager: ${e.message}")
-            showToast("Lỗi khởi tạo Cloudinary")
-            return
+        if(!isCloudinaryInit) {
+            isCloudinaryInit = true
+            // Cloudinary config
+            val config = mapOf(
+                "cloud_name" to "dzr0oakeq",
+                "api_key" to "518386354398875",
+                "api_secret" to "J3CGcuT6eFhgwaXfqBRf72cd7uE",
+                "secure" to true
+            )
+            try {
+                MediaManager.init(this, config)
+                Log.i("Cloudinary", "MediaManager initialized successfully")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("Cloudinary", "Error initializing MediaManager: ${e.message}")
+                showToast("Lỗi khởi tạo Cloudinary")
+                return
+            }
         }
 
         setupViews()

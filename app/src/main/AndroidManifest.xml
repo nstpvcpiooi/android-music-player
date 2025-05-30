@@ -2,24 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-
-    <!-- Audio Permission for android 13 or higher -->
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
-
-<!--    &lt;!&ndash; Permissions of internet &ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.INTERNET" />-->
-<!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
-
-    <!-- Notification-->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-    <!-- Notification Permission for Android 14 -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
-
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" /> <!-- Audio Permission for android 13 or higher -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> <!-- &lt;!&ndash; Permissions of internet &ndash;&gt; -->
+    <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
+    <!-- Notification -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- Notification Permission for Android 14 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -32,6 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/splash_screen"
         tools:ignore="AllowBackup">
+        <activity
+            android:name=".activity.PlayerActivityOnline"
+            android:exported="false" />
         <activity
             android:name=".activity.DownloadActivity"
             android:exported="false" />
@@ -120,7 +115,6 @@
         <receiver
             android:name=".receiver.NotificationReceiver"
             android:enabled="true" />
-
     </application>
 
 </manifest>

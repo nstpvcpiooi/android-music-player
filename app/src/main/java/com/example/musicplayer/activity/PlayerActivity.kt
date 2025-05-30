@@ -9,13 +9,11 @@ import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
-import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.audiofx.AudioEffect
 import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
@@ -26,7 +24,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.model.Music
@@ -51,18 +48,10 @@ import com.example.musicplayer.utils.getImgArt
 import com.example.musicplayer.utils.getMainColor
 import com.example.musicplayer.utils.setDialogBtnBackground
 import com.example.musicplayer.utils.setSongPosition
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 
 
 class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCompletionListener {
-
-    private var isOnlineMusic = false
-    private var onlineMusicUrl: String? = null
 
     companion object {
         lateinit var musicListPA : ArrayList<Music>
@@ -106,61 +95,23 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         setContentView(binding.root)
 
 
-        // Kiểm tra xem intent có data scheme "content" (file nội bộ) hoặc có extra url phát online
-        val dataUri = intent.data
-        val urlFromIntent = intent.getStringExtra("url")
-
-        if (dataUri?.scheme == "content") {
-            // Phát file nhạc offline từ URI nội bộ
+        //để nghe file nhạc từ trong file điện thoại
+        if(intent.data?.scheme.contentEquals("content")){
             songPosition = 0
 
+            //connect to music service
             val intentService = Intent(this, MusicService::class.java)
             bindService(intentService, this, BIND_AUTO_CREATE)
             startService(intentService)
 
             musicListPA = ArrayList()
-            musicListPA.add(getMusicDetails(dataUri))
-
+            musicListPA.add(getMusicDetails(intent.data!!))
             Glide.with(this)
                 .load(getImgArt(musicListPA[songPosition].path))
                 .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
                 .into(binding.songImgPA)
-
             binding.songNamePA.text = musicListPA[songPosition].title
-        } else if (urlFromIntent != null && (urlFromIntent.startsWith("http://") || urlFromIntent.startsWith("https://"))) {
-            // Phát nhạc online từ URL
-            songPosition = 0
-            isOnlineMusic = true
-            onlineMusicUrl = urlFromIntent
-
-            val intentService = Intent(this, MusicService::class.java)
-            bindService(intentService, this, BIND_AUTO_CREATE)
-            startService(intentService)
-
-            musicListPA = ArrayList()
-            // Tạo đối tượng Music ảo để phát nhạc online
-            musicListPA.add(
-                Music(
-                    id = "online",
-                    title = intent.getStringExtra("title") ?: "Unknown",
-                    album = intent.getStringExtra("album") ?: "Unknown",
-                    artist = intent.getStringExtra("artist") ?: "Unknown",
-                    duration = 0L,
-                    artUri = "",
-                    path = urlFromIntent
-                )
-            )
-
-            // Cập nhật giao diện
-            Glide.with(this)
-                .load(R.drawable.music_player_icon_slash_screen)
-                .into(binding.songImgPA)
-
-            binding.songNamePA.text = musicListPA[songPosition].title
-        } else {
-            // Nếu không thuộc trường hợp trên thì gọi initializeLayout bình thường
-            initializeLayout()
-        }
+        } else initializeLayout()
 
 
         //karaoke
@@ -247,10 +198,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                     .setNegativeButton("No"){dialog, _ ->
                         dialog.dismiss()
                     }
-                    val customDialog = builder.create()
-                    customDialog.show()
-                    setDialogBtnBackground(this, customDialog)
-                }
+                val customDialog = builder.create()
+                customDialog.show()
+                setDialogBtnBackground(this, customDialog)
+            }
         }
         binding.shareBtnPA.setOnClickListener {
             val shareIntent = Intent()
@@ -384,7 +335,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 initServiceAndPlaylist(PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = true)
             "PlayNext"->initServiceAndPlaylist(PlayNext.playNextList, shuffle = false, playNext = true)
         }
-    if (musicService != null && !isPlaying) playMusic()
+        if (musicService != null && !isPlaying) playMusic()
     }
 
     private fun setLayout(){
@@ -418,107 +369,28 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         window?.statusBarColor = bgColor
     }
 
-    private fun createMediaPlayer() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val svc = musicService ?: return@launch
-                // 1. Reset hoặc khởi mới MediaPlayer
-                svc.mediaPlayer = svc.mediaPlayer ?: MediaPlayer()
-                svc.mediaPlayer!!.reset()
-
-                // 2. Thiết lập AudioAttributes/StreamType
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    svc.mediaPlayer!!.setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .build()
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    svc.mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
-                }
-
-                // 3. setDataSource tùy local hay online
-                if (isOnlineMusic) {
-                    // phải chạy trên Main để gọi setDataSource(Context, Uri)
-                    withContext(Dispatchers.Main) {
-                        svc.mediaPlayer!!.setDataSource(
-                            this@PlayerActivity,
-                            Uri.parse(onlineMusicUrl!!)
-                        )
-                    }
-                } else {
-                    svc.mediaPlayer!!.setDataSource(musicListPA[songPosition].path)
-                }
-
-                // 4. Đăng ký listener và prepareAsync trên Main
-                withContext(Dispatchers.Main) {
-                    svc.mediaPlayer!!.setOnPreparedListener { mp ->
-                        mp.start()
-                        isPlaying = true
-                        updateUI(mp)
-                        startSeekBarUpdates()
-                    }
-                }
-                svc.mediaPlayer!!.prepareAsync()
-
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        this@PlayerActivity,
-                        "Lỗi phát nhạc: ${e.localizedMessage}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
+    private fun createMediaPlayer(){
+        try {
+            if (musicService!!.mediaPlayer == null) musicService!!.mediaPlayer = MediaPlayer()
+            musicService!!.mediaPlayer!!.reset()
+            musicService!!.mediaPlayer!!.setDataSource(musicListPA[songPosition].path)
+            musicService!!.mediaPlayer!!.prepare()
+            binding.tvSeekBarStart.text = formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
+            binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
+            binding.seekBarPA.progress = 0
+            binding.seekBarPA.max = musicService!!.mediaPlayer!!.duration
+            musicService!!.mediaPlayer!!.setOnCompletionListener(this)
+            nowPlayingId = musicListPA[songPosition].id
+            playMusic()
+            loudnessEnhancer = LoudnessEnhancer(musicService!!.mediaPlayer!!.audioSessionId)
+            loudnessEnhancer.enabled = true
+        }catch (e: Exception){Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show()}
     }
-
-    private var seekBarJob: Job? = null
-
-    private fun startSeekBarUpdates() {
-        seekBarJob?.cancel()
-        seekBarJob = lifecycleScope.launch {
-            while (isPlaying) {
-                musicService?.mediaPlayer?.let { mp ->
-                    binding.tvSeekBarStart.text = formatDuration(mp.currentPosition.toLong())
-                    binding.seekBarPA.progress = mp.currentPosition
-                }
-                delay(500)
-            }
-        }
-    }
-
-    private fun stopSeekBarUpdates() {
-        seekBarJob?.cancel()
-        seekBarJob = null
-    }
-
-    private fun updateUI(mp: MediaPlayer) {
-        // Chuyển nút Play → Pause
-        binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
-
-        // Cập nhật thời gian bắt đầu và kết thúc
-        binding.tvSeekBarStart.text = formatDuration(mp.currentPosition.toLong())
-        binding.tvSeekBarEnd  .text = formatDuration(mp.duration.toLong())
-
-        // Thiết lập SeekBar: bắt đầu từ 0, giới hạn là tổng thời lượng
-        binding.seekBarPA.progress = 0
-        binding.seekBarPA.max      = mp.duration
-    }
-
 
     private fun playMusic(){
         isPlaying = true
-        // Kiểm tra nếu là nhạc online
-        if (isOnlineMusic) {
-            musicService!!.mediaPlayer!!.start()
-            binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
-        } else {
-            musicService!!.mediaPlayer!!.start()
-            binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
-        }
+        musicService!!.mediaPlayer!!.start()
+        binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
         musicService!!.showNotification(R.drawable.pause_icon)
     }
 
@@ -554,7 +426,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             musicService = binder.currentService()
             musicService!!.audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
             musicService!!.audioManager.requestAudioFocus(musicService, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
-            }
+        }
         createMediaPlayer()
         musicService!!.seekBarSetup()
 
@@ -596,7 +468,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             binding.timerBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
             min5 = true
             Thread{Thread.sleep((5 * 60000).toLong())
-            if(min5) exitApplication()
+                if(min5) exitApplication()
             }.start()
             dialog.dismiss()
         }
@@ -632,7 +504,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             val path = dataColumn?.let { cursor.getString(it) }
             val duration = durationColumn?.let { cursor.getLong(it) }!!
             return Music(id = "Unknown", title = path.toString(), album = "Unknown", artist = "Unknown", duration = duration,
-            artUri = "Unknown", path = path.toString())
+                artUri = "Unknown", path = path.toString())
         }finally {
             cursor?.close()
         }
