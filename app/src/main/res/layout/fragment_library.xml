@@ -63,7 +63,7 @@
         app:backgroundTint="@color/white"
         app:tint="@color/blue_app_icon"
         android:contentDescription="@string/scroll_to_top"
-        app:fabCustomSize="40dp"
+        app:fabCustomSize="48dp"
         android:scaleType="fitCenter"
         app:elevation="2dp"
         app:pressedTranslationZ="4dp"/>

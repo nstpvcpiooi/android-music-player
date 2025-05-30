@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -13,7 +12,9 @@
     <com.google.android.material.bottomsheet.BottomSheetDragHandleView
         android:id="@+id/drag_handle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         app:tint="?attr/colorOnSurfaceVariant" />
 
 <!--    <TextView-->
@@ -36,7 +37,7 @@
         app:itemIconTint="?attr/colorOnSurfaceVariant"
         app:itemTextColor="?attr/colorOnSurface"
         app:itemTextAppearance="@style/CustomNavigationItemAppearance"
-        app:itemIconSize="18dp"
+        app:itemIconSize="20dp"
         app:menu="@menu/player_bottom_sheet_menu" />
 
 </LinearLayout>
