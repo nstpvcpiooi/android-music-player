@@ -26,6 +26,17 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
                    private val selectionActivity: Boolean = false)
     : RecyclerView.Adapter<MyHolder>() {
 
+    // Interface for click events
+    interface OnMusicItemClickListener {
+        fun onSongClicked(position: Int, isSearch: Boolean)
+    }
+
+    private var musicItemClickListener: OnMusicItemClickListener? = null
+
+    fun setOnMusicItemClickListener(listener: OnMusicItemClickListener) {
+        this.musicItemClickListener = listener
+    }
+
     //anh xa item trong layout
     class MyHolder(binding: MusicViewBinding) : RecyclerView.ViewHolder(binding.root) {
         val title = binding.songNameMV
@@ -88,12 +99,8 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
             }
             else -> {
                 holder.root.setOnClickListener {
-                    when {
-                        MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
-                        musicList[position].id == PlayerActivity.nowPlayingId ->
-                            sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
-                        else -> sendIntent(ref = "MusicAdapter", pos = position)
-                    }
+                    // Call the new listener interface method
+                    musicItemClickListener?.onSongClicked(position, MainActivity.search)
                 }
                 // Add long-click listener for non-selection and non-playlistDetails cases
                 if (!selectionActivity) { // Ensure not in selection mode

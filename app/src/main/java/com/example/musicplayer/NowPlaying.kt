@@ -13,7 +13,6 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.databinding.FragmentNowPlayingBinding
-import com.example.musicplayer.utils.setSongPosition
 
 class NowPlaying : Fragment() {
 
@@ -29,18 +28,10 @@ class NowPlaying : Fragment() {
         binding.root.visibility = View.INVISIBLE
 
         binding.playPauseBtnNP.setOnClickListener {
-            if(PlayerActivity.isPlaying) pauseMusic() else playMusic()
+            PlayerActivity.musicService?.handlePlayPause()
         }
         binding.nextBtnNP.setOnClickListener {
-            setSongPosition(increment = true)
-            PlayerActivity.musicService!!.createMediaPlayer()
-            Glide.with(requireContext())
-                .load(PlayerActivity.musicListPA[PlayerActivity.songPosition].artUri)
-                .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
-                .into(binding.songImgNP)
-            binding.songNameNP.text = PlayerActivity.musicListPA[PlayerActivity.songPosition].title
-            PlayerActivity.musicService!!.showNotification(R.drawable.pause_icon)
-            playMusic()
+            PlayerActivity.musicService?.prevNextSong(increment = true, context = requireContext())
         }
         binding.root.setOnClickListener {
             val intent = Intent(requireContext(), PlayerActivity::class.java)
@@ -53,30 +44,31 @@ class NowPlaying : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if(PlayerActivity.musicService != null){
+        refreshUIContent()
+    }
+
+    fun refreshUIContent() {
+        if (!isAdded || view == null) {
+            return
+        }
+
+        if (PlayerActivity.musicService != null && PlayerActivity.musicListPA.isNotEmpty() &&
+            PlayerActivity.songPosition >= 0 && PlayerActivity.songPosition < PlayerActivity.musicListPA.size) {
             binding.root.visibility = View.VISIBLE
+
             binding.songNameNP.isSelected = true
             Glide.with(requireContext())
                 .load(PlayerActivity.musicListPA[PlayerActivity.songPosition].artUri)
                 .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
                 .into(binding.songImgNP)
             binding.songNameNP.text = PlayerActivity.musicListPA[PlayerActivity.songPosition].title
-            if(PlayerActivity.isPlaying) binding.playPauseBtnNP.setImageResource(R.drawable.pause_icon)
-            else binding.playPauseBtnNP.setImageResource(R.drawable.play_icon)
+            if (PlayerActivity.isPlaying) {
+                binding.playPauseBtnNP.setImageResource(R.drawable.pause_icon)
+            } else {
+                binding.playPauseBtnNP.setImageResource(R.drawable.play_icon)
+            }
+        } else {
+            binding.root.visibility = View.INVISIBLE
         }
-    }
-
-    private fun playMusic(){
-        PlayerActivity.isPlaying = true
-        PlayerActivity.musicService!!.mediaPlayer!!.start()
-        binding.playPauseBtnNP.setImageResource(R.drawable.pause_icon)
-        PlayerActivity.musicService!!.showNotification(R.drawable.pause_icon)
-    }
-
-    private fun pauseMusic(){
-        PlayerActivity.isPlaying = false
-        PlayerActivity.musicService!!.mediaPlayer!!.pause()
-        binding.playPauseBtnNP.setImageResource(R.drawable.play_icon)
-        PlayerActivity.musicService!!.showNotification(R.drawable.play_icon)
     }
 }

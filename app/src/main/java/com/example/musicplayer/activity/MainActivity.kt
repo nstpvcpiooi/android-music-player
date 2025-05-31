@@ -1,12 +1,18 @@
 package com.example.musicplayer.activity
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
@@ -17,9 +23,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.musicplayer.model.Music
 import com.example.musicplayer.adapter.MusicAdapter
 import com.example.musicplayer.R
+import com.example.musicplayer.NowPlaying
+import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.fragment.AccountFragment
 import com.example.musicplayer.fragment.HomeFragment
 import com.example.musicplayer.fragment.LibraryFragment
@@ -32,9 +41,18 @@ import com.example.musicplayer.utils.exitApplication
 import com.google.gson.reflect.TypeToken
 import java.io.File
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener, ServiceConnection {
     private lateinit var binding: ActivityMainBinding
-    lateinit var musicAdapter: MusicAdapter  // Changed to public for fragment access
+    lateinit var musicAdapter: MusicAdapter
+
+    private val playbackStateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == MusicService.ACTION_PLAYBACK_STATE_CHANGED) {
+                val nowPlayingFragment = supportFragmentManager.findFragmentById(R.id.nowPlaying) as? NowPlaying
+                nowPlayingFragment?.refreshUIContent()
+            }
+        }
+    }
 
     companion object {
         lateinit var MusicListMA: ArrayList<Music>
@@ -65,7 +83,6 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Audio.Media.SIZE + " DESC"
         )
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,6 +129,10 @@ class MainActivity : AppCompatActivity() {
                 PlaylistActivity.musicPlaylist = dataPlaylist
             }
         }
+        // Initially hide NowPlaying fragment container
+        binding.nowPlaying.visibility = View.GONE
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(playbackStateReceiver, IntentFilter(MusicService.ACTION_PLAYBACK_STATE_CHANGED))
     }
 
     private fun setupBottomNavigation() {
@@ -206,7 +227,6 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -234,6 +254,7 @@ class MainActivity : AppCompatActivity() {
 
         // Initialize adapter for use by fragments
         musicAdapter = MusicAdapter(this@MainActivity, MusicListMA)
+        musicAdapter.setOnMusicItemClickListener(this) // Set the click listener
 
         // Load the default fragment (Library)
         loadFragment(LibraryFragment())
@@ -318,9 +339,9 @@ class MainActivity : AppCompatActivity() {
         return tempList
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(playbackStateReceiver)
         if (!PlayerActivity.isPlaying && PlayerActivity.musicService != null) {
             exitApplication()
         }
@@ -345,7 +366,14 @@ class MainActivity : AppCompatActivity() {
             MusicListMA = getAllAudio()
             musicAdapter.updateMusicList(MusicListMA)
         }
-        if (PlayerActivity.musicService != null) binding.nowPlaying.visibility = View.VISIBLE
+        // Control visibility of NowPlaying based on service and music list
+        if (PlayerActivity.musicService != null && PlayerActivity.musicListPA.isNotEmpty()) {
+            binding.nowPlaying.visibility = View.VISIBLE
+            val nowPlayingFragment = supportFragmentManager.findFragmentById(R.id.nowPlaying) as? NowPlaying
+            nowPlayingFragment?.refreshUIContent()
+        } else {
+            binding.nowPlaying.visibility = View.GONE
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -359,5 +387,62 @@ class MainActivity : AppCompatActivity() {
 
     fun setRefreshLayoutEnabled(enabled: Boolean) {
         binding.refreshLayout.isEnabled = enabled
+    }
+
+    // Implementation of MusicAdapter.OnMusicItemClickListener
+    override fun onSongClicked(position: Int, isSearch: Boolean) {
+        PlayerActivity.songPosition = position
+        PlayerActivity.musicListPA = if (isSearch) ArrayList(musicListSearch) else ArrayList(MusicListMA)
+        PlayerActivity.nowPlayingId = PlayerActivity.musicListPA[PlayerActivity.songPosition].id
+
+        val intent = Intent(this, MusicService::class.java)
+        bindService(intent, this, BIND_AUTO_CREATE)
+        startService(intent) // Ensures service keeps running
+
+        // Visibility of binding.nowPlaying (the container) is handled in onServiceConnected and onResume
+    }
+
+    // ServiceConnection methods
+    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        if (PlayerActivity.musicService == null) {
+            val binder = service as MusicService.MyBinder
+            PlayerActivity.musicService = binder.currentService()
+            PlayerActivity.musicService!!.audioManager = getSystemService(AUDIO_SERVICE) as android.media.AudioManager
+            PlayerActivity.musicService!!.audioManager.requestAudioFocus(PlayerActivity.musicService, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.AUDIOFOCUS_GAIN)
+        }
+        PlayerActivity.musicService!!.createMediaPlayer() // Prepares the media player
+
+        // Start playback and update PlayerActivity state
+        if (PlayerActivity.musicService?.mediaPlayer != null) {
+            try {
+                PlayerActivity.musicService!!.mediaPlayer!!.start()
+                PlayerActivity.isPlaying = true
+                PlayerActivity.musicService!!.showNotification(R.drawable.pause_icon)
+            } catch (e: IllegalStateException) {
+                PlayerActivity.isPlaying = false
+                Toast.makeText(this, "Error starting playback", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            PlayerActivity.isPlaying = false
+        }
+
+        // Attempt to refresh the NowPlaying fragment. Its internal logic will manage its own root view visibility.
+        val nowPlayingFragment = supportFragmentManager.findFragmentById(R.id.nowPlaying) as? NowPlaying
+        nowPlayingFragment?.refreshUIContent()
+
+        // Set visibility of the container in MainActivity based on playback readiness.
+        if (PlayerActivity.musicService != null && PlayerActivity.musicListPA.isNotEmpty() &&
+            PlayerActivity.songPosition >= 0 && PlayerActivity.songPosition < PlayerActivity.musicListPA.size) {
+            binding.nowPlaying.visibility = View.VISIBLE
+        } else {
+            binding.nowPlaying.visibility = View.GONE
+        }
+    }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+        PlayerActivity.musicService = null
+        binding.nowPlaying.visibility = View.GONE
+        val nowPlayingFragment = supportFragmentManager.findFragmentById(R.id.nowPlaying) as? NowPlaying
+        nowPlayingFragment?.refreshUIContent()
     }
 }
