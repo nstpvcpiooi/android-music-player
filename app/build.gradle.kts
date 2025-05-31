@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.musicplayer"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 34
         versionCode = 11
         versionName = "2.0.1"
@@ -74,7 +74,7 @@ dependencies {
     implementation("androidx.palette:palette:1.0.0")
 
     implementation("com.google.android.material:material:1.11.0")
-    implementation ("com.arthenica:ffmpeg-kit-full-gpl:6.0.LTS")
+    implementation("com.github.arthenica:ffmpeg-kit:v5.1.LTS")
 
     implementation(libs.firebase.auth)
 

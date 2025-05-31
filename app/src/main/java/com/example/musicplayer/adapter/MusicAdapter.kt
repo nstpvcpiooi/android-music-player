@@ -71,10 +71,20 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
         holder.title.text = musicList[position].title
         holder.album.text = musicList[position].album
         holder.duration.text = formatDuration(musicList[position].duration)
-        Glide.with(context)
-            .load(musicList[position].artUri)
-            .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
-            .into(holder.image)
+
+        val artUri = musicList[position].artUri
+        if (artUri.isNullOrEmpty()) {
+            holder.image.setImageResource(R.drawable.music_player_icon_slash_screen)
+        } else {
+            // Có cover riêng, load bằng Glide
+            Glide.with(context)
+                .load(artUri)
+                .apply(RequestOptions()
+                    .placeholder(R.drawable.music_player_icon_slash_screen)
+                    .error(R.drawable.music_player_icon_slash_screen)
+                    .centerCrop()
+                ).into(holder.image)
+        }
 
         // Set OnClickListener for the moreInfoButton
         if (!selectionActivity) {
@@ -101,6 +111,19 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
                 holder.root.setOnClickListener {
                     // Call the new listener interface method
                     musicItemClickListener?.onSongClicked(position, MainActivity.search)
+
+//                    if (onItemClick != null) {
+//                        // khi dùng DownloadActivity đã gán listener => chỉ download
+//                        onItemClick!!.invoke(position)
+//                    } else {
+//                        // hành động mặc định: play nhạc
+//                        when {
+//                            MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
+//                            musicList[position].id == PlayerActivity.nowPlayingId ->
+//                                sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
+//                            else -> sendIntent(ref = "MusicAdapter", pos = position)
+//                        }
+//                    }
                 }
                 // Add long-click listener for non-selection and non-playlistDetails cases
                 if (!selectionActivity) { // Ensure not in selection mode

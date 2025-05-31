@@ -10,11 +10,16 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.cloudinary.android.MediaManager
+import com.example.musicplayer.R
 import com.example.musicplayer.databinding.ActivityUploadBinding
 import com.example.musicplayer.service.CloudinaryApi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class UploadActivity : AppCompatActivity() {
@@ -23,26 +28,33 @@ class UploadActivity : AppCompatActivity() {
     private val FILE_PICK_CODE = 1001
     private val cloudApi = CloudinaryApi()
 
+    companion object {
+        private var isCloudinaryInit = false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUploadBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Cloudinary config
-        val config = mapOf(
-            "cloud_name" to "dzr0oakeq",
-            "api_key" to "518386354398875",
-            "api_secret" to "J3CGcuT6eFhgwaXfqBRf72cd7uE",
-            "secure" to true
-        )
-        try {
-            MediaManager.init(this, config)
-            Log.i("Cloudinary", "MediaManager initialized successfully")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("Cloudinary", "Error initializing MediaManager: ${e.message}")
-            showToast("Lỗi khởi tạo Cloudinary")
-            return
+        if(!isCloudinaryInit) {
+            isCloudinaryInit = true
+            // Cloudinary config
+            val config = mapOf(
+                "cloud_name" to "dzr0oakeq",
+                "api_key" to "518386354398875",
+                "api_secret" to "J3CGcuT6eFhgwaXfqBRf72cd7uE",
+                "secure" to true
+            )
+            try {
+                MediaManager.init(this, config)
+                Log.i("Cloudinary", "MediaManager initialized successfully")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("Cloudinary", "Error initializing MediaManager: ${e.message}")
+                showToast("Lỗi khởi tạo Cloudinary")
+                return
+            }
         }
 
         setupViews()
@@ -66,7 +78,7 @@ class UploadActivity : AppCompatActivity() {
 
     private fun pickFileFromStorage() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.setType("*/*")// Cho phép chọn tất cả định dạng
+        intent.setType("audio/*") // Chỉ chọn file audio
         startActivityForResult(intent, FILE_PICK_CODE)
     }
 
@@ -77,20 +89,27 @@ class UploadActivity : AppCompatActivity() {
     }
 
     private fun uploadSelectedFile() {
-        try {
-            fileUri?.let { uri ->
-                contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val tempFile = File.createTempFile("upload_", ".tmp", cacheDir).apply {
-                        outputStream().use { output -> inputStream.copyTo(output) }
-                    }
-                    uploadToCloudinary(tempFile)
-                } ?: showToast("Không thể đọc file")
-            } ?: showToast("File chưa được chọn")
-
-        } catch (e: Exception) {
-            showToast("Lỗi xử lý file: ${e.message}")
+        val uri = fileUri ?: return showToast("File chưa được chọn")
+        lifecycleScope.launch {
+            showLoading(true)
+            try {
+                // 1) Đọc file trên IO thread
+                val tempFile = withContext(Dispatchers.IO) {
+                    contentResolver.openInputStream(uri)?.use { inputStream ->
+                        File.createTempFile("upload_", ".tmp", cacheDir).apply {
+                            outputStream().use { output -> inputStream.copyTo(output) }
+                        }
+                    } ?: throw IllegalStateException("Không thể đọc file")
+                }
+                // 2) Upload (CloudinaryApi vẫn dùng callback nội bộ)
+                uploadToCloudinary(tempFile)
+            } catch (e: Exception) {
+                showLoading(false)
+                showToast("Lỗi xử lý file: ${e.localizedMessage}")
+            }
         }
     }
+
 
     private fun uploadToCloudinary(file: File) {
         showLoading(true)
@@ -107,12 +126,7 @@ class UploadActivity : AppCompatActivity() {
                     showLoading(false)
                     file.delete()
                     Log.e("Cloudinary", response?.secureUrl.toString())
-                    if (response != null) {
-                        response.secureUrl?.let { Log.e("Cloud", it) }
-                    }
-
-                    var url: String
-                    url = response?.secureUrl.toString()
+                    val url = response?.secureUrl
                     if (url != null) {
                         saveToFirebase(url)
                     } else {
@@ -142,7 +156,7 @@ class UploadActivity : AppCompatActivity() {
         val ref = database.getReference("uploads").child(userId)
 
         val data = mapOf(
-            "url" to fileUrl,
+            "url" to fileUrl,  // Đổi "path" thành "url"
             "title" to binding.uploadTopic.text.toString().trim(),
             "singer" to binding.uploadSinger.text.toString().trim(),
             "album" to binding.uploadAlbum.text.toString().trim(),
@@ -177,10 +191,20 @@ class UploadActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == FILE_PICK_CODE && resultCode == Activity.RESULT_OK) {
             fileUri = data?.data
-            binding.uploadImage.setImageURI(fileUri) // Nếu là ảnh thì preview, không thì không ảnh hưởng
-            binding.songName.text = getFileNameFromMediaStoreUri(this, fileUri)
-            binding.uploadAlbum.setText(getAlbumNameFromUri(this, fileUri))
-            Log.e("ImageAudio", fileUri.toString())
+
+            // Lấy tên file nhạc (title)
+            val fileName = getFileNameFromMediaStoreUri(this, fileUri)
+            binding.uploadTopic.setText(fileName ?: "")
+
+            // Lấy album
+            val albumName = getAlbumNameFromUri(this, fileUri)
+            binding.uploadAlbum.setText(albumName)
+
+            // Lấy ca sĩ (artist)
+            val artistName = getArtistNameFromUri(this, fileUri)
+            binding.uploadSinger.setText(artistName)
+
+            Log.e("UploadActivity", "FileUri: $fileUri, title=$fileName, album=$albumName, artist=$artistName")
         }
     }
 
@@ -188,7 +212,7 @@ class UploadActivity : AppCompatActivity() {
         if (uri == null) return null
 
         var fileName: String? = null
-        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME) // Or MediaStore.MediaColumns.TITLE
+        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
         context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
             if (cursor.moveToFirst()) {
                 val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
@@ -199,7 +223,7 @@ class UploadActivity : AppCompatActivity() {
     }
 
     fun getAlbumNameFromUri(context: Context, uri: Uri?): String {
-        var albumName = "Unknown Album" // Giá trị mặc định
+        var albumName = "Unknown Album"
         if (uri == null) return albumName
 
         val projection = arrayOf(MediaStore.Audio.Media.ALBUM)
@@ -211,9 +235,23 @@ class UploadActivity : AppCompatActivity() {
                 }
             }
         } catch (e: Exception) {
-            // Xử lý ngoại lệ (ví dụ: log lỗi)
             e.printStackTrace()
         }
         return albumName
+    }
+
+    fun getArtistNameFromUri(context: Context, uri: Uri?): String {
+        if (uri == null) return ""
+        val mmr = android.media.MediaMetadataRetriever()
+        try {
+            mmr.setDataSource(context, uri)
+            val artist = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_ARTIST)
+            return artist ?: ""
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            mmr.release()
+        }
+        return ""
     }
 }

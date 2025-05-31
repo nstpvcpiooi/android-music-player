@@ -258,9 +258,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                     .setNegativeButton("No"){dialog, _ ->
                         dialog.dismiss()
                     }
-                    val customDialog = builder.create()
-                    customDialog.show()
-                    setDialogBtnBackground(this, customDialog)
+                val customDialog = builder.create()
+                customDialog.show()
+                setDialogBtnBackground(this, customDialog)
                 }
         }
 //        binding.shareBtnPA.setOnClickListener {
@@ -630,7 +630,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             val path = dataColumn?.let { cursor.getString(it) }
             val duration = durationColumn?.let { cursor.getLong(it) }!!
             return Music(id = "Unknown", title = path.toString(), album = "Unknown", artist = "Unknown", duration = duration,
-            artUri = "Unknown", path = path.toString())
+                artUri = "Unknown", path = path.toString())
         }finally {
             cursor?.close()
         }

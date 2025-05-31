@@ -1,7 +1,10 @@
 package com.example.musicplayer.activity
 
+import android.app.AlertDialog
 import android.app.DownloadManager
 import android.content.Context
+import android.content.Intent
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -14,6 +17,7 @@ import com.example.musicplayer.databinding.ActivityDownloadBinding
 import com.example.musicplayer.model.Music
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import java.io.Serializable
 
 class DownloadActivity : AppCompatActivity() {
 
@@ -22,6 +26,12 @@ class DownloadActivity : AppCompatActivity() {
     private lateinit var database: DatabaseReference
     private lateinit var musicAdapter: MusicAdapter
     private val musicList = ArrayList<Music>()   // chỉ dùng để hiển thị
+
+    companion object {
+        lateinit var downloadPlaylist: ArrayList<Music>
+        var downloadIndex: Int = 0
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +58,27 @@ class DownloadActivity : AppCompatActivity() {
 
         musicAdapter.setOnItemClickListener { position ->
             val music = musicList[position]
-            downloadMusic(music.title, music.path)           // path lúc này chính là url cloudinary
+            AlertDialog.Builder(this)
+                .setTitle(music.title)
+                .setMessage("Bạn muốn làm gì với bài này?")
+                .setPositiveButton("Phát nhạc") { dialog, _ ->
+                    // Phát playlist online với PlayerActivityOnline
+                    downloadPlaylist = ArrayList(musicList)
+                    downloadIndex    = position
+                    startActivity(Intent(this, PlayerActivity::class.java))
+                    dialog.dismiss()
+                }
+                .setNeutralButton("Tải về") { dialog, _ ->
+                    downloadMusic(music.title, music.path)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Hủy") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
         }
+
+
     }
 
     // --------------------------- Firebase ------------------------------------
@@ -88,6 +117,7 @@ class DownloadActivity : AppCompatActivity() {
             })
     }
 
+
     // --------------------------- Download -------------------------------------
 
     /**
@@ -99,7 +129,7 @@ class DownloadActivity : AppCompatActivity() {
 
             val extension = MimeTypeMap.getFileExtensionFromUrl(fileUrl)
                 ?.takeIf { it.isNotBlank() }
-                ?.let { ".$it" } ?: ".mp3"                  // fallback nếu URL không có đuôi
+                ?.let { ".$it" } ?: ".mp3"
 
             val request = DownloadManager.Request(uri).apply {
                 setTitle("Tải: $title")
