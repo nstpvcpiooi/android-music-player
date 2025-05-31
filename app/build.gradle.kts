@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
-    alias(libs.plugins.kotlin.compose.compiler)
 }
 
 
@@ -40,17 +39,12 @@ android {
         jvmTarget = "1.8"
     }
 
-    buildFeatures {
+    buildFeatures{
         // For viewBinding
         viewBinding = true
 
         // For showing build version name
         buildConfig = true
-
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
 }
 
@@ -88,14 +82,6 @@ dependencies {
     implementation("com.cloudinary:cloudinary-android:3.0.2")
     implementation(libs.firebase.database)
 
-    // Jetpack Compose
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.compose.foundation)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    implementation(libs.coil.compose)
+    implementation("jp.wasabeef:glide-transformations:4.3.0")
 }
+

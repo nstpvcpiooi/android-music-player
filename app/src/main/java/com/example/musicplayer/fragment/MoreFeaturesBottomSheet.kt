@@ -1,14 +1,21 @@
 package com.example.musicplayer.fragment
 
 import android.content.Intent
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
+import android.text.TextPaint
 import android.text.format.DateUtils
+import android.text.style.MetricAffectingSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.bold
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.MainActivity
@@ -67,13 +74,6 @@ class MoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                     }
                     dismiss()
                     true
-//                    val shareIntent = Intent()
-//                    shareIntent.action = Intent.ACTION_SEND
-//                    shareIntent.type = "audio/*"
-//                    shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(musicListPA[songPosition].path))
-//                    startActivity(Intent.createChooser(shareIntent, "Sharing Music File!!"))
-//                    dismiss()
-//                    true
                 }
                 R.id.AddToPNBtn -> {
                     try {
@@ -120,6 +120,42 @@ class MoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                 else -> false
             }
         }
+
+        // Apply custom font to NavigationView items
+        try {
+            val menu = binding.moreFeaturesNavigationView.menu
+            val typeface = ResourcesCompat.getFont(requireContext(), R.font.inter_medium)
+            if (typeface != null) {
+                for (i in 0 until menu.size()) {
+                    val menuItem = menu.getItem(i)
+                    applyFontToMenuItem(menuItem, typeface)
+                }
+            } else {
+                Log.w(TAG, "Typeface R.font.inter_semibold not loaded.")
+                Toast.makeText(context, "Failed to load font resource", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error applying custom font to navigation menu.", e)
+            Toast.makeText(context, "Error applying font", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun applyFontToMenuItem(menuItem: android.view.MenuItem, typeface: Typeface) {
+        val title = menuItem.title
+        if (title != null) {
+            val spannableString = SpannableString(title)
+            spannableString.setSpan(CustomTypefaceSpan(typeface), 0, spannableString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            menuItem.title = spannableString
+        }
+
+        if (menuItem.hasSubMenu()) {
+            val subMenu = menuItem.subMenu
+            if (subMenu != null) {
+                for (j in 0 until subMenu.size()) {
+                    applyFontToMenuItem(subMenu.getItem(j), typeface)
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -137,6 +173,16 @@ class MoreFeaturesBottomSheet : BottomSheetDialogFragment() {
             val fragment = MoreFeaturesBottomSheet()
             fragment.arguments = args
             return fragment
+        }
+    }
+
+    private inner class CustomTypefaceSpan(private val typeface: Typeface) : MetricAffectingSpan() {
+        override fun updateDrawState(ds: TextPaint?) {
+            ds?.typeface = typeface
+        }
+
+        override fun updateMeasureState(paint: TextPaint) {
+            paint.typeface = typeface
         }
     }
 }

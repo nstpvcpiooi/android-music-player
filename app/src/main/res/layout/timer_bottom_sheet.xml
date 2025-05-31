@@ -16,20 +16,8 @@
         android:paddingBottom="8dp"
         app:tint="?attr/colorOnSurfaceVariant" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/bottomSheetTitle"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="@string/more_options"-->
-<!--        style="?attr/textAppearanceTitleMedium"-->
-<!--        android:textColor="?attr/colorOnSurface"-->
-<!--        android:paddingHorizontal="16dp"-->
-<!--        android:paddingTop="8dp"-->
-<!--        android:paddingBottom="16dp"-->
-<!--        android:gravity="start"/>-->
-
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/moreFeaturesNavigationView"
+        android:id="@+id/timerOptionsNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
@@ -39,6 +27,7 @@
         app:itemIconSize="20dp"
         app:itemIconPadding="30dp"
         android:paddingHorizontal="10dp"
-        app:menu="@menu/more_features_menu" />
+        app:menu="@menu/timer_options_menu" />
 
 </LinearLayout>
+

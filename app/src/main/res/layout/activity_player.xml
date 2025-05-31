@@ -69,15 +69,34 @@
     </RelativeLayout>
 
     <!-- COVER ART-->
-    <androidx.compose.ui.platform.ComposeView
-        android:id="@+id/albumArtPager"
-        android:layout_width="0dp"
+    <FrameLayout
+        android:id="@+id/CoverFrame"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/musicControlButtons"
-        app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerPA" />
+        app:layout_constraintTop_toBottomOf="@id/headerPA">
+
+        <!--ALBUM COVER VIEWPAGER - REPLACES STATIC IMAGE-->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/albumCoverViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+             />
+
+        <!--KEEP OLD IMAGE VIEW FOR BACKWARD COMPATIBILITY BUT MAKE INVISIBLE-->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/songImgPA"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/music_player_icon_slash_screen"
+            android:visibility="gone"
+            app:shapeAppearanceOverlay="@style/cover_curved_in_player" />
+
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/musicControlButtons"

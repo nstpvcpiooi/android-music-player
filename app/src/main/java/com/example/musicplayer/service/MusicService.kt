@@ -13,6 +13,7 @@ import android.os.*
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.ApplicationClass
@@ -32,6 +33,10 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var runnable: Runnable
     lateinit var audioManager: AudioManager
+
+    companion object {
+        const val ACTION_PLAYBACK_STATE_CHANGED = "com.example.musicplayer.PLAYBACK_STATE_CHANGED"
+    }
 
     override fun onBind(intent: Intent?): IBinder {
         mediaSession = MediaSessionCompat(baseContext, "My Music")
@@ -156,20 +161,17 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
             if (mediaPlayer == null) mediaPlayer = MediaPlayer()
             mediaPlayer?.reset()
             mediaPlayer?.setDataSource(PlayerActivity.musicListPA[PlayerActivity.songPosition].path)
-            mediaPlayer?.prepare()
+            mediaPlayer?.prepare() // Prepare the media player, do not start.
 
-            PlayerActivity.binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
-            showNotification(R.drawable.pause_icon)
-            PlayerActivity.binding.tvSeekBarStart.text =
-                formatDuration(mediaPlayer!!.currentPosition.toLong())
-            PlayerActivity.binding.tvSeekBarEnd.text =
-                formatDuration(mediaPlayer!!.duration.toLong())
-            PlayerActivity.binding.seekBarPA.progress = 0
-            PlayerActivity.binding.seekBarPA.max = mediaPlayer!!.duration
+            // Set essential static data. UI updates will be triggered by broadcasts.
             PlayerActivity.nowPlayingId = PlayerActivity.musicListPA[PlayerActivity.songPosition].id
-            PlayerActivity.loudnessEnhancer = LoudnessEnhancer(mediaPlayer!!.audioSessionId)
-            PlayerActivity.loudnessEnhancer.enabled = true
+            if (mediaPlayer != null) {
+                PlayerActivity.loudnessEnhancer = LoudnessEnhancer(mediaPlayer!!.audioSessionId)
+                PlayerActivity.loudnessEnhancer.enabled = true
+            }
         } catch (e: Exception) {
+            PlayerActivity.isPlaying = false // Ensure consistent state on error
+            sendPlaybackStateChangedBroadcast()
             return
         }
     }
@@ -194,36 +196,22 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
             .build()
     }
 
-    fun handlePlayPause() {
-        if (PlayerActivity.isPlaying) pauseMusic()
-        else playMusic()
-
-        //update playback state for notification
-        mediaSession.setPlaybackState(getPlayBackState())
+    internal fun handlePlayPause() { // Changed to internal
+        if (PlayerActivity.isPlaying) {
+            pauseMusic()
+        } else {
+            playMusic()
+        }
+        // The mediaSession.setPlaybackState is handled within showNotification via getPlayBackState
+        // and playMusic/pauseMusic call sendPlaybackStateChangedBroadcast for UI updates.
     }
 
-    private fun prevNextSong(increment: Boolean, context: Context){
-
+    fun prevNextSong(increment: Boolean, context: Context){
         setSongPosition(increment = increment)
-
-        this.createMediaPlayer() // Gọi createMediaPlayer của MusicService để chuẩn bị bài hát và cập nhật notification
-
-        // Cập nhật cho NowPlaying Fragment (phần này có thể vẫn ổn nếu NowPlaying.binding là static và đơn giản)
-        Glide.with(context)
-            .load(PlayerActivity.musicListPA[PlayerActivity.songPosition].artUri)
-            .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
-            .into(NowPlaying.binding.songImgNP)
-
-        NowPlaying.binding.songNameNP.text = PlayerActivity.musicListPA[PlayerActivity.songPosition].title
-
-        playMusic() // Phương thức này của service sẽ bắt đầu phát nhạc và cập nhật icon notification
-
-        // Cập nhật nút yêu thích trong PlayerActivity (vẫn là thao tác UI trực tiếp, cần xem xét lại sau)
-        PlayerActivity.fIndex = favouriteChecker(PlayerActivity.musicListPA[PlayerActivity.songPosition].id)
-        if(PlayerActivity.isFavourite) PlayerActivity.binding.favouriteBtnPA.setImageResource(R.drawable.favourite_icon)
-        else PlayerActivity.binding.favouriteBtnPA.setImageResource(R.drawable.favourite_empty_icon)
-
-        //update playback state for notification
+        createMediaPlayer() // Prepares the new song
+        // PlayerActivity UI updates (like ViewPager, songNamePA, favouriteBtnPA) should be handled by PlayerActivity itself when it's active.
+        // NowPlaying UI updates will be triggered by the broadcast from playMusic.
+        playMusic() // Starts playing the new song and sends broadcast
         mediaSession.setPlaybackState(getPlayBackState())
     }
 
@@ -231,27 +219,34 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
         if (focusChange <= 0) {
             pauseMusic()
         }
-//        else{
-//            playMusic()
-//        }
     }
 
-    private fun playMusic(){
-        //play music
-        PlayerActivity.binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
-        NowPlaying.binding.playPauseBtnNP.setImageResource(R.drawable.pause_icon)
-        PlayerActivity.isPlaying = true
-        mediaPlayer?.start()
-        showNotification(R.drawable.pause_icon)
+    internal fun playMusic(){ // Changed to internal for broader access if needed, e.g., from MainActivity
+        if (mediaPlayer == null) return // Should be prepared by createMediaPlayer first
+        try {
+            mediaPlayer!!.start()
+            PlayerActivity.isPlaying = true
+            showNotification(R.drawable.pause_icon)
+            sendPlaybackStateChangedBroadcast() // Notify UI to refresh
+        } catch (e: IllegalStateException) {
+            // Handle cases where mediaPlayer might not be in a start-able state
+            PlayerActivity.isPlaying = false // Correct the state
+            showNotification(R.drawable.play_icon) // Show correct notification icon
+            sendPlaybackStateChangedBroadcast() // Notify UI to refresh with corrected state
+        }
     }
 
-    private fun pauseMusic(){
-        //pause music
-        PlayerActivity.binding.playPauseImgPA.setImageResource(R.drawable.play_icon)
-        NowPlaying.binding.playPauseBtnNP.setImageResource(R.drawable.play_icon)
+    internal fun pauseMusic(){ // Changed to internal
+        if (mediaPlayer == null) return
+        mediaPlayer?.pause()
         PlayerActivity.isPlaying = false
-        mediaPlayer!!.pause()
         showNotification(R.drawable.play_icon)
+        sendPlaybackStateChangedBroadcast()
+    }
+
+    private fun sendPlaybackStateChangedBroadcast() {
+        val intent = Intent(ACTION_PLAYBACK_STATE_CHANGED)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
     //for making persistent
