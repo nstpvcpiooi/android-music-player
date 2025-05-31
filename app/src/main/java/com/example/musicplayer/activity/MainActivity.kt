@@ -395,42 +395,44 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
         PlayerActivity.musicListPA = if (isSearch) ArrayList(musicListSearch) else ArrayList(MusicListMA)
         PlayerActivity.nowPlayingId = PlayerActivity.musicListPA[PlayerActivity.songPosition].id
 
-        val intent = Intent(this, MusicService::class.java)
-        bindService(intent, this, BIND_AUTO_CREATE)
-        startService(intent) // Ensures service keeps running
+        if (PlayerActivity.musicService != null) {
+            // Service is already bound and active
+            PlayerActivity.musicService!!.createMediaPlayer() // Prepare the new song based on updated PlayerActivity.songPosition
+            PlayerActivity.musicService!!.playMusic()      // Start playing it (this also sends broadcast for UI update)
 
-        // Visibility of binding.nowPlaying (the container) is handled in onServiceConnected and onResume
+            // Ensure the NowPlaying container is visible.
+            // The NowPlayingFragment itself will update its content via the broadcast receiver.
+            if (PlayerActivity.musicListPA.isNotEmpty() &&
+                PlayerActivity.songPosition >= 0 && PlayerActivity.songPosition < PlayerActivity.musicListPA.size) {
+                binding.nowPlaying.visibility = View.VISIBLE
+            } else {
+                binding.nowPlaying.visibility = View.GONE // Should ideally not happen here
+            }
+        } else {
+            // Service is not yet bound or not active, bind and start it.
+            // onServiceConnected will handle preparing and playing the first song.
+            val intent = Intent(this, MusicService::class.java)
+            bindService(intent, this, BIND_AUTO_CREATE)
+            startService(intent) // Ensures service keeps running even if activity unbinds and rebinds
+        }
     }
 
     // ServiceConnection methods
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-        if (PlayerActivity.musicService == null) {
+        val isInitialConnection = PlayerActivity.musicService == null
+        if (isInitialConnection) {
             val binder = service as MusicService.MyBinder
             PlayerActivity.musicService = binder.currentService()
             PlayerActivity.musicService!!.audioManager = getSystemService(AUDIO_SERVICE) as android.media.AudioManager
             PlayerActivity.musicService!!.audioManager.requestAudioFocus(PlayerActivity.musicService, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.AUDIOFOCUS_GAIN)
         }
-        PlayerActivity.musicService!!.createMediaPlayer() // Prepares the media player
 
-        // Start playback and update PlayerActivity state
-        if (PlayerActivity.musicService?.mediaPlayer != null) {
-            try {
-                PlayerActivity.musicService!!.mediaPlayer!!.start()
-                PlayerActivity.isPlaying = true
-                PlayerActivity.musicService!!.showNotification(R.drawable.pause_icon)
-            } catch (e: IllegalStateException) {
-                PlayerActivity.isPlaying = false
-                Toast.makeText(this, "Error starting playback", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            PlayerActivity.isPlaying = false
-        }
+        // Prepare and play the song. MusicService.playMusic() will handle isPlaying, notification, and broadcast.
+        PlayerActivity.musicService!!.createMediaPlayer()
+        PlayerActivity.musicService!!.playMusic() // This will set isPlaying and send broadcast
 
-        // Attempt to refresh the NowPlaying fragment. Its internal logic will manage its own root view visibility.
-        val nowPlayingFragment = supportFragmentManager.findFragmentById(R.id.nowPlaying) as? NowPlaying
-        nowPlayingFragment?.refreshUIContent()
-
-        // Set visibility of the container in MainActivity based on playback readiness.
+        // The broadcast receiver will trigger nowPlayingFragment.refreshUIContent().
+        // We just need to ensure the container is visible.
         if (PlayerActivity.musicService != null && PlayerActivity.musicListPA.isNotEmpty() &&
             PlayerActivity.songPosition >= 0 && PlayerActivity.songPosition < PlayerActivity.musicListPA.size) {
             binding.nowPlaying.visibility = View.VISIBLE

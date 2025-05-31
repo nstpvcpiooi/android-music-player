@@ -196,12 +196,14 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
             .build()
     }
 
-    fun handlePlayPause() {
-        if (PlayerActivity.isPlaying) pauseMusic()
-        else playMusic()
-
-        //update playback state for notification
-        mediaSession.setPlaybackState(getPlayBackState())
+    internal fun handlePlayPause() { // Changed to internal
+        if (PlayerActivity.isPlaying) {
+            pauseMusic()
+        } else {
+            playMusic()
+        }
+        // The mediaSession.setPlaybackState is handled within showNotification via getPlayBackState
+        // and playMusic/pauseMusic call sendPlaybackStateChangedBroadcast for UI updates.
     }
 
     fun prevNextSong(increment: Boolean, context: Context){
@@ -219,16 +221,25 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
         }
     }
 
-    private fun playMusic(){
-        PlayerActivity.isPlaying = true
-        mediaPlayer?.start()
-        showNotification(R.drawable.pause_icon)
-        sendPlaybackStateChangedBroadcast()
+    internal fun playMusic(){ // Changed to internal for broader access if needed, e.g., from MainActivity
+        if (mediaPlayer == null) return // Should be prepared by createMediaPlayer first
+        try {
+            mediaPlayer!!.start()
+            PlayerActivity.isPlaying = true
+            showNotification(R.drawable.pause_icon)
+            sendPlaybackStateChangedBroadcast() // Notify UI to refresh
+        } catch (e: IllegalStateException) {
+            // Handle cases where mediaPlayer might not be in a start-able state
+            PlayerActivity.isPlaying = false // Correct the state
+            showNotification(R.drawable.play_icon) // Show correct notification icon
+            sendPlaybackStateChangedBroadcast() // Notify UI to refresh with corrected state
+        }
     }
 
-    private fun pauseMusic(){
-        PlayerActivity.isPlaying = false
+    internal fun pauseMusic(){ // Changed to internal
+        if (mediaPlayer == null) return
         mediaPlayer?.pause()
+        PlayerActivity.isPlaying = false
         showNotification(R.drawable.play_icon)
         sendPlaybackStateChangedBroadcast()
     }
