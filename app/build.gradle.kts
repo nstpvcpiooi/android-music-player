@@ -81,5 +81,7 @@ dependencies {
     //cloud to server
     implementation("com.cloudinary:cloudinary-android:3.0.2")
     implementation(libs.firebase.database)
+
+    implementation("jp.wasabeef:glide-transformations:4.3.0")
 }
 

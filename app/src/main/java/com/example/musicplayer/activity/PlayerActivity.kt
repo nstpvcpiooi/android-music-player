@@ -5,10 +5,14 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.database.Cursor
+import android.graphics.Bitmap // Added import for Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.audiofx.AudioEffect
@@ -18,16 +22,18 @@ import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
 import android.view.LayoutInflater
-import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable // Added import for KTX extension
 import androidx.core.view.WindowCompat
-import androidx.palette.graphics.Palette
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.example.musicplayer.model.Music
 import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.NowPlaying
@@ -53,6 +59,7 @@ import com.example.musicplayer.utils.formatDuration
 import com.example.musicplayer.utils.getImgArt
 import com.example.musicplayer.utils.setDialogBtnBackground
 import com.example.musicplayer.utils.setSongPosition
+import jp.wasabeef.glide.transformations.BlurTransformation
 import java.io.File
 
 class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCompletionListener {
@@ -113,6 +120,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                     }
                     userIsSwiping = false
                 }
+                ViewPager2.SCROLL_STATE_SETTLING -> { /* Handle settling state if needed */ }
             }
         }
     }
@@ -183,7 +191,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                     playMusic()
                     self.dismiss()
                 }
-                .setBackground(ColorDrawable(0x803700B3.toInt()))
+                .setBackground(0x803700B3.toInt().toDrawable()) // KTX extension
                 .create()
             dialogB.show()
 
@@ -227,9 +235,8 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 eqIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, musicService!!.mediaPlayer!!.audioSessionId)
                 eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, baseContext.packageName)
                 eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
-                startActivityForResult(eqIntent, 13)
-            }catch (e: Exception){Toast.makeText(this,  "Bad Android version", Toast.LENGTH_SHORT).show()}
-
+                startActivityForResult(eqIntent, 13) // This is deprecated, but keeping for now as per original code
+            }catch (_: Exception){Toast.makeText(this,  "Bad Android version", Toast.LENGTH_SHORT).show()} // Changed e to _
 
 
         }
@@ -266,7 +273,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         binding.recordingBtnPA.setOnClickListener {
 
-            if (isRecording == false) {
+            if (!isRecording) { // Simplified condition
                 audioRecorder = AudioRecorder(voiceFile)
                 audioRecorder.startRecording()
                 Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show()
@@ -275,19 +282,17 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 audioRecorder.stopRecording()
 
                 try {
-
-
-                    val uri = AudioSaver.saveToRecordings(this, voiceFile, "my_voice_${System.currentTimeMillis()}.m4a")
-                } catch (e:Exception) {
+                    AudioSaver.saveToRecordings(this, voiceFile, "my_voice_${System.currentTimeMillis()}.m4a") // Removed unused val uri
+                } catch (_:Exception) { // Changed e to _
                     Toast.makeText(this, "loi", Toast.LENGTH_LONG).show()
                 }
                 //Toast.makeText(this, "Đã lưu file tại: $uri", Toast.LENGTH_LONG).show()
 
 
                 // Tạo file kết quả lưu vào bộ nhớ ngoài
-                var outputFile = File(getExternalFilesDir(null), "mixed_audio_${System.currentTimeMillis()}.mp3")
+                val outputFile = File(getExternalFilesDir(null), "mixed_audio_${System.currentTimeMillis()}.mp3") // val instead of var
 
-                var musicFile = musicListPA[songPosition].toFile();
+                val musicFile = musicListPA[songPosition].toFile() // Removed redundant semicolon
                 // Gọi hàm mix audio
                 AudioMixer.mixAudio(this, musicFile, voiceFile, outputFile) { success ->
                     if (success) {
@@ -303,9 +308,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                         Toast.makeText(this, "Mix thất bại!", Toast.LENGTH_SHORT).show()
                     }
                 }
-
-
-
                 isRecording = false
                 Toast.makeText(this, "Dừng ghi âm", Toast.LENGTH_SHORT).show()
             }
@@ -313,40 +315,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         }
 
         binding.stoprecordingBtnPA.setOnClickListener {
-
-//            audioRecorder.stopRecording()
-//
-//            try {
-//
-//
-//                val uri = AudioSaver.saveToRecordings(this, voiceFile, "my_voice_${System.currentTimeMillis()}.m4a")
-//            } catch (e:Exception) {
-//                Toast.makeText(this, "loi", Toast.LENGTH_LONG).show()
-//            }
-//            //Toast.makeText(this, "Đã lưu file tại: $uri", Toast.LENGTH_LONG).show()
-//
-//
-//            // Tạo file kết quả l��u vào bộ nhớ ngoài
-//            var outputFile = File(getExternalFilesDir(null), "mixed_audio_${System.currentTimeMillis()}.mp3")
-//
-//            var musicFile = musicListPA[songPosition].toFile();
-//            // Gọi hàm mix audio
-//            AudioMixer.mixAudio(this, musicFile, voiceFile, outputFile) { success ->
-//                if (success) {
-//                    // Nếu mix thành công, lưu vào thư mục Recordings
-//                    val savedUri = AudioSaver.saveToRecordings(this, outputFile)
-//                    if (savedUri != null) {
-//                        // Thông báo hoặc mở file vừa lưu
-//                        Toast.makeText(this, "File đã được lưu thành công!", Toast.LENGTH_SHORT).show()
-//                    } else {
-//                        Toast.makeText(this, "Lưu file thất bại!", Toast.LENGTH_SHORT).show()
-//                    }
-//                } else {
-//                    Toast.makeText(this, "Mix thất bại!", Toast.LENGTH_SHORT).show()
-//                }
-//            }
             Toast.makeText(this, "Disabled!", Toast.LENGTH_SHORT).show()
-
         }
 
         binding.favouriteBtnPA.setOnClickListener {
@@ -382,9 +351,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
                 // Sync PlayerActivity.isPlaying with the actual state from MusicService
                 if (musicService?.mediaPlayer != null) {
-                    PlayerActivity.isPlaying = musicService!!.mediaPlayer!!.isPlaying
+                    isPlaying = musicService!!.mediaPlayer!!.isPlaying // Removed redundant qualifier
                 }
-                // else: PlayerActivity.isPlaying retains its value. If service/mediaPlayer isn't ready,
+                // else: isPlaying retains its value. If service/mediaPlayer isn't ready,
                 // it relies on the existing state, which should be accurate from previous interactions.
 
                 setLayout()
@@ -396,7 +365,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                     binding.seekBarPA.max = musicService!!.mediaPlayer!!.duration
                 }
                 // Update play/pause button based on the (potentially updated) isPlaying state
-                if (PlayerActivity.isPlaying) binding.playPauseImgPA.setImageResource(R.drawable.pause_icon)
+                if (isPlaying) binding.playPauseImgPA.setImageResource(R.drawable.pause_icon) // Removed redundant qualifier
                 else binding.playPauseImgPA.setImageResource(R.drawable.play_icon)
 
                 // Đảm bảo albumCoverAdapter được khởi tạo với danh sách nhạc hiện tại
@@ -455,70 +424,63 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             )
         }
 
-        // Create palette
-        Palette.from(image).generate { palette ->
-            val defaultColor = Color.LTGRAY // Fallback color
+        // Define smaller dimensions for the bitmap that will be blurred.
+        // Processing a smaller bitmap is much faster.
+        // Adjust these values based on the visual requirements and performance.
+        val blurTargetWidth = 240 // Example: smaller width in pixels
+        val blurTargetHeight = 360 // Example: smaller height in pixels
 
-            var tempStart = palette?.getVibrantColor(defaultColor) ?: defaultColor
-
-            // --- Determine dominant color (tempEnd) based on largest population ---
-            var dominantSwatch: Palette.Swatch? = null
-            palette?.swatches?.forEach { swatch ->
-                if (swatch != null) { // Ensure swatch is not null, though Palette API typically ensures this
-                    if (dominantSwatch == null || swatch.population > dominantSwatch!!.population) {
-                        dominantSwatch = swatch
-                    }
-                }
-            }
-            // Use the most populous swatch's RGB. If none, try getDominantColor(), then fallback.
-            var tempEnd = dominantSwatch?.rgb ?: palette?.getDominantColor(defaultColor) ?: defaultColor
-
-            val brightnessThreshold = 200 // Colors with average RGB component > 200 are considered bright
-            val darkeningFactor = 0.8f // Reduce component values to 80% (mix with 20% black)
-
-            // --- Darken start color if too bright ---
-            var r = Color.red(tempStart)
-            var g = Color.green(tempStart)
-            var b = Color.blue(tempStart)
-            if ((r + g + b) / 3 > brightnessThreshold) {
-                tempStart = Color.argb(
-                    Color.alpha(tempStart),
-                    (r * darkeningFactor).toInt(),
-                    (g * darkeningFactor).toInt(),
-                    (b * darkeningFactor).toInt()
-                )
-            }
-
-            // --- Darken end color if too bright ---
-            r = Color.red(tempEnd)
-            g = Color.green(tempEnd)
-            b = Color.blue(tempEnd)
-            if ((r + g + b) / 3 > brightnessThreshold) {
-                tempEnd = Color.argb(
-                    Color.alpha(tempEnd),
-                    (r * darkeningFactor).toInt(),
-                    (g * darkeningFactor).toInt(),
-                    (b * darkeningFactor).toInt()
-                )
-            }
-
-            val start = tempStart
-            var end = tempEnd // Now 'end' is potentially darkened
-
-            // Ensure end color has some transparency for text visibility if it's too strong
-            // or to create a softer blend with the vibrant color.
-            // Adjust alpha to around 60-70% opacity if it's very opaque or similar to start
-            val endAlpha = if (Color.alpha(end) > 200 && (start == end || Color.alpha(end) == 255)) 180 else Color.alpha(end)
-            end = Color.argb(endAlpha, Color.red(end), Color.green(end), Color.blue(end))
-
-            val gradient = GradientDrawable(
-                GradientDrawable.Orientation.BL_TR,
-                intArrayOf(start, end)
+        // New background logic using Glide for blurring and LayerDrawable
+        Glide.with(applicationContext)
+            .asBitmap()
+            .load(image) // Load the original album art bitmap
+            .apply(
+                RequestOptions()
+                    // Downsample the image to these dimensions BEFORE transformations.
+                    // This is a key optimization for speed.
+                    .override(blurTargetWidth, blurTargetHeight)
+                    // Apply CenterCrop to the downsampled image, then blur.
+                    // Reduced blur radius and sampling for speed.
+                    // Original was (70, 10), previous suggestion (25,4), now further reduced for speed.
+                    .transform(CenterCrop(), BlurTransformation(70, 2))
             )
-            binding.root.background = gradient
-            window?.statusBarColor = Color.TRANSPARENT // Make status bar transparent
-            window?.navigationBarColor = Color.TRANSPARENT // Make navigation bar transparent
-        }
+            // The CustomTarget will receive a bitmap of blurTargetWidth x blurTargetHeight.
+            .into(object : CustomTarget<Bitmap>(blurTargetWidth, blurTargetHeight) {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    val blurredBitmapDrawable = BitmapDrawable(resources, resource)
+
+                    // Gradient from transparent at the top to solid black at the bottom
+                    val gradientDrawable = GradientDrawable(
+                        GradientDrawable.Orientation.TOP_BOTTOM,
+                        intArrayOf(Color.TRANSPARENT, Color.BLACK)
+                    )
+
+                    // LayerDrawable: Blurred image as the base, gradient overlay on top
+                    val layers = arrayOf<Drawable>(blurredBitmapDrawable, gradientDrawable)
+                    val layerDrawable = LayerDrawable(layers)
+
+                    binding.root.background = layerDrawable
+
+                    // Ensure status bar and navigation bar remain transparent
+                    window?.statusBarColor = Color.TRANSPARENT
+                    window?.navigationBarColor = Color.TRANSPARENT
+                }
+
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    // Optional: Handle placeholder state, e.g., set a solid background
+                    binding.root.background = Color.BLACK.toDrawable() // KTX extension // Fallback
+                    window?.statusBarColor = Color.TRANSPARENT
+                    window?.navigationBarColor = Color.TRANSPARENT
+                }
+
+                override fun onLoadFailed(errorDrawable: Drawable?) {
+                    super.onLoadFailed(errorDrawable)
+                    // Optional: Handle error state, e.g., set a default solid or gradient background
+                    binding.root.background = Color.BLACK.toDrawable() // KTX extension // Fallback
+                    window?.statusBarColor = Color.TRANSPARENT
+                    window?.navigationBarColor = Color.TRANSPARENT
+                }
+            })
     }
 
     private fun createMediaPlayer(){
