@@ -18,6 +18,7 @@ import android.media.MediaPlayer
 import android.media.audiofx.AudioEffect
 import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
@@ -716,7 +717,18 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         val currentBackground = binding.root.background
 
         // Make the dialog window background transparent
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.apply {
+            setBackgroundDrawableResource(android.R.color.transparent)
+            // Make navigation bar transparent with light icons
+            navigationBarColor = Color.TRANSPARENT
+
+            // Set system UI flags if needed
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            }
+        }
 
         // Apply the same background effect to the queue
         val img = getImgArt(musicListPA[songPosition].path)
