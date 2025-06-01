@@ -4,12 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="?attr/colorSurface"
+    android:background="@android:color/transparent"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <com.google.android.material.bottomsheet.BottomSheetDragHandleView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        app:tint="@android:color/white" />
 
     <TextView
         android:id="@+id/queueTitle"
@@ -18,8 +21,8 @@
         android:text="@string/queue_btn"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
-        android:padding="16dp"
+        android:textColor="@android:color/white"
+        android:padding="8dp"
         android:gravity="center_horizontal"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -38,6 +41,6 @@
         android:padding="16dp"
         android:gravity="center"
         android:visibility="gone"
-        android:textColor="?attr/colorOnSurfaceVariant"/>
+        android:textColor="@android:color/white"/>
 
 </LinearLayout>

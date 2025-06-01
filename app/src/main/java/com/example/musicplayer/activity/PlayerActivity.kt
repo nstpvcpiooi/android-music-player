@@ -336,7 +336,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 if (isPlaying) binding.playPauseImgPA.setImageResource(R.drawable.pause_icon) // Removed redundant qualifier
                 else binding.playPauseImgPA.setImageResource(R.drawable.play_icon)
 
-                // Đảm bảo albumCoverAdapter được khởi tạo với danh sách nhạc hiện tại
+                // Đảm bảo albumCoverAdapter được khởi t���o với danh sách nhạc hiện tại
                 albumCoverAdapter.updateMusicList(musicListPA)
                 // Đặt ViewPager hiển thị bài hát hiện tại
                 binding.albumCoverViewPager.setCurrentItem(songPosition, false)
@@ -623,6 +623,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         val bottomSheetBinding = BottomSheetQueueBinding.inflate(layoutInflater)
         dialog.setContentView(bottomSheetBinding.root)
 
+        // Apply the same background effect to the queue bottom sheet
+        applyBackgroundToQueue(dialog, bottomSheetBinding)
+
         // Use the current playing list as the queue, instead of only PlayNext.playNextList
         val queueMusicList = if (PlayNext.playNextList.isEmpty()) {
             musicListPA
@@ -705,5 +708,66 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             bottomSheetBinding.queueRV.adapter = finalQueueAdapter
         }
         dialog.show()
+    }
+
+    // Function to apply the same background effect to the queue dialog as the player
+    private fun applyBackgroundToQueue(dialog: BottomSheetDialog, binding: BottomSheetQueueBinding) {
+        // Get the background of the player activity
+        val currentBackground = binding.root.background
+
+        // Make the dialog window background transparent
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        // Apply the same background effect to the queue
+        val img = getImgArt(musicListPA[songPosition].path)
+        val image = if (img != null) {
+            BitmapFactory.decodeByteArray(img, 0, img.size)
+        } else {
+            BitmapFactory.decodeResource(resources, R.drawable.music_player_icon_slash_screen)
+        }
+
+        // Define smaller dimensions for the bitmap that will be blurred
+        val blurTargetWidth = 240
+        val blurTargetHeight = 360
+
+        // Get the bottom sheet container to apply background
+        val bottomSheetInternal = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+
+        // Use Glide to apply the blurred background
+        Glide.with(applicationContext)
+            .asBitmap()
+            .load(image)
+            .apply(
+                RequestOptions()
+                    .override(blurTargetWidth, blurTargetHeight)
+                    .transform(CenterCrop(), BlurTransformation(70, 2))
+            )
+            .into(object : CustomTarget<Bitmap>(blurTargetWidth, blurTargetHeight) {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    val blurredBitmapDrawable = BitmapDrawable(resources, resource)
+
+                    // Create gradient overlay
+                    val gradientDrawable = GradientDrawable(
+                        GradientDrawable.Orientation.TOP_BOTTOM,
+                        intArrayOf(Color.TRANSPARENT, Color.BLACK)
+                    )
+
+                    // LayerDrawable: Blurred image as base, gradient on top
+                    val layers = arrayOf<Drawable>(blurredBitmapDrawable, gradientDrawable)
+                    val layerDrawable = LayerDrawable(layers)
+
+                    // Apply the background to the bottom sheet
+                    bottomSheetInternal?.background = layerDrawable
+                }
+
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    bottomSheetInternal?.background = Color.BLACK.toDrawable()
+                }
+
+                override fun onLoadFailed(errorDrawable: Drawable?) {
+                    super.onLoadFailed(errorDrawable)
+                    bottomSheetInternal?.background = Color.BLACK.toDrawable()
+                }
+            })
     }
 }

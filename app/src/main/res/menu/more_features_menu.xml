@@ -1,12 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/AddToPNBtn"
-        android:icon="@drawable/queue_top_icon"
+        android:icon="@drawable/add_icon"
+        android:iconTint="@color/black"
         android:title="@string/add_song" />
     <item
         android:id="@+id/addToQueueBtn"
-        android:icon="@drawable/next_icon"
-        android:title="Add to Queue" />
+        android:icon="@drawable/queue_top_icon"
+        android:title="Play next" />
     <item
         android:id="@+id/deleteBtn"
         android:icon="@drawable/delete_icon"
