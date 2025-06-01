@@ -1,9 +1,11 @@
 package com.example.musicplayer.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -150,7 +152,13 @@ class SearchFragment : Fragment() {
         // When resuming an existing instance, its state (instanceLastQuery, searchView text)
         // should be as it was. setupSearchView handles restoring the query if instanceLastQuery is set.
         // If it's a new instance, instanceLastQuery is null, and onCreateView has cleared static state.
-        searchView.requestFocus() // Ensure search view always has focus on resume
+
+        // Request focus and show keyboard
+        searchView.post {
+            searchView.requestFocus()
+            val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.showSoftInput(searchView.findFocus(), InputMethodManager.SHOW_IMPLICIT)
+        }
     }
 
     override fun onDestroyView() {
