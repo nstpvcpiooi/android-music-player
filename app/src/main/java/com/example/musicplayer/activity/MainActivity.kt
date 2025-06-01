@@ -198,7 +198,6 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
     }
 
     fun openPlayNext() {
-        Toast.makeText(this, "Play Next queue is available in the Player screen.", Toast.LENGTH_SHORT).show()
     }
 
     //For requesting permission
@@ -400,9 +399,20 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
 
     // Implementation of MusicAdapter.OnMusicItemClickListener
     override fun onSongClicked(position: Int, isSearch: Boolean) {
-        PlayerActivity.songPosition = position
-        PlayerActivity.musicListPA = if (isSearch) ArrayList(musicListSearch) else ArrayList(MusicListMA)
-        PlayerActivity.nowPlayingId = PlayerActivity.musicListPA[PlayerActivity.songPosition].id
+        val selectedSong = if (isSearch) musicListSearch[position] else MusicListMA[position]
+
+        // Create a new playlist with only the selected song
+        val singleSongPlaylist = ArrayList<Music>()
+        singleSongPlaylist.add(selectedSong)
+
+        // Set the playlist and position
+        PlayerActivity.songPosition = 0 // Always 0 since we're playing just one song
+        PlayerActivity.musicListPA = singleSongPlaylist
+        PlayerActivity.nowPlayingId = selectedSong.id
+
+        // Clear the PlayNext queue and add only the selected song
+        PlayNext.playNextList.clear()
+        PlayNext.playNextList.add(selectedSong)
 
         if (PlayerActivity.musicService != null) {
             // Service is already bound and active
@@ -411,12 +421,7 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
 
             // Ensure the NowPlaying container is visible.
             // The NowPlayingFragment itself will update its content via the broadcast receiver.
-            if (PlayerActivity.musicListPA.isNotEmpty() &&
-                PlayerActivity.songPosition >= 0 && PlayerActivity.songPosition < PlayerActivity.musicListPA.size) {
-                binding.nowPlaying.visibility = View.VISIBLE
-            } else {
-                binding.nowPlaying.visibility = View.GONE // Should ideally not happen here
-            }
+            binding.nowPlaying.visibility = View.VISIBLE
         } else {
             // Service is not yet bound or not active, bind and start it.
             // onServiceConnected will handle preparing and playing the first song.
