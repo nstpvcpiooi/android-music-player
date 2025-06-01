@@ -623,7 +623,18 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         val bottomSheetBinding = BottomSheetQueueBinding.inflate(layoutInflater)
         dialog.setContentView(bottomSheetBinding.root)
 
-        val queueMusicList = PlayNext.playNextList // Use PlayNext.playNextList as the queue
+        // Use the current playing list as the queue, instead of only PlayNext.playNextList
+        val queueMusicList = if (PlayNext.playNextList.isEmpty()) {
+            musicListPA
+        } else {
+            PlayNext.playNextList
+        }
+
+        // Synchronize PlayNext.playNextList with current playlist if it's empty
+        if (PlayNext.playNextList.isEmpty() && musicListPA.isNotEmpty()) {
+            PlayNext.playNextList.clear()
+            PlayNext.playNextList.addAll(musicListPA)
+        }
 
         if (queueMusicList.isEmpty()) {
             bottomSheetBinding.queueRV.visibility = View.GONE
@@ -636,6 +647,11 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             bottomSheetBinding.queueRV.setHasFixedSize(true)
             bottomSheetBinding.queueRV.layoutManager = LinearLayoutManager(this)
             bottomSheetBinding.queueRV.adapter = queueAdapter
+
+            // Scroll to the current playing song position
+            if (songPosition >= 0 && songPosition < queueMusicList.size) {
+                bottomSheetBinding.queueRV.scrollToPosition(songPosition)
+            }
 
             val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.UP or ItemTouchHelper.DOWN, // Drag directions
@@ -671,8 +687,11 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
                     super.clearView(recyclerView, viewHolder)
                     viewHolder.itemView.alpha = 1.0f // Reset item appearance
-                    // Notify adapter that underlying data might have changed if moves were committed
-                    // This is important if PlayNext.playNextList was directly manipulated by onItemMove
+
+                    // Update both PlayNext.playNextList and musicListPA to keep them in sync
+                    PlayNext.playNextList = ArrayList(queueAdapter.getMusicList())
+                    musicListPA = ArrayList(PlayNext.playNextList)
+
                     queueAdapter.updateQueue(PlayNext.playNextList)
                 }
             }
@@ -680,14 +699,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
             itemTouchHelper.attachToRecyclerView(bottomSheetBinding.queueRV)
 
-            // Pass the itemTouchHelper to the adapter *after* it's created and attached
-            // This requires QueueAdapter to have a way to set itemTouchHelper or pass it in constructor
-            // The current QueueAdapter constructor takes it, so we'd need to re-init or add a setter.
-            // For simplicity, let's assume QueueAdapter is modified to accept it in constructor and uses it.
-            // Re-creating adapter here with itemTouchHelper (if constructor is the only way)
+            // Pass the itemTouchHelper to the adapter for drag-and-drop functionality
             val finalQueueAdapter = QueueAdapter(this, ArrayList(queueMusicList), itemTouchHelper)
-            bottomSheetBinding.queueRV.adapter = finalQueueAdapter // Set the adapter with ItemTouchHelper
-
+            finalQueueAdapter.setCurrentPosition(songPosition) // Highlight current playing song
+            bottomSheetBinding.queueRV.adapter = finalQueueAdapter
         }
         dialog.show()
     }

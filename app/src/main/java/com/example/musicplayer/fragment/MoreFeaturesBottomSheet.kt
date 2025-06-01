@@ -94,6 +94,44 @@ class MoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                     dismiss()
                     true
                 }
+                R.id.addToQueueBtn -> {
+                    try {
+                        if (PlayerActivity.musicService == null || PlayerActivity.musicListPA.isEmpty()) {
+                            Snackbar.make(binding.root, "Play a song first!", Snackbar.LENGTH_LONG).show()
+                        } else if (currentMusic != null) {
+                            // If the PlayNext list is empty, first add the currently playing song
+                            if (PlayNext.playNextList.isEmpty()) {
+                                PlayNext.playNextList.add(PlayerActivity.musicListPA[PlayerActivity.songPosition])
+                            }
+
+                            // Add song to queue right after the current song
+                            val currentSongIndex = PlayNext.playNextList.indexOfFirst {
+                                it.id == PlayerActivity.musicListPA[PlayerActivity.songPosition].id
+                            }
+
+                            if (currentSongIndex != -1) {
+                                // Add the selected song right after the currently playing song
+                                PlayNext.playNextList.add(currentSongIndex + 1, currentMusic)
+                                // Update the player's music list to reflect this change
+                                PlayerActivity.musicListPA = ArrayList(PlayNext.playNextList)
+
+                                Toast.makeText(requireContext(),
+                                    "\"${currentMusic.title}\" will play after current song",
+                                    Toast.LENGTH_SHORT).show()
+                            } else {
+                                // If we couldn't find the current song in the queue (shouldn't happen)
+                                PlayNext.playNextList.add(currentMusic)
+                                PlayerActivity.musicListPA = ArrayList(PlayNext.playNextList)
+                                Toast.makeText(requireContext(), "Added to Queue", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error adding to queue", e)
+                        Snackbar.make(binding.root, "Error adding to queue", Snackbar.LENGTH_LONG).show()
+                    }
+                    dismiss()
+                    true
+                }
                 R.id.infoBtn -> {
                     if (currentMusic != null) {
                         val detailsDialogView = LayoutInflater.from(requireContext()).inflate(R.layout.details_view, null)
