@@ -8,12 +8,15 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.musicplayer.R
+import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.adapter.PlaylistViewAdapter
 import com.example.musicplayer.databinding.AddPlaylistDialogBinding
 import com.example.musicplayer.databinding.FragmentPlaylistBinding
 import com.example.musicplayer.model.Playlist
 import com.example.musicplayer.onprg.PlaylistActivity // Assuming musicPlaylist is static here
 import com.example.musicplayer.utils.setDialogBtnBackground
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,6 +26,19 @@ class PlaylistFragment : Fragment() {
     private var _binding: FragmentPlaylistBinding? = null
     private val binding get() = _binding!!
     internal lateinit var adapter: PlaylistViewAdapter
+    private lateinit var toolbar: MaterialToolbar
+    private var appBarLayout: AppBarLayout? = null
+
+    private val appBarOffsetChangedListener = AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
+        val mainActivity = activity as? MainActivity
+        val isToolbarAtTop = verticalOffset == 0
+        val isListAtTop = if (_binding != null && binding.playlistRVFragment.adapter != null && binding.playlistRVFragment.adapter!!.itemCount > 0) {
+            !binding.playlistRVFragment.canScrollVertically(-1)
+        } else {
+            true
+        }
+        mainActivity?.setRefreshLayoutEnabled(isToolbarAtTop && isListAtTop)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,18 +51,35 @@ class PlaylistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        toolbar = view.findViewById(R.id.playlistFragmentToolbar)
+        appBarLayout = view.findViewById(R.id.playlistFragmentAppBarLayout)
+
+        setupToolbar()
+        appBarLayout?.addOnOffsetChangedListener(appBarOffsetChangedListener)
+
         binding.playlistRVFragment.setHasFixedSize(true)
         binding.playlistRVFragment.setItemViewCacheSize(13)
         binding.playlistRVFragment.layoutManager = GridLayoutManager(requireContext(), 2)
 
         adapter = PlaylistViewAdapter(requireContext(), playlistList = PlaylistActivity.musicPlaylist.ref)
         binding.playlistRVFragment.adapter = adapter
-        binding.addPlaylistBtnFragment.setOnClickListener { customAlertDialog() }
 
         if (PlaylistActivity.musicPlaylist.ref.isNotEmpty()) {
             binding.instructionPAFragment.visibility = View.GONE
         } else {
             binding.instructionPAFragment.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setupToolbar() {
+        toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_add_playlist -> {
+                    customAlertDialog()
+                    true
+                }
+                else -> false
+            }
         }
     }
 
@@ -110,6 +143,8 @@ class PlaylistFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        appBarLayout?.removeOnOffsetChangedListener(appBarOffsetChangedListener)
+        appBarLayout = null
         _binding = null
     }
 }
