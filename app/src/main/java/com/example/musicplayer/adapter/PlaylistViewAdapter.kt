@@ -25,6 +25,7 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
         val name = binding.playlistName
         val root = binding.root
         val delete = binding.playlistDeleteBtn
+        val songCount = binding.playlistSongCount // Added songCount
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
@@ -33,10 +34,12 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
 
     override fun onBindViewHolder(holder: MyHolder, position: Int) {
         if(MainActivity.themeIndex == 4){
-            holder.root.strokeColor = ContextCompat.getColor(context, R.color.white)
+            // holder.root.strokeColor = ContextCompat.getColor(context, R.color.white) // MaterialCardView no longer has stroke
         }
         holder.name.text = playlistList[position].name
         holder.name.isSelected = true
+        holder.songCount.text = "${playlistList[position].playlist.size} songs" // Set song count text
+
         holder.delete.setOnClickListener {
             val builder = MaterialAlertDialogBuilder(context)
             builder.setTitle(playlistList[position].name)
@@ -76,3 +79,4 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
         notifyDataSetChanged()
     }
 }
+
