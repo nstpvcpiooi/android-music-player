@@ -24,12 +24,12 @@
         android:supportsRtl="true"
         android:theme="@style/splash_screen"
         tools:ignore="AllowBackup">
-        <activity
-            android:name=".activity.SearchActivity"
-            android:configChanges="uiMode|orientation"
-            android:screenOrientation="sensorPortrait"
-            android:exported="false"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity" />
+<!--        <activity-->
+<!--            android:name=".activity.SearchActivity"-->
+<!--            android:configChanges="uiMode|orientation"-->
+<!--            android:screenOrientation="sensorPortrait"-->
+<!--            android:exported="false"-->
+<!--            tools:ignore="DiscouragedApi,LockedOrientationActivity" />-->
         <activity
             android:name=".activity.DownloadActivity"
             android:exported="false" />
@@ -109,6 +109,7 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="sensorPortrait"
+            android:windowSoftInputMode="adjustNothing"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" /> <!-- Updated Permission for Android 14 -->
         <service
             android:name=".service.MusicService"
@@ -125,3 +126,4 @@
     </application>
 
 </manifest>
+
