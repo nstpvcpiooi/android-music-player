@@ -363,6 +363,18 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             "MusicAdapter" -> initServiceAndPlaylist(MainActivity.MusicListMA, shuffle = false)
             "FavouriteAdapter"-> initServiceAndPlaylist(FavouriteActivity.favouriteSongs, shuffle = false)
             "MainActivity"-> initServiceAndPlaylist(MainActivity.MusicListMA, shuffle = true)
+            "MainActivityLimited"-> {
+                // Create a copy of music list with maximum 30 songs
+                val limitedList = if (MainActivity.MusicListMA.size <= 20) {
+                    ArrayList(MainActivity.MusicListMA)
+                } else {
+                    ArrayList(MainActivity.MusicListMA.take(20))
+                }
+                initServiceAndPlaylist(limitedList, shuffle = true)
+
+                // Make sure auto-play is enabled
+                autoPlay = true
+            }
             "FavouriteShuffle"-> initServiceAndPlaylist(FavouriteActivity.favouriteSongs, shuffle = true)
             "PlaylistDetailsAdapter"->
                 initServiceAndPlaylist(PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = false)

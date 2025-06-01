@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
     android:paddingVertical="10dp"
-    android:paddingHorizontal="20dp">
+    android:paddingStart="20dp"
+    android:paddingEnd="15dp">
 
     <!-- Album Image -->
     <com.google.android.material.imageview.ShapeableImageView

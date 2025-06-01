@@ -186,9 +186,16 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
 
     // These functions will be used by the LibraryFragment
     fun openShufflePlayer() {
+        // Enable auto-play when using shuffle
+        val appSettingPrefs = getSharedPreferences("APP_SETTINGS_PREFS", MODE_PRIVATE)
+        val editor = appSettingPrefs.edit()
+        editor.putBoolean("AutoPlay", true)
+        editor.apply()
+
+        // Start PlayerActivity with special flag for 30-song shuffle
         val intent = Intent(this@MainActivity, PlayerActivity::class.java)
         intent.putExtra("index", 0)
-        intent.putExtra("class", "MainActivity")
+        intent.putExtra("class", "MainActivityLimited")
         startActivity(intent)
     }
 
