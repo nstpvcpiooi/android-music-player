@@ -32,6 +32,7 @@ import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.fragment.AccountFragment
 import com.example.musicplayer.fragment.HomeFragment
 import com.example.musicplayer.fragment.LibraryFragment
+import com.example.musicplayer.fragment.SearchFragment // Import SearchFragment
 import com.google.gson.GsonBuilder
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.model.MusicPlaylist
@@ -55,8 +56,8 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
     }
 
     companion object {
-        lateinit var MusicListMA: ArrayList<Music>
-        lateinit var musicListSearch: ArrayList<Music>
+        var MusicListMA: ArrayList<Music> = ArrayList() // Initialize to empty list
+        var musicListSearch: ArrayList<Music> = ArrayList() // Initialize to empty list
         var search: Boolean = false
         var themeIndex: Int = 0
         val currentTheme = arrayOf(
@@ -140,15 +141,15 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
-                    loadFragment(HomeFragment())
+                    loadFragment(HomeFragment(), addToBackStack = false) // Don't add to backstack for primary tabs
                     true
                 }
                 R.id.navigation_library -> {
-                    loadFragment(LibraryFragment())
+                    loadFragment(LibraryFragment(), addToBackStack = false) // Don't add to backstack for primary tabs
                     true
                 }
                 R.id.navigation_account -> {
-                    loadFragment(AccountFragment())
+                    loadFragment(AccountFragment(), addToBackStack = false) // Don't add to backstack for primary tabs
                     true
                 }
                 else -> false
@@ -159,7 +160,7 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
         binding.bottomNavigation.selectedItemId = R.id.navigation_library
     }
 
-    private fun loadFragment(fragment: Fragment) {
+    private fun loadFragment(fragment: Fragment, addToBackStack: Boolean = true) { // Added addToBackStack parameter
         val transaction = supportFragmentManager.beginTransaction()
         // Add custom animations for fragment transitions
         transaction.setCustomAnimations(
@@ -169,7 +170,15 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
             R.anim.fade_out_fast // popExit
         )
         transaction.replace(R.id.fragment_container, fragment)
+        if (addToBackStack) { // Conditionally add to back stack
+            transaction.addToBackStack(null)
+        }
         transaction.commit()
+    }
+
+    // Function to open SearchFragment
+    fun openSearchFragment() {
+        loadFragment(SearchFragment())
     }
 
     // These functions will be used by the LibraryFragment

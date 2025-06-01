@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.MainActivity
-import com.example.musicplayer.activity.SearchActivity
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -80,7 +79,8 @@ class LibraryFragment : Fragment() {
         toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_search -> {
-                    startActivity(Intent(requireContext(), SearchActivity::class.java))
+                    // Launch SearchFragment using MainActivity's method
+                    (activity as? MainActivity)?.openSearchFragment()
                     true
                 }
                 R.id.action_sort -> {

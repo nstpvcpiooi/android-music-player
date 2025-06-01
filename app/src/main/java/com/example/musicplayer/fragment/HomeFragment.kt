@@ -1,8 +1,7 @@
 package com.example.musicplayer.fragment
 
-import android.content.Intent
-import android.graphics.LinearGradient
-import android.graphics.Shader
+import android.graphics.LinearGradient // Added import
+import android.graphics.Shader // Added import
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.MainActivity
-import com.example.musicplayer.activity.SearchActivity
 import com.google.android.material.appbar.MaterialToolbar
 
 class HomeFragment : Fragment() {
@@ -41,8 +39,8 @@ class HomeFragment : Fragment() {
         toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_search -> {
-                    // Launch search activity when search icon is clicked
-                    startActivity(Intent(requireContext(), SearchActivity::class.java))
+                    // Launch SearchFragment using MainActivity's method
+                    (activity as? MainActivity)?.openSearchFragment()
                     true
                 }
                 else -> false
@@ -59,7 +57,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun applyGradientToTextView(textView: TextView) {
-        val startColor = ContextCompat.getColor(requireContext(), android.R.color.transparent)
         val startActualColor = 0xFF16B0E2.toInt()
         val endColor = 0xFF6E5AF0.toInt()
 
