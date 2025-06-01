@@ -33,7 +33,8 @@ class PlaylistFragment : Fragment() {
         val mainActivity = activity as? MainActivity
         val isToolbarAtTop = verticalOffset == 0
         val isListAtTop = if (_binding != null && binding.playlistRVFragment.adapter != null && binding.playlistRVFragment.adapter!!.itemCount > 0) {
-            !binding.playlistRVFragment.canScrollVertically(-1)
+            val rvScrollY = binding.playlistRVFragment.computeVerticalScrollOffset()
+            rvScrollY == 0
         } else {
             true
         }
@@ -68,6 +69,16 @@ class PlaylistFragment : Fragment() {
             binding.instructionPAFragment.visibility = View.GONE
         } else {
             binding.instructionPAFragment.visibility = View.VISIBLE
+        }
+
+        binding.playlistFavoritesBtn.setOnClickListener {
+            Toast.makeText(context, "Favorites Clicked", Toast.LENGTH_SHORT).show()
+            // TODO: Implement Favorites functionality
+        }
+
+        binding.playlistHistoryBtn.setOnClickListener {
+            Toast.makeText(context, "History Clicked", Toast.LENGTH_SHORT).show()
+            // TODO: Implement History functionality
         }
     }
 

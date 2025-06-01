@@ -110,10 +110,6 @@ class AccountFragment : Fragment() {
             (activity as? MainActivity)?.openFavorites()
         }
 
-        view.findViewById<View>(R.id.playlistBtn).setOnClickListener {
-            (activity as? MainActivity)?.openPlaylist()
-        }
-
         view.findViewById<View>(R.id.playNextBtn).setOnClickListener {
             (activity as? MainActivity)?.openPlayNext()
         }

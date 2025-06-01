@@ -88,43 +88,6 @@
 
         </LinearLayout>
 
-        <!--PLAYLIST BUTTONS-->
-        <LinearLayout
-            android:id="@+id/playlistBtn"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_weight="1"
-            android:padding="10dp">
-
-            <!--ICON LAYOUT-->
-            <LinearLayout
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:background="@drawable/circle_tonal_blue"
-                android:gravity="center">
-                <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/playlist_btn"
-                    android:src="@drawable/playlist_icon"
-                    app:tint="@color/tonal_button_icon_blue" />
-            </LinearLayout>
-
-            <!--TEXT-->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/playlist_btn"
-                android:textColor="?attr/colorOnSurface"
-                android:textStyle="bold"
-                android:layout_marginTop="10dp" />
-
-        </LinearLayout>
-
         <!--PLAY NEXT BUTTONS-->
         <LinearLayout
             android:id="@+id/playNextBtn"
