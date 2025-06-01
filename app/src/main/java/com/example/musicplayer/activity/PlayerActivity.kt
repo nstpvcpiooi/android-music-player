@@ -22,12 +22,14 @@ import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable // Added import for KTX extension
 import androidx.core.view.WindowCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
@@ -50,9 +52,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.example.musicplayer.databinding.ActivityPlayerBinding
 import com.example.musicplayer.databinding.AudioBoosterBinding
 import com.example.musicplayer.databinding.TimerBottomSheetBinding
+import com.example.musicplayer.databinding.BottomSheetQueueBinding
 import com.example.musicplayer.fragment.PlayerMoreFeaturesBottomSheet
 import com.example.musicplayer.model.toFile
 import com.example.musicplayer.onprg.PlaylistActivity
+import com.example.musicplayer.adapter.QueueAdapter
 import com.example.musicplayer.utils.exitApplication
 import com.example.musicplayer.utils.favouriteChecker
 import com.example.musicplayer.utils.formatDuration
@@ -179,30 +183,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         voiceFile = File(cacheDir, "recorded_voice.m4a")
         mixedFile = File(cacheDir, "mixed_output.mp3")
 
-
-//        //tăng âm lượng custom
-//        binding.boosterBtnPA.setOnClickListener {
-//            val customDialogB = LayoutInflater.from(this).inflate(R.layout.audio_booster, binding.root, false)
-//            val bindingB = AudioBoosterBinding.bind(customDialogB)
-//            val dialogB = MaterialAlertDialogBuilder(this).setView(customDialogB)
-//                .setOnCancelListener { playMusic() }
-//                .setPositiveButton("OK"){self, _ ->
-//                    loudnessEnhancer.setTargetGain(bindingB.verticalBar.progress * 100)
-//                    playMusic()
-//                    self.dismiss()
-//                }
-//                .setBackground(0x803700B3.toInt().toDrawable()) // KTX extension
-//                .create()
-//            dialogB.show()
-//
-//            bindingB.verticalBar.progress = loudnessEnhancer.targetGain.toInt()/100
-//            bindingB.progressText.text = "Audio Boost\n\n${loudnessEnhancer.targetGain.toInt()/10} %"
-//            bindingB.verticalBar.setOnProgressChangeListener {
-//                bindingB.progressText.text = "Audio Boost\n\n${it*10} %"
-//            }
-//            setDialogBtnBackground(this, dialogB)
-//        }
-
         //utils buttons
         binding.backBtnPA.setOnClickListener { finish() }
         binding.playPauseBtnPA.setOnClickListener{ if(isPlaying) pauseMusic() else playMusic() }
@@ -228,18 +208,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             }
         }
 
-
-//        binding.equalizerBtnPA.setOnClickListener {
-//            try {
-//                val eqIntent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
-//                eqIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, musicService!!.mediaPlayer!!.audioSessionId)
-//                eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, baseContext.packageName)
-//                eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
-//                startActivityForResult(eqIntent, 13) // This is deprecated, but keeping for now as per original code
-//            }catch (_: Exception){Toast.makeText(this,  "Bad Android version", Toast.LENGTH_SHORT).show()} // Changed e to _
-//
-//
-//        }
         binding.timerBtnPA.setOnClickListener {
             val timer = min5 || min10 || min30
             if(!timer) showBottomSheetDialog()
@@ -263,13 +231,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 setDialogBtnBackground(this, customDialog)
                 }
         }
-//        binding.shareBtnPA.setOnClickListener {
-//            val shareIntent = Intent()
-//            shareIntent.action = Intent.ACTION_SEND
-//            shareIntent.type = "audio/*"
-//            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(musicListPA[songPosition].path))
-//            startActivity(Intent.createChooser(shareIntent, "Sharing Music File!!"))
-//        }
 
         binding.recordingBtnPA.setOnClickListener {
 
@@ -286,8 +247,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 } catch (_:Exception) { // Changed e to _
                     Toast.makeText(this, "loi", Toast.LENGTH_LONG).show()
                 }
-                //Toast.makeText(this, "Đã lưu file tại: $uri", Toast.LENGTH_LONG).show()
-
 
                 // Tạo file kết quả lưu vào bộ nhớ ngoài
                 val outputFile = File(getExternalFilesDir(null), "mixed_audio_${System.currentTimeMillis()}.mp3") // val instead of var
@@ -314,10 +273,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         }
 
-//        binding.stoprecordingBtnPA.setOnClickListener {
-//            Toast.makeText(this, "Disabled!", Toast.LENGTH_SHORT).show()
-//        }
-
         binding.favouriteBtnPA.setOnClickListener {
             fIndex = favouriteChecker(musicListPA[songPosition].id)
             if(isFavourite){
@@ -340,6 +295,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             } else {
                 Toast.makeText(this, "Song ID not found", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        binding.queueBtnPA.setOnClickListener {
+            showQueueBottomSheet()
         }
     }
 
@@ -386,7 +345,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 initServiceAndPlaylist(PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = true)
             "PlayNext"->initServiceAndPlaylist(PlayNext.playNextList, shuffle = false, playNext = true)
         }
-//        if (musicService != null && !isPlaying) playMusic()
 
         // Set viewpager to current song position
         binding.albumCoverViewPager.setCurrentItem(songPosition, false)
@@ -532,10 +490,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         }
     }
 
-
-
-    //sau khi kết nối tới musicservice thành công sẽ gọi hàm này
-    //
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         if(musicService == null){
             val binder = service as MusicService.MyBinder
@@ -545,8 +499,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             }
         createMediaPlayer()
         musicService!!.seekBarSetup()
-
-
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
@@ -573,7 +525,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         if(requestCode == 13 || resultCode == RESULT_OK)
             return
     }
-
 
     private fun showBottomSheetDialog(){
         val dialog = BottomSheetDialog(this@PlayerActivity)
@@ -641,8 +592,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
     override fun onDestroy() {
         super.onDestroy()
         binding.albumCoverViewPager.unregisterOnPageChangeCallback(pageChangeCallback)
-        if(musicListPA[songPosition].id == "Unknown" && !isPlaying) exitApplication()
+        if(musicListPA.isNotEmpty() && songPosition < musicListPA.size && musicListPA[songPosition].id == "Unknown" && !isPlaying) exitApplication()
     }
+
     private fun initServiceAndPlaylist(playlist: ArrayList<Music>, shuffle: Boolean, playNext: Boolean = false){
         val intent = Intent(this, MusicService::class.java)
         bindService(intent, this, BIND_AUTO_CREATE)
@@ -659,5 +611,24 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         if(!playNext) PlayNext.playNextList = ArrayList()
     }
 
+    private fun showQueueBottomSheet() {
+        val dialog = BottomSheetDialog(this@PlayerActivity)
+        val bottomSheetBinding = BottomSheetQueueBinding.inflate(layoutInflater)
+        dialog.setContentView(bottomSheetBinding.root)
 
+        val queueMusicList = PlayNext.playNextList // Use PlayNext.playNextList as the queue
+
+        if (queueMusicList.isEmpty()) {
+            bottomSheetBinding.queueRV.visibility = View.GONE
+            bottomSheetBinding.emptyQueueText.visibility = View.VISIBLE
+        } else {
+            bottomSheetBinding.queueRV.visibility = View.VISIBLE
+            bottomSheetBinding.emptyQueueText.visibility = View.GONE
+            val queueAdapter = QueueAdapter(this, ArrayList(queueMusicList))
+            bottomSheetBinding.queueRV.setHasFixedSize(true)
+            bottomSheetBinding.queueRV.layoutManager = LinearLayoutManager(this)
+            bottomSheetBinding.queueRV.adapter = queueAdapter
+        }
+        dialog.show()
+    }
 }

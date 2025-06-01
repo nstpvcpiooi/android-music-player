@@ -80,5 +80,7 @@
     <string name="playlist_song_count_format">%d songs</string> <!-- Added for song count -->
     <string name="created_by_format">Created by %s</string>
     <string name="history_btn">History</string> <!-- Added for creator text -->
+    <string name="queue_btn">Queue</string>
+    <string name="empty_queue_message">Your queue is empty.</string>
 </resources>
 

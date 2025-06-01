@@ -329,6 +329,20 @@
                 android:src="@drawable/microphone"
                 app:tint="@color/white" />
 
+            <!-- QUEUE BUTTON -->
+            <ImageButton
+                android:id="@+id/queueBtnPA"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="@string/queue_btn"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/play_next_icon"
+                app:tint="@color/white">
+
+            </ImageButton>
+
 <!--            <ImageButton-->
 <!--                android:id="@+id/stoprecordingBtnPA"-->
 <!--                android:layout_width="50dp"-->
@@ -380,4 +394,7 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
 
