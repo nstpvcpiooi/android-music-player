@@ -2,6 +2,7 @@ package com.example.musicplayer.activity
 
 import android.annotation.SuppressLint
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.database.Cursor
@@ -60,6 +61,7 @@ import com.example.musicplayer.fragment.PlayerMoreFeaturesBottomSheet
 import com.example.musicplayer.model.toFile
 import com.example.musicplayer.onprg.PlaylistActivity
 import com.example.musicplayer.adapter.QueueAdapter
+import com.example.musicplayer.adapter.RecommendedSongsAdapter
 import com.example.musicplayer.utils.exitApplication
 import com.example.musicplayer.utils.favouriteChecker
 import com.example.musicplayer.utils.formatDuration
@@ -74,7 +76,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
     companion object {
         lateinit var musicListPA : ArrayList<Music>
 
-
         var songPosition: Int = 0
         var isPlaying:Boolean = false
 
@@ -84,6 +85,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         lateinit var binding: ActivityPlayerBinding
 
         var repeat: Boolean = false
+        var autoPlay: Boolean = false // Added for auto-play feature
 
         var min5: Boolean = false
         var min10: Boolean = false
@@ -102,6 +104,17 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         // Add the album cover pager adapter
         lateinit var albumCoverAdapter: AlbumCoverPagerAdapter
+
+        // Initialize settings from shared preferences when app starts
+        fun loadSettings(context: Context) {
+            try {
+                val appSettingPrefs = context.getSharedPreferences("APP_SETTINGS_PREFS", Context.MODE_PRIVATE)
+                autoPlay = appSettingPrefs.getBoolean("AutoPlay", false)
+            } catch (e: Exception) {
+                // Fallback in case of any issues
+                autoPlay = false
+            }
+        }
     }
 
     private var userIsSwiping = false
@@ -242,7 +255,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             if (!isRecording) { // Simplified condition
                 audioRecorder = AudioRecorder(voiceFile)
                 audioRecorder.startRecording()
-                Toast.makeText(this, "Đang ghi âm...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "��ang ghi âm...", Toast.LENGTH_SHORT).show()
                 isRecording = true
             } else {
                 audioRecorder.stopRecording()
@@ -260,7 +273,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 // Gọi hàm mix audio
                 AudioMixer.mixAudio(this, musicFile, voiceFile, outputFile) { success ->
                     if (success) {
-                        // Nếu mix thành công, lưu vào thư mục Recordings
+                        // N���u mix thành công, lưu vào thư mục Recordings
                         val savedUri = AudioSaver.saveToRecordings(this, outputFile)
                         if (savedUri != null) {
                             // Thông báo hoặc mở file vừa lưu
@@ -305,6 +318,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         binding.queueBtnPA.setOnClickListener {
             showQueueBottomSheet()
         }
+
+        // Initialize auto-play setting from preferences
+        val appSettingPrefs = getSharedPreferences("APP_SETTINGS_PREFS", MODE_PRIVATE)
+        autoPlay = appSettingPrefs.getBoolean("AutoPlay", false)
     }
 
     //handles intents aka data comes from other resources
@@ -484,14 +501,41 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         musicService!!.showNotification(R.drawable.play_icon)
         binding.songNamePA.isSelected = false // Stop marquee when paused
     }
+
     private fun prevNextSong(increment: Boolean){
-        if(increment)
-        {
-            setSongPosition(increment = true)
-            setLayout()
-            createMediaPlayer()
-        }
-        else{
+        if(increment) {
+            // Handle next song behavior
+            if (songPosition == musicListPA.size - 1) {
+                // At the end of the playlist
+                if (autoPlay) {
+                    // With autoplay: Add new song and play it
+                    val newSongAdded = addRandomSongToQueue()
+                    if (newSongAdded) {
+                        setSongPosition(increment = true)
+                        setLayout()
+                        createMediaPlayer()
+                    } else {
+                        // If no new song could be added, go to first song and stop
+                        songPosition = 0
+                        setLayout()
+                        createMediaPlayer()
+                        pauseMusic()
+                    }
+                } else {
+                    // Without autoplay: Go to the first song and stop
+                    songPosition = 0
+                    setLayout()
+                    createMediaPlayer()
+                    pauseMusic()
+                }
+            } else {
+                // Not at the end, normal behavior
+                setSongPosition(increment = true)
+                setLayout()
+                createMediaPlayer()
+            }
+        } else {
+            // Previous song - no changes needed
             setSongPosition(increment = false)
             setLayout()
             createMediaPlayer()
@@ -514,17 +558,64 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
+        // First determine if we need to add a new song for auto-play
+        if (autoPlay && songPosition >= musicListPA.size - 1) {
+            // We're at the last song and auto-play is enabled
+            // Add a random song from the main music library to the queue
+            addRandomSongToQueue()
+        }
+
         setSongPosition(increment = true)
         createMediaPlayer()
         setLayout()
 
-        //for refreshing now playing image & text on song completion
+        // For refreshing now playing image & text on song completion
         NowPlaying.binding.songNameNP.isSelected = true
         Glide.with(applicationContext)
             .load(musicListPA[songPosition].artUri)
             .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
             .into(NowPlaying.binding.songImgNP)
         NowPlaying.binding.songNameNP.text = musicListPA[songPosition].title
+    }
+
+    // Function to add the next song to the queue when auto-play is enabled
+    private fun addRandomSongToQueue(): Boolean {
+        if (MainActivity.MusicListMA.isEmpty()) {
+            Toast.makeText(this, "No music available for auto-play", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        val allSongs = ArrayList(MainActivity.MusicListMA)
+
+        // Filter out songs that are already in the queue
+        val currentSongIds = musicListPA.map { it.id }
+        val filteredSongs = allSongs.filter { !currentSongIds.contains(it.id) }
+
+        // Sort songs by title to ensure a consistent order
+        val sortedSongs = filteredSongs.sortedBy { it.title }
+
+        // Get the first song from the sorted list
+        val newSong = if (sortedSongs.isNotEmpty()) {
+            sortedSongs[0]
+        } else if (allSongs.isNotEmpty()) {
+            // If all songs are already in queue, just pick the first alphabetically sorted one
+            allSongs.sortedBy { it.title }[0]
+        } else {
+            null
+        }
+
+        // Add the selected song to the queue
+        if (newSong != null) {
+            musicListPA.add(newSong)
+            PlayNext.playNextList.add(newSong)
+
+            // Update the album cover adapter with the new song
+            albumCoverAdapter.updateMusicList(musicListPA)
+
+            // Toast.makeText(this, "Auto-Play: Added ${newSong.title}", Toast.LENGTH_SHORT).show()
+            return true
+        }
+        return false
     }
 
     @Deprecated("Deprecated in Java")
@@ -626,6 +717,74 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         // Apply the same background effect to the queue bottom sheet
         applyBackgroundToQueue(dialog, bottomSheetBinding)
+
+        // Get recommended songs for autoplay
+        val recommendedSongs = getRecommendedSongsForAutoPlay(5)
+
+        // Set up the auto-play switch with the current setting
+        bottomSheetBinding.autoPlaySwitch.isChecked = autoPlay
+        bottomSheetBinding.autoPlaySwitch.setOnCheckedChangeListener { _, isChecked ->
+            autoPlay = isChecked
+
+            // Save the auto-play setting to shared preferences
+            val appSettingPrefs = getSharedPreferences("APP_SETTINGS_PREFS", MODE_PRIVATE)
+            val editor = appSettingPrefs.edit()
+            editor.putBoolean("AutoPlay", isChecked)
+            editor.apply()
+
+            // Update recommended songs section visibility
+            bottomSheetBinding.recommendedSongsContainer.visibility =
+                if (isChecked) View.VISIBLE else View.GONE
+
+            Toast.makeText(
+                this,
+                if (isChecked) "Auto-Play enabled" else "Auto-Play disabled",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        // Setup recommended songs section
+        if (recommendedSongs.isNotEmpty()) {
+            // Initialize the recommended songs RecyclerView
+            bottomSheetBinding.recommendedSongsRV.layoutManager = LinearLayoutManager(this)
+            val recommendedAdapter = RecommendedSongsAdapter(this, recommendedSongs)
+
+            // Set click listener for adding songs to queue
+            recommendedAdapter.setOnRecommendedItemClickListener(object : RecommendedSongsAdapter.OnRecommendedItemClickListener {
+                override fun onAddToQueueClick(position: Int, song: Music) {
+                    // Add song to current playlist and PlayNext list
+                    musicListPA.add(song)
+                    PlayNext.playNextList.add(song)
+
+                    // Update album cover adapter
+                    albumCoverAdapter.updateMusicList(musicListPA)
+
+                    Toast.makeText(
+                        this@PlayerActivity,
+                        "Added ${song.title} to queue",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    // Update the recommended songs list (remove the added song)
+                    recommendedSongs.removeAt(position)
+                    recommendedAdapter.updateList(recommendedSongs)
+
+                    // If no more recommendations, hide the section
+                    if (recommendedSongs.isEmpty()) {
+                        bottomSheetBinding.recommendedSongsContainer.visibility = View.GONE
+                    }
+                }
+            })
+
+            bottomSheetBinding.recommendedSongsRV.adapter = recommendedAdapter
+
+            // Show or hide recommended songs section based on autoplay setting
+            bottomSheetBinding.recommendedSongsContainer.visibility =
+                if (autoPlay) View.VISIBLE else View.GONE
+        } else {
+            // No recommendations available
+            bottomSheetBinding.recommendedSongsContainer.visibility = View.GONE
+        }
 
         // Use the current playing list as the queue, instead of only PlayNext.playNextList
         val queueMusicList = if (PlayNext.playNextList.isEmpty()) {
@@ -753,6 +912,31 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         }
 
         dialog.show()
+    }
+
+    // Function to get recommended songs for auto-play
+    private fun getRecommendedSongsForAutoPlay(count: Int): ArrayList<Music> {
+        val recommendedList = ArrayList<Music>()
+
+        // Source for recommendations is the main music library
+        if (MainActivity.MusicListMA.isEmpty()) {
+            return recommendedList
+        }
+
+        val allSongs = ArrayList(MainActivity.MusicListMA)
+
+        // Filter out songs that are already in the queue
+        val currentSongIds = musicListPA.map { it.id }
+        val filteredSongs = allSongs.filter { !currentSongIds.contains(it.id) }
+
+        // Sort songs by title to ensure a consistent order
+        val sortedSongs = filteredSongs.sortedBy { it.title }
+
+        // Add up to 'count' songs to the recommendations
+        val songsToAdd = sortedSongs.take(count)
+        recommendedList.addAll(songsToAdd)
+
+        return recommendedList
     }
 
     // Function to apply the same background effect to the queue dialog as the player

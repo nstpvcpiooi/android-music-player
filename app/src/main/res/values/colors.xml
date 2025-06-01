@@ -29,5 +29,7 @@
     <color name="black_level1">#353535</color>
     <color name="black_level2">#595959</color>
     <color name="blue_app_icon">#4C7BEA</color>
+
+    <color name="light_grey">#9E9E9E</color>
 </resources>
 

@@ -93,6 +93,9 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
         val nightMode = appSettingPrefs.getInt("NightMode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         AppCompatDelegate.setDefaultNightMode(nightMode)
 
+        // Load player settings early
+        PlayerActivity.loadSettings(applicationContext)
+
         val themeEditor = getSharedPreferences("THEMES", MODE_PRIVATE)
         themeIndex = themeEditor.getInt("themeIndex", 0)
         setTheme(currentThemeNav[themeIndex])
