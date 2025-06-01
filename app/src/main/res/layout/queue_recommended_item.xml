@@ -69,11 +69,12 @@
     <!-- Add Button -->
     <ImageButton
         android:id="@+id/addButtonRecommended"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="@android:color/transparent"
         android:contentDescription="Add to queue"
-        android:src="@drawable/plus_icon_with_padding"
+        android:src="@drawable/plus_icon"
+        android:padding="15dp"
         android:scaleType="fitXY"
         app:tint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
