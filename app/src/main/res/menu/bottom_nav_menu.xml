@@ -3,11 +3,15 @@
     <item
         android:id="@+id/navigation_library"
         android:icon="@drawable/selector_library_icon"
-        android:title="Library" />
-
+        android:title="@string/navigation_library_title" />
+    <item
+        android:id="@+id/navigation_playlist"
+        android:icon="@drawable/selector_playlist_icon"
+        android:title="@string/navigation_playlist_title" />
     <item
         android:id="@+id/navigation_account"
         android:icon="@drawable/selector_account_icon"
-        android:title="Account" />
+        android:title="@string/navigation_account_title" />
 </menu>
+
 

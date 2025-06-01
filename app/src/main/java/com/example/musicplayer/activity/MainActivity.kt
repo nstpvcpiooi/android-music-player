@@ -31,6 +31,7 @@ import com.example.musicplayer.NowPlaying
 import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.fragment.AccountFragment
 import com.example.musicplayer.fragment.LibraryFragment
+import com.example.musicplayer.fragment.PlaylistFragment // Import PlaylistFragment
 import com.example.musicplayer.fragment.SearchFragment // Import SearchFragment
 import com.google.gson.GsonBuilder
 import com.example.musicplayer.databinding.ActivityMainBinding
@@ -141,6 +142,10 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
             when (item.itemId) {
                 R.id.navigation_library -> {
                     loadFragment(LibraryFragment(), addToBackStack = false) // Don't add to backstack for primary tabs
+                    true
+                }
+                R.id.navigation_playlist -> { // Added Playlist case
+                    loadFragment(PlaylistFragment(), addToBackStack = false)
                     true
                 }
                 R.id.navigation_account -> {

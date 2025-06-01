@@ -1,0 +1,115 @@
+package com.example.musicplayer.fragment
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import com.example.musicplayer.R
+import com.example.musicplayer.adapter.PlaylistViewAdapter
+import com.example.musicplayer.databinding.AddPlaylistDialogBinding
+import com.example.musicplayer.databinding.FragmentPlaylistBinding
+import com.example.musicplayer.model.Playlist
+import com.example.musicplayer.onprg.PlaylistActivity // Assuming musicPlaylist is static here
+import com.example.musicplayer.utils.setDialogBtnBackground
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.text.SimpleDateFormat
+import java.util.*
+
+class PlaylistFragment : Fragment() {
+
+    private var _binding: FragmentPlaylistBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var adapter: PlaylistViewAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPlaylistBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.playlistRVFragment.setHasFixedSize(true)
+        binding.playlistRVFragment.setItemViewCacheSize(13)
+        binding.playlistRVFragment.layoutManager = GridLayoutManager(requireContext(), 2)
+
+        adapter = PlaylistViewAdapter(requireContext(), playlistList = PlaylistActivity.musicPlaylist.ref)
+        binding.playlistRVFragment.adapter = adapter
+        binding.addPlaylistBtnFragment.setOnClickListener { customAlertDialog() }
+
+        if (PlaylistActivity.musicPlaylist.ref.isNotEmpty()) {
+            binding.instructionPAFragment.visibility = View.GONE
+        } else {
+            binding.instructionPAFragment.visibility = View.VISIBLE
+        }
+    }
+
+    private fun customAlertDialog() {
+        val customDialog = LayoutInflater.from(requireContext()).inflate(R.layout.add_playlist_dialog, binding.root, false)
+        val binder = AddPlaylistDialogBinding.bind(customDialog)
+        val builder = MaterialAlertDialogBuilder(requireContext())
+        val dialog = builder.setView(customDialog)
+            .setTitle("Playlist Details")
+            .setPositiveButton("ADD") { dialog, _ ->
+                val playlistName = binder.playlistName.text
+                val createdBy = binder.yourName.text
+                if (playlistName != null && createdBy != null) {
+                    if (playlistName.isNotEmpty() && createdBy.isNotEmpty()) {
+                        addPlaylist(playlistName.toString(), createdBy.toString())
+                    }
+                }
+                dialog.dismiss()
+            }.create()
+        dialog.show()
+        setDialogBtnBackground(requireContext(), dialog)
+    }
+
+    private fun addPlaylist(name: String, createdBy: String) {
+        var playlistExists = false
+        for (i in PlaylistActivity.musicPlaylist.ref) {
+            if (name == i.name) {
+                playlistExists = true
+                break
+            }
+        }
+        if (playlistExists) {
+            Toast.makeText(requireContext(), "Playlist Exist!!", Toast.LENGTH_SHORT).show()
+        } else {
+            val tempPlaylist = Playlist()
+            tempPlaylist.name = name
+            tempPlaylist.playlist = ArrayList()
+            tempPlaylist.createdBy = createdBy
+            val calendar = Calendar.getInstance().time
+            val sdf = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+            tempPlaylist.createdOn = sdf.format(calendar)
+            PlaylistActivity.musicPlaylist.ref.add(tempPlaylist)
+            adapter.refreshPlaylist()
+            if (PlaylistActivity.musicPlaylist.ref.isNotEmpty()) {
+                binding.instructionPAFragment.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::adapter.isInitialized) {
+            adapter.refreshPlaylist()
+            if (PlaylistActivity.musicPlaylist.ref.isNotEmpty()) {
+                binding.instructionPAFragment.visibility = View.GONE
+            } else {
+                binding.instructionPAFragment.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
