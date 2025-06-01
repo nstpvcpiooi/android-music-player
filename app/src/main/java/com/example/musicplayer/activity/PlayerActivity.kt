@@ -710,6 +710,55 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         if(!playNext) PlayNext.playNextList = ArrayList()
     }
 
+    // Function to get recommended songs for auto-play that are similar to current song
+    private fun getRecommendedSongsForAutoPlay(count: Int): ArrayList<Music> {
+        val recommendedList = ArrayList<Music>()
+
+        // Source for recommendations is the main music library
+        if (MainActivity.MusicListMA.isEmpty()) {
+            return recommendedList
+        }
+
+        val allSongs = ArrayList(MainActivity.MusicListMA)
+
+        // Get current song info to make better recommendations
+        val currentSong = if (songPosition >= 0 && songPosition < musicListPA.size) {
+            musicListPA[songPosition]
+        } else null
+
+        // Filter out songs that are already in the queue
+        val currentSongIds = musicListPA.map { it.id }
+        val filteredSongs = allSongs.filter { !currentSongIds.contains(it.id) }
+
+        // Sort algorithm for recommendations
+        val sortedSongs = if (currentSong != null) {
+            // Prioritize songs from the same album or artist as the current song
+            filteredSongs.sortedWith(compareBy(
+                // First by same album (highest priority)
+                { if (it.album != currentSong.album) 1 else 0 },
+                // Then by same artist
+                { if (it.artist != currentSong.artist) 1 else 0 },
+                // Then alphabetically by title
+                { it.title }
+            ))
+        } else {
+            // Default sort if no current song information
+            filteredSongs.sortedBy { it.title }
+        }
+
+        // Add up to 'count' songs to the recommendations
+        val songsToAdd = sortedSongs.take(count)
+        recommendedList.addAll(songsToAdd)
+
+        return recommendedList
+    }
+
+    // Function to refresh recommendations when needed
+    private fun refreshRecommendations() {
+        // This will be called when user changes songs or queue is modified
+        // The actual implementation is in showQueueBottomSheet where recommendations are loaded
+    }
+
     private fun showQueueBottomSheet() {
         val dialog = BottomSheetDialog(this@PlayerActivity)
         val bottomSheetBinding = BottomSheetQueueBinding.inflate(layoutInflater)
@@ -718,7 +767,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         // Apply the same background effect to the queue bottom sheet
         applyBackgroundToQueue(dialog, bottomSheetBinding)
 
-        // Get recommended songs for autoplay
+        // Get fresh recommended songs for autoplay based on current song
         val recommendedSongs = getRecommendedSongsForAutoPlay(5)
 
         // Set up the auto-play switch with the current setting
@@ -758,6 +807,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
                     // Update album cover adapter
                     albumCoverAdapter.updateMusicList(musicListPA)
+
+                    // Update queue adapter if it exists
+                    val queueAdapter = bottomSheetBinding.queueRV.adapter as? QueueAdapter
+                    queueAdapter?.updateQueue(ArrayList(musicListPA))
 
                     Toast.makeText(
                         this@PlayerActivity,
@@ -893,6 +946,18 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                         // Important: Set the ViewPager to the correct position without animation
                         // to avoid visual glitches
                         binding.albumCoverViewPager.setCurrentItem(songPosition, false)
+
+                        // Refresh recommendations if a song was removed
+                        if (isRemoval) {
+                            // Update recommendations to show new options
+                            val updatedRecommendations = getRecommendedSongsForAutoPlay(5)
+                            val recommendedAdapter = bottomSheetBinding.recommendedSongsRV.adapter as? RecommendedSongsAdapter
+                            recommendedAdapter?.updateList(updatedRecommendations)
+
+                            // Show or hide the container based on recommendations availability
+                            bottomSheetBinding.recommendedSongsContainer.visibility =
+                                if (updatedRecommendations.isNotEmpty() && autoPlay) View.VISIBLE else View.GONE
+                        }
                     }
                 }
             })
@@ -912,31 +977,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         }
 
         dialog.show()
-    }
-
-    // Function to get recommended songs for auto-play
-    private fun getRecommendedSongsForAutoPlay(count: Int): ArrayList<Music> {
-        val recommendedList = ArrayList<Music>()
-
-        // Source for recommendations is the main music library
-        if (MainActivity.MusicListMA.isEmpty()) {
-            return recommendedList
-        }
-
-        val allSongs = ArrayList(MainActivity.MusicListMA)
-
-        // Filter out songs that are already in the queue
-        val currentSongIds = musicListPA.map { it.id }
-        val filteredSongs = allSongs.filter { !currentSongIds.contains(it.id) }
-
-        // Sort songs by title to ensure a consistent order
-        val sortedSongs = filteredSongs.sortedBy { it.title }
-
-        // Add up to 'count' songs to the recommendations
-        val songsToAdd = sortedSongs.take(count)
-        recommendedList.addAll(songsToAdd)
-
-        return recommendedList
     }
 
     // Function to apply the same background effect to the queue dialog as the player

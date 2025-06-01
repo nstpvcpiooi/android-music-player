@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:padding="15dp">
+    android:paddingVertical="10dp"
+    android:paddingHorizontal="20dp">
 
     <!-- Album Image -->
     <com.google.android.material.imageview.ShapeableImageView
@@ -24,11 +25,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginStart="10dp"
+        android:layout_margin="10dp"
         app:layout_constraintStart_toEndOf="@id/imageRecommended"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/addButtonRecommended">
+        app:layout_constraintEnd_toStartOf="@+id/songDurationRecommended">
 
         <TextView
             android:id="@+id/songNameRecommended"
@@ -57,10 +58,10 @@
         android:id="@+id/songDurationRecommended"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
         android:text="@string/start_tv"
         android:textColor="@color/light_grey"
         android:textSize="14sp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toStartOf="@+id/addButtonRecommended"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />

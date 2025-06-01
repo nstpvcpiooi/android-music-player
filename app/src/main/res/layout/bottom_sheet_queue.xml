@@ -26,113 +26,113 @@
         android:padding="8dp"
         android:gravity="center_horizontal"/>
 
-    <TextView
-        android:id="@+id/queueInstructionText"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Drag songs to reorder • Tap remove icon to delete from queue"
-        android:textSize="12sp"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="8dp"
-        android:gravity="center"
-        android:textColor="@android:color/white"
-        android:alpha="0.7"
-        android:visibility="gone"/>
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/queueRV"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="16dp"
-        android:clipToPadding="false"/>
-
-    <TextView
-        android:id="@+id/emptyQueueText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/empty_queue_message"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:gravity="center"
-        android:visibility="gone"
-        android:textColor="@android:color/white"/>
-
-    <com.google.android.material.divider.MaterialDivider
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:dividerColor="#44474F"/>
-
-    <!-- AUTO-PLAY SWITCH ROW -->
-    <LinearLayout
-        android:id="@+id/autoPlayRow"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingVertical="16dp"
-        android:paddingHorizontal="20dp">
-
-        <!--TEXT-->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/queueInstructionText"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Auto-Play"
-                android:textSize="18sp"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="@color/white" />
+                android:text="Drag songs to reorder • Tap remove icon to delete from queue"
+                android:textSize="12sp"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="8dp"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:alpha="0.7"
+                android:visibility="gone"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/queueRV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="16dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"/>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/emptyQueueText"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:text="Add similar content for endless listening"
-                android:textColor="@color/light_grey"/>
+                android:text="@string/empty_queue_message"
+                android:textSize="16sp"
+                android:padding="16dp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:textColor="@android:color/white"/>
 
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- AUTO-PLAY SWITCH ROW -->
+            <LinearLayout
+                android:id="@+id/autoPlayRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="16dp"
+                android:paddingHorizontal="20dp">
+
+                <!--TEXT-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Auto-Play"
+                        android:textSize="18sp"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:text="Add similar content for endless listening"
+                        android:textColor="@color/light_grey"/>
+
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/autoPlaySwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    app:thumbElevation="2dp"
+                    app:trackDecorationTint="@android:color/transparent" />
+            </LinearLayout>
+
+            <!-- RECOMMENDED SONGS SECTION -->
+            <LinearLayout
+                android:id="@+id/recommendedSongsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recommendedSongsRV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"/>
+
+            </LinearLayout>
         </LinearLayout>
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/autoPlaySwitch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            app:thumbElevation="2dp"
-            app:trackDecorationTint="@android:color/transparent" />
-    </LinearLayout>
-
-    <!-- RECOMMENDED SONGS SECTION -->
-    <LinearLayout
-        android:id="@+id/recommendedSongsContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone"
-        android:paddingTop="8dp"
-        android:paddingBottom="16dp">
-
-        <TextView
-            android:id="@+id/recommendedTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Upcoming Auto-Play Songs"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:padding="8dp"
-            android:paddingHorizontal="20dp"
-            android:gravity="start"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recommendedSongsRV"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"/>
-
-    </LinearLayout>
-
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>
