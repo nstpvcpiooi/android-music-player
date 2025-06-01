@@ -315,86 +315,71 @@
             android:id="@+id/optionalButtonsRow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="20dp">
 
-            <!-- RECORDING KARAOKE BUTTON -->
-            <ImageButton
+            <!-- RECORDING KARAOKE BUTTON WITH LABEL -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:orientation="horizontal"
+                android:gravity="center"
                 android:id="@+id/recordingBtnPA"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="?attr/selectableItemBackground"
-                android:contentDescription="@string/recordingbutton"
-                android:padding="15dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/microphone"
-                app:tint="@color/white" />
+                android:clickable="true"
+                android:layout_marginEnd="40dp">
 
-            <!-- QUEUE BUTTON -->
-            <ImageButton
-                android:id="@+id/queueBtnPA"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="?attr/selectableItemBackground"
-                android:contentDescription="@string/queue_btn"
-                android:padding="12dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/play_next_icon"
-                app:tint="@color/white">
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:contentDescription="@string/recordingbutton"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/microphone"
+                    app:tint="@color/white"
+                    android:layout_marginEnd="7dp"/>
 
-            </ImageButton>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Karaoke"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"/>
+            </LinearLayout>
 
-<!--            <ImageButton-->
-<!--                android:id="@+id/stoprecordingBtnPA"-->
-<!--                android:layout_width="50dp"-->
-<!--                android:layout_height="50dp"-->
-<!--                android:background="?attr/selectableItemBackground"-->
-<!--                android:contentDescription="@string/stoprecordingbutton"-->
-<!--                android:padding="15dp"-->
-<!--                android:scaleType="fitCenter"-->
-<!--                android:src="@drawable/microphone_slash"-->
-<!--                app:tint="@color/white" />-->
+            <!-- QUEUE BUTTON WITH LABEL -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:id="@+id/queueBtnPA">
 
-<!--            &lt;!&ndash; EQUALIZER BUTTON&ndash;&gt;-->
-<!--            <ImageButton-->
-<!--                android:id="@+id/equalizerBtnPA"-->
-<!--                android:layout_width="50dp"-->
-<!--                android:layout_height="50dp"-->
-<!--                android:background="?attr/selectableItemBackground"-->
-<!--                android:contentDescription="@string/equalizer_btn"-->
-<!--                android:padding="15dp"-->
-<!--                android:scaleType="fitCenter"-->
-<!--                android:src="@drawable/equalizer_icon"-->
-<!--                app:tint="@color/white" />-->
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:contentDescription="@string/recordingbutton"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/play_next_icon"
+                    app:tint="@color/white"
+                    android:layout_marginEnd="7dp"/>
 
-<!--            &lt;!&ndash; SHARE BUTTON &ndash;&gt;-->
-<!--            <ImageButton-->
-<!--                android:id="@+id/shareBtnPA"-->
-<!--                android:layout_width="50dp"-->
-<!--                android:layout_height="50dp"-->
-<!--                android:background="?attr/selectableItemBackground"-->
-<!--                android:contentDescription="@string/share_btn"-->
-<!--                android:padding="15dp"-->
-<!--                android:scaleType="fitCenter"-->
-<!--                android:src="@drawable/share_icon"-->
-<!--                app:tint="@color/black_level2" />-->
-
-<!--            &lt;!&ndash; VOLUME BOOSTER BUTTON &ndash;&gt;-->
-<!--            <ImageButton-->
-<!--                android:id="@+id/boosterBtnPA"-->
-<!--                android:layout_width="50dp"-->
-<!--                android:layout_height="50dp"-->
-<!--                android:background="?attr/selectableItemBackground"-->
-<!--                android:contentDescription="@string/volume_booster"-->
-<!--                android:padding="15dp"-->
-<!--                android:scaleType="fitCenter"-->
-<!--                android:src="@drawable/volume_icon"-->
-<!--                app:tint="@color/white" />-->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Queue"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"/>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
 
