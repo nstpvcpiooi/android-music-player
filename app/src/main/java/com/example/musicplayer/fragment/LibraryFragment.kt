@@ -87,6 +87,10 @@ class LibraryFragment : Fragment() {
                     showSortDialog()
                     true
                 }
+                R.id.action_shuffle -> { // Added case for shuffle button
+                    (activity as? MainActivity)?.openShufflePlayer()
+                    true
+                }
                 else -> false
             }
         }

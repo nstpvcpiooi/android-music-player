@@ -3,6 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_shuffle"
+        android:icon="@drawable/shuffle_icon_with_padding"
+        android:title="@string/shuffle_btn"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_sort"
         android:icon="@drawable/sort_icon"
         android:title="@string/sort_by"

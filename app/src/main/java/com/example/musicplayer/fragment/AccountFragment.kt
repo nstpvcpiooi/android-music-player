@@ -106,10 +106,6 @@ class AccountFragment : Fragment() {
         }
 
         // Setup click listeners for the 4 buttons moved from HomeFragment
-        view.findViewById<View>(R.id.shuffleBtn).setOnClickListener {
-            (activity as? MainActivity)?.openShufflePlayer()
-        }
-
         view.findViewById<View>(R.id.favouriteBtn).setOnClickListener {
             (activity as? MainActivity)?.openFavorites()
         }
