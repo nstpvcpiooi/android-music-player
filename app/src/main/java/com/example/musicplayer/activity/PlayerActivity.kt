@@ -363,6 +363,8 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                     binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
                     binding.seekBarPA.progress = musicService!!.mediaPlayer!!.currentPosition
                     binding.seekBarPA.max = musicService!!.mediaPlayer!!.duration
+                    // Call seekBarSetup if service is available to start progress updates
+                    musicService?.seekBarSetup()
                 }
                 // Update play/pause button based on the (potentially updated) isPlaying state
                 if (isPlaying) binding.playPauseImgPA.setImageResource(R.drawable.pause_icon) // Removed redundant qualifier
