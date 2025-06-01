@@ -30,7 +30,6 @@ import com.example.musicplayer.R
 import com.example.musicplayer.NowPlaying
 import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.fragment.AccountFragment
-import com.example.musicplayer.fragment.HomeFragment
 import com.example.musicplayer.fragment.LibraryFragment
 import com.example.musicplayer.fragment.SearchFragment // Import SearchFragment
 import com.google.gson.GsonBuilder
@@ -140,10 +139,6 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
         // Set up bottom navigation view item selection listener
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.navigation_home -> {
-                    loadFragment(HomeFragment(), addToBackStack = false) // Don't add to backstack for primary tabs
-                    true
-                }
                 R.id.navigation_library -> {
                     loadFragment(LibraryFragment(), addToBackStack = false) // Don't add to backstack for primary tabs
                     true

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.AccountActivity
 import com.example.musicplayer.activity.DownloadActivity
+import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.onprg.AboutActivity
 import com.example.musicplayer.onprg.SettingsActivity
 import com.example.musicplayer.utils.exitApplication
@@ -102,6 +103,23 @@ class AccountFragment : Fragment() {
             } catch (e: Exception) {
                 // Bỏ qua nếu không có hàm này
             }
+        }
+
+        // Setup click listeners for the 4 buttons moved from HomeFragment
+        view.findViewById<View>(R.id.shuffleBtn).setOnClickListener {
+            (activity as? MainActivity)?.openShufflePlayer()
+        }
+
+        view.findViewById<View>(R.id.favouriteBtn).setOnClickListener {
+            (activity as? MainActivity)?.openFavorites()
+        }
+
+        view.findViewById<View>(R.id.playlistBtn).setOnClickListener {
+            (activity as? MainActivity)?.openPlaylist()
+        }
+
+        view.findViewById<View>(R.id.playNextBtn).setOnClickListener {
+            (activity as? MainActivity)?.openPlayNext()
         }
     }
 }
