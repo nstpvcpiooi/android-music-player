@@ -22,7 +22,7 @@ class PlaylistFragment : Fragment() {
 
     private var _binding: FragmentPlaylistBinding? = null
     private val binding get() = _binding!!
-    private lateinit var adapter: PlaylistViewAdapter
+    internal lateinit var adapter: PlaylistViewAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

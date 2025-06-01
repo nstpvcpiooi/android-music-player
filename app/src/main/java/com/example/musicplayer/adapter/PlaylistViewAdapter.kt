@@ -3,8 +3,10 @@ package com.example.musicplayer.adapter
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -12,11 +14,9 @@ import com.example.musicplayer.onprg.PlaylistDetails
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.onprg.PlaylistActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.example.musicplayer.fragment.PlaylistMoreFeaturesBottomSheet
 import com.example.musicplayer.databinding.PlaylistViewBinding
 import com.example.musicplayer.model.Playlist
-import com.example.musicplayer.utils.setDialogBtnBackground
-
 
 class PlaylistViewAdapter(private val context: Context, private var playlistList: ArrayList<Playlist>) : RecyclerView.Adapter<PlaylistViewAdapter.MyHolder>() {
 
@@ -24,8 +24,9 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
         val image = binding.playlistImg
         val name = binding.playlistName
         val root = binding.root
-        val delete = binding.playlistDeleteBtn
-        val songCount = binding.playlistSongCount // Added songCount
+        val songCount = binding.playlistSongCount
+        val creator = binding.playlistCreator // Added creator TextView
+        val separator = binding.playlistMetaSeparator // Added separator TextView
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
@@ -33,35 +34,37 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
     }
 
     override fun onBindViewHolder(holder: MyHolder, position: Int) {
+        val currentPlaylist = playlistList[position]
         if(MainActivity.themeIndex == 4){
             // holder.root.strokeColor = ContextCompat.getColor(context, R.color.white) // MaterialCardView no longer has stroke
         }
-        holder.name.text = playlistList[position].name
-        holder.name.isSelected = true
-        holder.songCount.text = "${playlistList[position].playlist.size} songs" // Set song count text
+        holder.name.text = currentPlaylist.name
+        holder.name.isSelected = true // To enable marquee if text is too long and singleLine is true (though it's not now)
+        holder.songCount.text = "${currentPlaylist.playlist.size} songs"
 
-        holder.delete.setOnClickListener {
-            val builder = MaterialAlertDialogBuilder(context)
-            builder.setTitle(playlistList[position].name)
-                .setMessage("Do you want to delete playlist?")
-                .setPositiveButton("Yes"){ dialog, _ ->
-                    PlaylistActivity.musicPlaylist.ref.removeAt(position)
-                    refreshPlaylist()
-                    dialog.dismiss()
-                }
-                .setNegativeButton("No"){dialog, _ ->
-                    dialog.dismiss()
-                }
-            val customDialog = builder.create()
-            customDialog.show()
-
-            setDialogBtnBackground(context, customDialog)
+        if (currentPlaylist.createdBy.isNotEmpty()) {
+            holder.creator.text = currentPlaylist.createdBy
+            holder.creator.visibility = View.VISIBLE
+            holder.separator.visibility = View.VISIBLE
+        } else {
+            holder.creator.visibility = View.GONE
+            holder.separator.visibility = View.GONE
         }
+
         holder.root.setOnClickListener {
             val intent = Intent(context, PlaylistDetails::class.java)
             intent.putExtra("index", position)
             ContextCompat.startActivity(context, intent, null)
         }
+
+        holder.root.setOnLongClickListener {
+            val bottomSheet = PlaylistMoreFeaturesBottomSheet.newInstance(position)
+            if (context is AppCompatActivity) {
+                bottomSheet.show(context.supportFragmentManager, PlaylistMoreFeaturesBottomSheet.TAG)
+            }
+            true // Return true to indicate the long press was consumed
+        }
+
         if(PlaylistActivity.musicPlaylist.ref[position].playlist.size > 0){
             Glide.with(context)
                 .load(PlaylistActivity.musicPlaylist.ref[position].playlist[0].artUri)

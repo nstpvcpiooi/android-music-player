@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="12dp"
+    android:layout_margin="8dp"
+    android:layout_marginStart="16dp"
     app:cardBackgroundColor="@android:color/transparent"
     app:strokeWidth="0dp"
     app:cardElevation="0dp"
@@ -26,45 +27,66 @@
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
             android:contentDescription="@string/playlist_img_cd" />
 
-        <TextView
-            android:id="@+id/playlistName"
+        <LinearLayout
+            android:id="@+id/playlistInfoContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginTop="7dp"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:singleLine="true"
-            android:text="@string/playlist_name"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:textColor="?attr/colorOnSurface"
-            app:layout_constraintEnd_toStartOf="@+id/playlistDeleteBtn"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/playlistImg" />
-
-        <TextView
-            android:id="@+id/playlistSongCount"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="0 songs"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            app:layout_constraintStart_toStartOf="@id/playlistName"
-            app:layout_constraintTop_toBottomOf="@id/playlistName"
-            app:layout_constraintEnd_toEndOf="@id/playlistName" />
-
-        <ImageButton
-            android:id="@+id/playlistDeleteBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/delete_icon"
-            android:scaleType="fitCenter"
-            android:padding="8dp"
-            app:tint="?attr/colorOnSurfaceVariant"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/playlist_delete"
             app:layout_constraintTop_toBottomOf="@id/playlistImg"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/playlistName" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/playlistName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/playlist_name"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnSurface"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
+
+                <TextView
+                    android:id="@+id/playlistSongCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 songs"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/playlistMetaSeparator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:text="@string/interpunction"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/playlistCreator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Created by User"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+            </LinearLayout>
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

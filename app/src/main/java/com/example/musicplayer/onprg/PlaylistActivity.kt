@@ -23,7 +23,7 @@ import kotlin.collections.ArrayList
 class PlaylistActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlaylistBinding
-    private lateinit var adapter: PlaylistViewAdapter
+    internal lateinit var adapter: PlaylistViewAdapter
 
     companion object{
         var musicPlaylist: MusicPlaylist = MusicPlaylist()
@@ -91,3 +91,4 @@ class PlaylistActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 }
+

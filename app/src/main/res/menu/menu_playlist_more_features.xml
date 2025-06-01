@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/playlist_play"
+        android:icon="@drawable/play_icon"
+        android:title="@string/play" />
+    <item
+        android:id="@+id/playlist_add_to_queue"
+        android:icon="@drawable/queue_top_icon"
+        android:title="@string/add_to_queue" />
+    <item
+        android:id="@+id/playlist_shuffle"
+        android:icon="@drawable/shuffle_icon"
+        android:title="@string/shuffle_playlist" />
+    <item
+        android:id="@+id/playlist_delete_playlist"
+        android:icon="@drawable/delete_icon"
+        android:title="@string/delete_playlist" />
+</menu>
+
