@@ -1,6 +1,9 @@
 package com.example.musicplayer.fragment
 
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
+import android.media.audiofx.AudioEffect
+import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,17 +11,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.example.musicplayer.R
+import com.example.musicplayer.activity.PlayerActivity
+import com.example.musicplayer.activity.PlayerActivity.Companion.loudnessEnhancer
 import com.example.musicplayer.activity.PlayerActivity.Companion.musicListPA
+import com.example.musicplayer.activity.PlayerActivity.Companion.musicService
 import com.example.musicplayer.activity.PlayerActivity.Companion.songPosition
+import com.example.musicplayer.databinding.AudioBoosterBinding
 import com.example.musicplayer.databinding.PlayerMoreFeaturesBottomSheetBinding
+import com.example.musicplayer.utils.setDialogBtnBackground
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toDrawable
 import android.util.Log
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class PlayerMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
 
@@ -68,6 +79,43 @@ class PlayerMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                     // Handle about action
                     Toast.makeText(context, "About clicked for song ID: $musicId", Toast.LENGTH_SHORT).show()
                     // Implement actual about logic here (e.g., show song details, artist info)
+                    dismiss()
+                    true
+                }
+                R.id.equalizerBtnPA -> {
+                    try {
+                        val eqIntent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
+                        eqIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, musicService!!.mediaPlayer!!.audioSessionId)
+                        eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, requireContext().packageName)
+                        eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
+                        startActivity(eqIntent)
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Equalizer Feature not Supported!!", Toast.LENGTH_SHORT).show()
+                    }
+                    dismiss()
+                    true
+                }
+                R.id.boosterBtnPA -> {
+                    val customDialogB = LayoutInflater.from(requireContext()).inflate(R.layout.audio_booster, binding.root, false)
+                    val bindingB = AudioBoosterBinding.bind(customDialogB)
+                    val dialogB = MaterialAlertDialogBuilder(requireContext())
+                        .setView(customDialogB)
+                        .setOnCancelListener { PlayerActivity.musicService?.playMusic() }
+                        .setPositiveButton("OK") { self, _ ->
+                            loudnessEnhancer.setTargetGain(bindingB.verticalBar.progress * 100)
+                            PlayerActivity.musicService?.playMusic()
+                            self.dismiss()
+                        }
+                        .setBackground(ColorDrawable(0x803700B3.toInt()))
+                        .create()
+                    dialogB.show()
+
+                    bindingB.verticalBar.progress = loudnessEnhancer.targetGain.toInt()/100
+                    bindingB.progressText.text = "Audio Boost\n\n${loudnessEnhancer.targetGain.toInt()/10} %"
+                    bindingB.verticalBar.setOnProgressChangeListener {
+                        bindingB.progressText.text = "Audio Boost\n\n${it*10} %"
+                    }
+                    setDialogBtnBackground(requireContext(), dialogB)
                     dismiss()
                     true
                 }

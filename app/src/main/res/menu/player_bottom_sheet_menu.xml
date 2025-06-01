@@ -8,6 +8,14 @@
         android:title="@string/share"
         android:icon="@drawable/share_icon"/>
     <item
+        android:id="@+id/equalizerBtnPA"
+        android:title="@string/equalizer_btn"
+        android:icon="@drawable/equalizer_icon"/>
+    <item
+        android:id="@+id/boosterBtnPA"
+        android:title="@string/volume_booster"
+        android:icon="@drawable/volume_icon"/>
+    <item
         android:id="@+id/aboutBtnPA"
         android:title="@string/about"
         android:icon="@drawable/about_icon"/>

@@ -180,28 +180,28 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         mixedFile = File(cacheDir, "mixed_output.mp3")
 
 
-        //tăng âm lượng custom
-        binding.boosterBtnPA.setOnClickListener {
-            val customDialogB = LayoutInflater.from(this).inflate(R.layout.audio_booster, binding.root, false)
-            val bindingB = AudioBoosterBinding.bind(customDialogB)
-            val dialogB = MaterialAlertDialogBuilder(this).setView(customDialogB)
-                .setOnCancelListener { playMusic() }
-                .setPositiveButton("OK"){self, _ ->
-                    loudnessEnhancer.setTargetGain(bindingB.verticalBar.progress * 100)
-                    playMusic()
-                    self.dismiss()
-                }
-                .setBackground(0x803700B3.toInt().toDrawable()) // KTX extension
-                .create()
-            dialogB.show()
-
-            bindingB.verticalBar.progress = loudnessEnhancer.targetGain.toInt()/100
-            bindingB.progressText.text = "Audio Boost\n\n${loudnessEnhancer.targetGain.toInt()/10} %"
-            bindingB.verticalBar.setOnProgressChangeListener {
-                bindingB.progressText.text = "Audio Boost\n\n${it*10} %"
-            }
-            setDialogBtnBackground(this, dialogB)
-        }
+//        //tăng âm lượng custom
+//        binding.boosterBtnPA.setOnClickListener {
+//            val customDialogB = LayoutInflater.from(this).inflate(R.layout.audio_booster, binding.root, false)
+//            val bindingB = AudioBoosterBinding.bind(customDialogB)
+//            val dialogB = MaterialAlertDialogBuilder(this).setView(customDialogB)
+//                .setOnCancelListener { playMusic() }
+//                .setPositiveButton("OK"){self, _ ->
+//                    loudnessEnhancer.setTargetGain(bindingB.verticalBar.progress * 100)
+//                    playMusic()
+//                    self.dismiss()
+//                }
+//                .setBackground(0x803700B3.toInt().toDrawable()) // KTX extension
+//                .create()
+//            dialogB.show()
+//
+//            bindingB.verticalBar.progress = loudnessEnhancer.targetGain.toInt()/100
+//            bindingB.progressText.text = "Audio Boost\n\n${loudnessEnhancer.targetGain.toInt()/10} %"
+//            bindingB.verticalBar.setOnProgressChangeListener {
+//                bindingB.progressText.text = "Audio Boost\n\n${it*10} %"
+//            }
+//            setDialogBtnBackground(this, dialogB)
+//        }
 
         //utils buttons
         binding.backBtnPA.setOnClickListener { finish() }
@@ -229,17 +229,17 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         }
 
 
-        binding.equalizerBtnPA.setOnClickListener {
-            try {
-                val eqIntent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
-                eqIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, musicService!!.mediaPlayer!!.audioSessionId)
-                eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, baseContext.packageName)
-                eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
-                startActivityForResult(eqIntent, 13) // This is deprecated, but keeping for now as per original code
-            }catch (_: Exception){Toast.makeText(this,  "Bad Android version", Toast.LENGTH_SHORT).show()} // Changed e to _
-
-
-        }
+//        binding.equalizerBtnPA.setOnClickListener {
+//            try {
+//                val eqIntent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
+//                eqIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, musicService!!.mediaPlayer!!.audioSessionId)
+//                eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, baseContext.packageName)
+//                eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
+//                startActivityForResult(eqIntent, 13) // This is deprecated, but keeping for now as per original code
+//            }catch (_: Exception){Toast.makeText(this,  "Bad Android version", Toast.LENGTH_SHORT).show()} // Changed e to _
+//
+//
+//        }
         binding.timerBtnPA.setOnClickListener {
             val timer = min5 || min10 || min30
             if(!timer) showBottomSheetDialog()
@@ -314,9 +314,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         }
 
-        binding.stoprecordingBtnPA.setOnClickListener {
-            Toast.makeText(this, "Disabled!", Toast.LENGTH_SHORT).show()
-        }
+//        binding.stoprecordingBtnPA.setOnClickListener {
+//            Toast.makeText(this, "Disabled!", Toast.LENGTH_SHORT).show()
+//        }
 
         binding.favouriteBtnPA.setOnClickListener {
             fIndex = favouriteChecker(musicListPA[songPosition].id)
