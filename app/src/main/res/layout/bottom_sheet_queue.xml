@@ -25,6 +25,19 @@
         android:padding="8dp"
         android:gravity="center_horizontal"/>
 
+    <TextView
+        android:id="@+id/queueInstructionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Drag songs to reorder • Tap remove icon to delete from queue"
+        android:textSize="12sp"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="8dp"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:alpha="0.7"
+        android:visibility="gone"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/queueRV"
         android:layout_width="match_parent"

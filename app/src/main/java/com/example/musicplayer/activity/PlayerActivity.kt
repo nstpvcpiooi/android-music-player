@@ -337,7 +337,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 if (isPlaying) binding.playPauseImgPA.setImageResource(R.drawable.pause_icon) // Removed redundant qualifier
                 else binding.playPauseImgPA.setImageResource(R.drawable.play_icon)
 
-                // Đảm bảo albumCoverAdapter được khởi t���o với danh sách nhạc hiện tại
+                // Đảm bảo albumCoverAdapter được khởi tạo với danh sách nhạc hiện tại
                 albumCoverAdapter.updateMusicList(musicListPA)
                 // Đặt ViewPager hiển thị bài hát hiện tại
                 binding.albumCoverViewPager.setCurrentItem(songPosition, false)
@@ -647,19 +647,14 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             bottomSheetBinding.queueRV.visibility = View.VISIBLE
             bottomSheetBinding.emptyQueueText.visibility = View.GONE
 
-            val queueAdapter = QueueAdapter(this, ArrayList(queueMusicList), null) // Pass null for ItemTouchHelper initially
+            // Set up the RecyclerView
             bottomSheetBinding.queueRV.setHasFixedSize(true)
             bottomSheetBinding.queueRV.layoutManager = LinearLayoutManager(this)
-            bottomSheetBinding.queueRV.adapter = queueAdapter
 
-            // Scroll to the current playing song position
-            if (songPosition >= 0 && songPosition < queueMusicList.size) {
-                bottomSheetBinding.queueRV.scrollToPosition(songPosition)
-            }
-
+            // Create the ItemTouchHelper callback for drag & drop
             val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(
-                ItemTouchHelper.UP or ItemTouchHelper.DOWN, // Drag directions
-                0 // Swipe directions (0 to disable swipe)
+                ItemTouchHelper.UP or ItemTouchHelper.DOWN, // Enable vertical drag direction
+                0 // No swipe directions
             ) {
                 override fun onMove(
                     recyclerView: RecyclerView,
@@ -668,46 +663,79 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 ): Boolean {
                     val fromPosition = viewHolder.adapterPosition
                     val toPosition = target.adapterPosition
-                    if (fromPosition != RecyclerView.NO_POSITION && toPosition != RecyclerView.NO_POSITION) {
-                        return queueAdapter.onItemMove(fromPosition, toPosition)
-                    }
-                    return false
+
+                    // Get adapter and call its onItemMove method
+                    val adapter = recyclerView.adapter as? QueueAdapter
+                    return adapter?.onItemMove(fromPosition, toPosition) ?: false
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    // Swipe is disabled, but if you were to enable it:
-                    // val position = viewHolder.adapterPosition
-                    // queueAdapter.removeItem(position)
+                    // Not implemented as we're not enabling swipe
                 }
 
-                // Optional: Customize visual feedback during drag
                 override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
                     super.onSelectedChanged(viewHolder, actionState)
                     if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
-                        viewHolder?.itemView?.alpha = 0.7f // Example: make item semi-transparent
+                        // Give visual feedback by changing alpha
+                        viewHolder?.itemView?.alpha = 0.7f
                     }
                 }
 
                 override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
                     super.clearView(recyclerView, viewHolder)
-                    viewHolder.itemView.alpha = 1.0f // Reset item appearance
+                    // Reset alpha when drag ends
+                    viewHolder.itemView.alpha = 1.0f
+                }
 
-                    // Update both PlayNext.playNextList and musicListPA to keep them in sync
-                    PlayNext.playNextList = ArrayList(queueAdapter.getMusicList())
-                    musicListPA = ArrayList(PlayNext.playNextList)
-
-                    queueAdapter.updateQueue(PlayNext.playNextList)
+                // Enable drag handle functionality
+                override fun isLongPressDragEnabled(): Boolean {
+                    // Disable long press drag so only the drag handle can be used
+                    return false
                 }
             }
 
+            // Create the ItemTouchHelper and attach it to the RecyclerView
             val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
             itemTouchHelper.attachToRecyclerView(bottomSheetBinding.queueRV)
 
-            // Pass the itemTouchHelper to the adapter for drag-and-drop functionality
-            val finalQueueAdapter = QueueAdapter(this, ArrayList(queueMusicList), itemTouchHelper)
-            finalQueueAdapter.setCurrentPosition(songPosition) // Highlight current playing song
-            bottomSheetBinding.queueRV.adapter = finalQueueAdapter
+            // Create the adapter with the ItemTouchHelper
+            val queueAdapter = QueueAdapter(this, ArrayList(queueMusicList), itemTouchHelper)
+
+            // Set the current position for highlighting
+            queueAdapter.setCurrentPosition(songPosition)
+
+            // Set the queue update listener
+            queueAdapter.setQueueUpdateListener(object : QueueAdapter.QueueUpdateListener {
+                override fun onQueueUpdated() {
+                    // Show empty state if queue becomes empty
+                    if (PlayNext.playNextList.isEmpty()) {
+                        bottomSheetBinding.queueRV.visibility = View.GONE
+                        bottomSheetBinding.emptyQueueText.visibility = View.VISIBLE
+                    }
+
+                    // Update the player's music list to match the updated queue
+                    musicListPA = ArrayList(PlayNext.playNextList)
+
+                    // Update album cover adapter
+                    albumCoverAdapter.updateMusicList(musicListPA)
+                    binding.albumCoverViewPager.setCurrentItem(songPosition, false)
+                }
+            })
+
+            // Set the adapter to the RecyclerView
+            bottomSheetBinding.queueRV.adapter = queueAdapter
+
+            // Scroll to current song position
+            if (songPosition >= 0 && songPosition < queueMusicList.size) {
+                bottomSheetBinding.queueRV.scrollToPosition(songPosition)
+            }
+
+            // Make the instruction text visible
+            if (bottomSheetBinding.queueInstructionText != null) {
+                bottomSheetBinding.queueInstructionText.visibility = View.VISIBLE
+            }
         }
+
         dialog.show()
     }
 
