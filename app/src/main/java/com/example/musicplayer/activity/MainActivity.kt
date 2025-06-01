@@ -36,7 +36,7 @@ import com.example.musicplayer.fragment.SearchFragment // Import SearchFragment
 import com.google.gson.GsonBuilder
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.model.MusicPlaylist
-import com.example.musicplayer.onprg.PlayNext
+import com.example.musicplayer.onprg.PlayNext // PlayNext is now an object
 import com.example.musicplayer.onprg.PlaylistActivity
 import com.example.musicplayer.utils.exitApplication
 import com.google.gson.reflect.TypeToken
@@ -198,7 +198,7 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
     }
 
     fun openPlayNext() {
-        startActivity(Intent(this@MainActivity, PlayNext::class.java))
+        Toast.makeText(this, "Play Next queue is available in the Player screen.", Toast.LENGTH_SHORT).show()
     }
 
     //For requesting permission

@@ -29,7 +29,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable // Added import for KTX extension
 import androidx.core.view.WindowCompat
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
@@ -87,6 +89,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         var min30: Boolean = false
 
         var nowPlayingId: String = ""
+        var currentPlaylistOrigin: String? = null // Added to track playlist source
         var isFavourite: Boolean = false
         var fIndex: Int = -1
         lateinit var loudnessEnhancer: LoudnessEnhancer
@@ -155,6 +158,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         //để nghe file nhạc từ trong file điện thoại
         if(intent.data?.scheme.contentEquals("content")){
+            PlayerActivity.currentPlaylistOrigin = "OpenFile" // Set origin for file opening
             songPosition = 0
 
             //connect to music service
@@ -305,7 +309,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
     //handles intents aka data comes from other resources
     private fun initializeLayout(){
         songPosition = intent.getIntExtra("index", 0)
-        when(intent.getStringExtra("class")){
+        val cls = intent.getStringExtra("class")
+        PlayerActivity.currentPlaylistOrigin = cls // Set current playlist origin
+
+        when(cls){
             "NowPlaying"->{
 
                 // Sync PlayerActivity.isPlaying with the actual state from MusicService
@@ -624,10 +631,63 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         } else {
             bottomSheetBinding.queueRV.visibility = View.VISIBLE
             bottomSheetBinding.emptyQueueText.visibility = View.GONE
-            val queueAdapter = QueueAdapter(this, ArrayList(queueMusicList))
+
+            val queueAdapter = QueueAdapter(this, ArrayList(queueMusicList), null) // Pass null for ItemTouchHelper initially
             bottomSheetBinding.queueRV.setHasFixedSize(true)
             bottomSheetBinding.queueRV.layoutManager = LinearLayoutManager(this)
             bottomSheetBinding.queueRV.adapter = queueAdapter
+
+            val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP or ItemTouchHelper.DOWN, // Drag directions
+                0 // Swipe directions (0 to disable swipe)
+            ) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    val fromPosition = viewHolder.adapterPosition
+                    val toPosition = target.adapterPosition
+                    if (fromPosition != RecyclerView.NO_POSITION && toPosition != RecyclerView.NO_POSITION) {
+                        return queueAdapter.onItemMove(fromPosition, toPosition)
+                    }
+                    return false
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    // Swipe is disabled, but if you were to enable it:
+                    // val position = viewHolder.adapterPosition
+                    // queueAdapter.removeItem(position)
+                }
+
+                // Optional: Customize visual feedback during drag
+                override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                    super.onSelectedChanged(viewHolder, actionState)
+                    if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                        viewHolder?.itemView?.alpha = 0.7f // Example: make item semi-transparent
+                    }
+                }
+
+                override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+                    super.clearView(recyclerView, viewHolder)
+                    viewHolder.itemView.alpha = 1.0f // Reset item appearance
+                    // Notify adapter that underlying data might have changed if moves were committed
+                    // This is important if PlayNext.playNextList was directly manipulated by onItemMove
+                    queueAdapter.updateQueue(PlayNext.playNextList)
+                }
+            }
+
+            val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+            itemTouchHelper.attachToRecyclerView(bottomSheetBinding.queueRV)
+
+            // Pass the itemTouchHelper to the adapter *after* it's created and attached
+            // This requires QueueAdapter to have a way to set itemTouchHelper or pass it in constructor
+            // The current QueueAdapter constructor takes it, so we'd need to re-init or add a setter.
+            // For simplicity, let's assume QueueAdapter is modified to accept it in constructor and uses it.
+            // Re-creating adapter here with itemTouchHelper (if constructor is the only way)
+            val finalQueueAdapter = QueueAdapter(this, ArrayList(queueMusicList), itemTouchHelper)
+            bottomSheetBinding.queueRV.adapter = finalQueueAdapter // Set the adapter with ItemTouchHelper
+
         }
         dialog.show()
     }

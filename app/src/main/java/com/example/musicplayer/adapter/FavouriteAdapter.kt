@@ -43,40 +43,67 @@ class FavouriteAdapter(private val context: Context, private var musicList: Arra
         if(playNext){
             holder.root.setOnClickListener {
                 val intent = Intent(context, PlayerActivity::class.java)
-                intent.putExtra("index", position)
+                intent.putExtra("index", holder.adapterPosition) // Use adapterPosition
                 intent.putExtra("class", "PlayNext")
                 ContextCompat.startActivity(context, intent, null)
             }
             holder.root.setOnLongClickListener {
-                // Replace the old dialog logic with MaterialAlertDialogBuilder
+                val currentAdapterPosition = holder.adapterPosition
+                if (currentAdapterPosition == RecyclerView.NO_POSITION || currentAdapterPosition >= musicList.size) {
+                    // Invalid position, perhaps the list was modified concurrently
+                    Snackbar.make((context as Activity).findViewById(android.R.id.content) ?: holder.root,
+                        "Error: Could not determine song to remove.", Snackbar.LENGTH_SHORT).show()
+                    return@setOnLongClickListener true
+                }
+                val songToRemove = musicList[currentAdapterPosition]
+
                 MaterialAlertDialogBuilder(context)
                     .setTitle("Remove from Play Next")
-                    .setMessage("Remove '${musicList[position].title}' from the Play Next queue?")
+                    .setMessage("Remove '${songToRemove.title}' from the Play Next queue?")
                     .setPositiveButton("Remove") { dialogInterface, _ ->
-                        if (position == PlayerActivity.songPosition && PlayerActivity.musicListPA.isNotEmpty() && musicList[position].id == PlayerActivity.musicListPA[PlayerActivity.songPosition].id) {
-                            Snackbar.make((context as Activity).findViewById(R.id.linearLayoutPN) ?: holder.root,
-                                "Can't Remove Currently Playing Song.", Snackbar.LENGTH_SHORT).show()
+                        // Check if trying to remove the currently playing song from the PlayNext queue
+                        // Use PlayerActivity.currentPlaylistOrigin to check if player is in "PlayNext" mode
+                        if (PlayerActivity.currentPlaylistOrigin == "PlayNext" &&
+                            songToRemove.id == PlayerActivity.nowPlayingId) {
+                            Snackbar.make((context as Activity).findViewById(android.R.id.content) ?: holder.root,
+                                "Cannot remove the currently playing song. Please skip or change songs first.", Snackbar.LENGTH_LONG).show()
                         } else {
-                            val removedSongId = musicList[position].id
-                            PlayNext.playNextList.removeAt(position)
-                            // Also remove from PlayerActivity.musicListPA if it's being used as the source for PlayNext
-                            // and ensure songPosition is updated correctly.
-                            val indexInPlayerActivityList = PlayerActivity.musicListPA.indexOfFirst { it.id == removedSongId }
-                            if (indexInPlayerActivityList != -1) {
-                                PlayerActivity.musicListPA.removeAt(indexInPlayerActivityList)
-                                if (PlayerActivity.songPosition > indexInPlayerActivityList) {
-                                    PlayerActivity.songPosition--
-                                } else if (PlayerActivity.songPosition == indexInPlayerActivityList) {
-                                    // This case should ideally be handled by the check above.
-                                    // If current song is removed, PlayerActivity needs to handle this,
-                                    // e.g., play next, stop, or reset songPosition.
-                                    // For now, we assume the Snackbar prevents this or PlayerActivity handles it.
+                            // Re-fetch position just in case, though less likely to change inside dialog
+                            val latestPosition = holder.adapterPosition
+                            if (latestPosition != RecyclerView.NO_POSITION && latestPosition < musicList.size && musicList[latestPosition].id == songToRemove.id) {
+                                // Remove from the adapter's list (which should be PlayNext.playNextList)
+                                musicList.removeAt(latestPosition)
+                                notifyItemRemoved(latestPosition)
+                                // No need to call notifyItemRangeChanged if only one item is removed and list shrinks
+                                // However, if you have specific UI updates that depend on it, you can add it back.
+                                // notifyItemRangeChanged(latestPosition, musicList.size - latestPosition)
+
+                                // If PlayerActivity is *currently* playing from the "PlayNext" queue,
+                                // we need to update its internal list (musicListPA) and potentially its current songPosition.
+                                if (PlayerActivity.currentPlaylistOrigin == "PlayNext") {
+                                    val indexInPlayerActivityList = PlayerActivity.musicListPA.indexOfFirst { it.id == songToRemove.id }
+                                    if (indexInPlayerActivityList != -1) {
+                                        PlayerActivity.musicListPA.removeAt(indexInPlayerActivityList)
+                                        // If the removed song was before or at the current playing position,
+                                        // decrement the songPosition in PlayerActivity.
+                                        if (PlayerActivity.songPosition >= indexInPlayerActivityList) {
+                                            // If it was the current song, PlayerActivity's onCompletion or next/prev logic will handle it.
+                                            // If it was before, just decrement.
+                                            if (PlayerActivity.songPosition > indexInPlayerActivityList) {
+                                                PlayerActivity.songPosition--
+                                            }
+                                            // If PlayerActivity.songPosition == indexInPlayerActivityList (it was the current song)
+                                            // and it's removed, PlayerActivity needs to handle this. Often, it might play the next song
+                                            // or stop if the list becomes empty. This part might need more robust handling
+                                            // in PlayerActivity itself if the currently playing item is removed from its list.
+                                        }
+                                    }
                                 }
-                            }
-                            notifyItemRemoved(position)
-                            // Notify adapter about data change for items that shift position
-                            if (position < musicList.size) { // Check if position is still valid after removal
-                                notifyItemRangeChanged(position, musicList.size - position)
+                                Snackbar.make((context as Activity).findViewById(android.R.id.content) ?: holder.root,
+                                    "'${songToRemove.title}' removed from Play Next.", Snackbar.LENGTH_SHORT).show()
+                            } else {
+                                Snackbar.make((context as Activity).findViewById(android.R.id.content) ?: holder.root,
+                                    "Could not remove song. Queue may have changed or song not found.", Snackbar.LENGTH_SHORT).show()
                             }
                         }
                         dialogInterface.dismiss()
@@ -85,7 +112,7 @@ class FavouriteAdapter(private val context: Context, private var musicList: Arra
                         dialogInterface.dismiss()
                     }
                     .show()
-                return@setOnLongClickListener true
+                true // Consumed long click
             }
         }else{
             holder.root.setOnClickListener {
