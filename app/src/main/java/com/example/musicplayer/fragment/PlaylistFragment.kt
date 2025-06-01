@@ -72,8 +72,7 @@ class PlaylistFragment : Fragment() {
         }
 
         binding.playlistFavoritesBtn.setOnClickListener {
-            Toast.makeText(context, "Favorites Clicked", Toast.LENGTH_SHORT).show()
-            // TODO: Implement Favorites functionality
+            (activity as? MainActivity)?.openFavorites()
         }
 
         binding.playlistHistoryBtn.setOnClickListener {

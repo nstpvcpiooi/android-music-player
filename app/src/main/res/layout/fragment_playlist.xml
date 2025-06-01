@@ -78,8 +78,10 @@
                     android:layout_marginHorizontal="10dp"
                     android:text="@string/favourites_btn"
                     app:icon="@drawable/favourite_icon"
-                    app:iconTint="@color/cool_pink"
-                    android:textColor="@color/cool_pink" />
+                    app:iconTint="@color/tonal_button_icon_pink"
+                    android:textColor="@color/tonal_button_icon_pink"
+                    app:strokeColor="@color/tonal_button_icon_pink"
+                    app:strokeWidth="1dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/playlistHistoryBtn"
@@ -90,8 +92,10 @@
                     android:layout_weight="1"
                     android:text="@string/history_btn"
                     app:icon="@drawable/history_icon"
-                    app:iconTint="@color/yellow"
-                    android:textColor="@color/yellow" />
+                    app:iconTint="@color/tonal_button_icon_green"
+                    android:textColor="@color/tonal_button_icon_green"
+                    app:strokeColor="@color/tonal_button_icon_green"
+                    app:strokeWidth="1dp" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView

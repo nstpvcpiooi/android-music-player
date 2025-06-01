@@ -79,6 +79,6 @@
     <string name="more_features_playlist">More features for playlist</string>
     <string name="playlist_song_count_format">%d songs</string> <!-- Added for song count -->
     <string name="created_by_format">Created by %s</string>
-    <string name="history_btn">History\n</string> <!-- Added for creator text -->
+    <string name="history_btn">History</string> <!-- Added for creator text -->
 </resources>
 
