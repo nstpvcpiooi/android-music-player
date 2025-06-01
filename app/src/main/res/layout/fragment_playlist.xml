@@ -20,7 +20,7 @@
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="?attr/colorOnSurface"
             app:menu="@menu/playlist_toolbar_menu"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:layout_scrollFlags="scroll|snap"
             app:title="">
 
             <LinearLayout
