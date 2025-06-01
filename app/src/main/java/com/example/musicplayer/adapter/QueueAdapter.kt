@@ -31,7 +31,7 @@ class QueueAdapter(
 
     // Interface for queue updates
     interface QueueUpdateListener {
-        fun onQueueUpdated()
+        fun onQueueUpdated(fromPosition: Int = -1, toPosition: Int = -1, isRemoval: Boolean = false, removedPosition: Int = -1)
     }
 
     private var queueUpdateListener: QueueUpdateListener? = null
@@ -64,15 +64,25 @@ class QueueAdapter(
         }
 
         holder.root.setOnClickListener {
-            // Update the playlist to the current queue
-            PlayerActivity.musicListPA = ArrayList(musicList)
-            PlayerActivity.songPosition = holder.adapterPosition
-            PlayerActivity.currentPlaylistOrigin = "PlayNext"
+            // Clicking on a queue item will play it
+            if (position != currentPosition) { // Only change if clicking a different song
+                // Keep the song ID reference to identify the currently playing song
+                val currentSongId = if (currentPosition >= 0 && currentPosition < musicList.size)
+                    musicList[currentPosition].id else ""
 
-            val intent = Intent(context, PlayerActivity::class.java)
-            intent.putExtra("index", holder.adapterPosition)
-            intent.putExtra("class", "PlayNext")
-            ContextCompat.startActivity(context, intent, null)
+                // Update player lists and position
+                PlayerActivity.musicListPA = ArrayList(musicList)
+                PlayerActivity.songPosition = holder.adapterPosition
+                PlayerActivity.currentPlaylistOrigin = "PlayNext"
+
+                // Ensure PlayNext list stays in sync
+                PlayNext.playNextList = ArrayList(musicList)
+
+                val intent = Intent(context, PlayerActivity::class.java)
+                intent.putExtra("index", holder.adapterPosition)
+                intent.putExtra("class", "PlayNext")
+                ContextCompat.startActivity(context, intent, null)
+            }
         }
 
         holder.removeButton.setOnClickListener {
@@ -103,17 +113,23 @@ class QueueAdapter(
     fun removeItem(position: Int) {
         if (position < 0 || position >= musicList.size) return
 
+        // Keep the song ID reference
+        val currentSongId = if (currentPosition >= 0 && currentPosition < musicList.size)
+            musicList[currentPosition].id else ""
+
         // Get the song being removed for better error messages
         val songToRemove = musicList[position]
 
         // Check if trying to remove currently playing song
-        if (PlayerActivity.currentPlaylistOrigin == "PlayNext" &&
-            position == currentPosition) {
+        if (position == currentPosition) {
             Toast.makeText(context,
                 "Cannot remove currently playing song",
                 Toast.LENGTH_SHORT).show()
             return
         }
+
+        // Store the removed position for proper notification
+        val removedPosition = position
 
         // Remove from the adapter's list
         musicList.removeAt(position)
@@ -123,22 +139,17 @@ class QueueAdapter(
             PlayNext.playNextList.removeAt(position)
         }
 
-        // Update player lists if playing from queue
-        if (PlayerActivity.currentPlaylistOrigin == "PlayNext") {
-            // If song removed was before current position, update the position
-            if (position < PlayerActivity.songPosition) {
-                PlayerActivity.songPosition--
-            }
-
-            // Update the player's list to match the queue
-            PlayerActivity.musicListPA = ArrayList(musicList)
+        // After removal, need to update the currentPosition to reflect the new location
+        // of the currently playing song in the updated list, if the removed song was before it
+        if (position < currentPosition) {
+            currentPosition--
         }
 
         notifyItemRemoved(position)
         notifyItemRangeChanged(position, musicList.size)
 
-        // Notify any listeners about the queue update
-        queueUpdateListener?.onQueueUpdated()
+        // Notify listener about removal with specific information
+        queueUpdateListener?.onQueueUpdated(isRemoval = true, removedPosition = removedPosition)
 
         Toast.makeText(context,
             "Removed from queue",
@@ -151,6 +162,10 @@ class QueueAdapter(
             return false
         }
 
+        // Get the currently playing song's ID before the move to track it
+        val currentSongId = if (currentPosition >= 0 && currentPosition < musicList.size)
+            musicList[currentPosition].id else ""
+
         // Update the adapter's list with swap
         Collections.swap(musicList, fromPosition, toPosition)
 
@@ -162,29 +177,22 @@ class QueueAdapter(
             PlayNext.playNextList = ArrayList(musicList)
         }
 
-        // Update player position if needed
-        if (PlayerActivity.currentPlaylistOrigin == "PlayNext") {
-            if (PlayerActivity.songPosition == fromPosition) {
-                // If moving the currently playing song
-                PlayerActivity.songPosition = toPosition
-            } else if (PlayerActivity.songPosition in (fromPosition + 1)..toPosition) {
-                // If moving a song from before the current song to after it
-                PlayerActivity.songPosition--
-            } else if (PlayerActivity.songPosition in toPosition until fromPosition) {
-                // If moving a song from after the current song to before it
-                PlayerActivity.songPosition++
-            }
-        }
-
-        // Update current highlighted position
+        // Update current highlighted position if the move affected it
         if (currentPosition == fromPosition) {
+            // The song being moved is the currently playing song
             currentPosition = toPosition
+        } else if (currentPosition in (fromPosition + 1)..toPosition) {
+            // Moving song from above current to below - current position shifts up
+            currentPosition--
+        } else if (currentPosition in toPosition until fromPosition) {
+            // Moving song from below current to above - current position shifts down
+            currentPosition++
         }
 
         notifyItemMoved(fromPosition, toPosition)
 
-        // Notify any listeners about the queue update
-        queueUpdateListener?.onQueueUpdated()
+        // Notify listener about the move with positions
+        queueUpdateListener?.onQueueUpdated(fromPosition, toPosition)
 
         return true
     }
@@ -200,6 +208,11 @@ class QueueAdapter(
             currentPosition = position
             notifyDataSetChanged()
         }
+    }
+
+    // Get the current position for external reference
+    fun getCurrentPosition(): Int {
+        return currentPosition
     }
 
     inner class MyHolder(binding: QueueItemViewBinding) : RecyclerView.ViewHolder(binding.root) {

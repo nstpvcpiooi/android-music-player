@@ -704,21 +704,37 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             // Set the current position for highlighting
             queueAdapter.setCurrentPosition(songPosition)
 
-            // Set the queue update listener
+            // Set the queue update listener with enhanced position tracking
             queueAdapter.setQueueUpdateListener(object : QueueAdapter.QueueUpdateListener {
-                override fun onQueueUpdated() {
-                    // Show empty state if queue becomes empty
+                override fun onQueueUpdated(fromPosition: Int, toPosition: Int, isRemoval: Boolean, removedPosition: Int) {
+                    // Handle empty queue case
                     if (PlayNext.playNextList.isEmpty()) {
                         bottomSheetBinding.queueRV.visibility = View.GONE
                         bottomSheetBinding.emptyQueueText.visibility = View.VISIBLE
+                        return
                     }
 
-                    // Update the player's music list to match the updated queue
-                    musicListPA = ArrayList(PlayNext.playNextList)
+                    // Synchronize with PlayerActivity state
+                    synchronized(musicListPA) {
+                        // Update the player's music list to match the updated queue
+                        val newList = ArrayList(PlayNext.playNextList)
 
-                    // Update album cover adapter
-                    albumCoverAdapter.updateMusicList(musicListPA)
-                    binding.albumCoverViewPager.setCurrentItem(songPosition, false)
+                        // Update PlayerActivity's position tracking based on the queue adapter's current position
+                        val adapterCurrentPos = queueAdapter.getCurrentPosition()
+                        if (adapterCurrentPos >= 0 && adapterCurrentPos < newList.size) {
+                            songPosition = adapterCurrentPos
+                        }
+
+                        // Important: First update the musicListPA with the new order
+                        musicListPA = newList
+
+                        // Then update the ViewPager adapter with the same list
+                        albumCoverAdapter.updateMusicList(newList)
+
+                        // Important: Set the ViewPager to the correct position without animation
+                        // to avoid visual glitches
+                        binding.albumCoverViewPager.setCurrentItem(songPosition, false)
+                    }
                 }
             })
 
