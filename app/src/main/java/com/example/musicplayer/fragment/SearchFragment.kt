@@ -70,7 +70,6 @@ class SearchFragment : Fragment() {
     private fun setupToolbar() {
         (activity as? AppCompatActivity)?.setSupportActionBar(toolbar)
         (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        (activity as? AppCompatActivity)?.supportActionBar?.title = "Search"
         toolbar.setNavigationOnClickListener {
             activity?.supportFragmentManager?.popBackStack()
         }
