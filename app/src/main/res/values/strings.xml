@@ -77,5 +77,7 @@
     <string name="shuffle_playlist">Shuffle Playlist</string>
     <string name="delete_playlist">Delete this playlist</string>
     <string name="more_features_playlist">More features for playlist</string>
+    <string name="playlist_song_count_format">%d songs</string> <!-- Added for song count -->
+    <string name="created_by_format">Created by %s</string> <!-- Added for creator text -->
 </resources>
 

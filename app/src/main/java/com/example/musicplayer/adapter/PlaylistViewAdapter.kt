@@ -39,8 +39,8 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
             // holder.root.strokeColor = ContextCompat.getColor(context, R.color.white) // MaterialCardView no longer has stroke
         }
         holder.name.text = currentPlaylist.name
-        holder.name.isSelected = true // To enable marquee if text is too long and singleLine is true (though it's not now)
-        holder.songCount.text = "${currentPlaylist.playlist.size} songs"
+        holder.name.isSelected = true
+        holder.songCount.text = context.getString(R.string.playlist_song_count_format, currentPlaylist.playlist.size)
 
         if (currentPlaylist.createdBy.isNotEmpty()) {
             holder.creator.text = currentPlaylist.createdBy
@@ -62,14 +62,17 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
             if (context is AppCompatActivity) {
                 bottomSheet.show(context.supportFragmentManager, PlaylistMoreFeaturesBottomSheet.TAG)
             }
-            true // Return true to indicate the long press was consumed
+            true
         }
 
-        if(PlaylistActivity.musicPlaylist.ref[position].playlist.size > 0){
+        if (currentPlaylist.playlist.isNotEmpty() && currentPlaylist.playlist[0].artUri.isNotEmpty()) {
             Glide.with(context)
-                .load(PlaylistActivity.musicPlaylist.ref[position].playlist[0].artUri)
+                .load(currentPlaylist.playlist[0].artUri)
                 .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
                 .into(holder.image)
+        } else {
+            Glide.with(context).clear(holder.image) // Clear previous image if view is recycled
+            holder.image.setImageResource(R.drawable.music_player_icon_slash_screen) // Set placeholder
         }
     }
 
