@@ -84,5 +84,11 @@
     <string name="empty_queue_message">Your queue is empty.</string>
     <string name="editBtnPD">edit button</string>
     <string name="save_playlist_changes">Save playlist</string>
+    <string name="theme_mode">Theme mode</string>
+    <string name="light_mode">LIGHT</string>
+    <string name="dark_mode">DARK</string>
+    <string name="system_default">DEFAULT</string>
+    <string name="change_password">Change Password</string>
+    <string name="logout">Logout</string>
 </resources>
 
