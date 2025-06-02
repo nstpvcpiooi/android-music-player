@@ -254,5 +254,30 @@ class MusicService : Service(), AudioManager.OnAudioFocusChangeListener {
         return START_STICKY
     }
 
-}
+    override fun onDestroy() {
+        super.onDestroy()
 
+        // Giải phóng tài nguyên MediaPlayer
+        if (mediaPlayer != null) {
+            try {
+                mediaPlayer?.stop()
+                mediaPlayer?.release()
+                mediaPlayer = null
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        // Giải phóng tài nguyên khác
+        if (::audioManager.isInitialized) {
+            audioManager.abandonAudioFocus(this)
+        }
+
+        // Dừng foreground service và xóa notification
+        stopForeground(true)
+
+        // Ngăn PlayerActivity.exitApplication() được gọi sau khi service bị hủy
+        PlayerActivity.isPlaying = false
+    }
+
+}

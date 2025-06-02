@@ -11,7 +11,6 @@ import android.os.Environment
 import android.util.Log
 import android.view.*
 import android.webkit.MimeTypeMap
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -43,7 +42,6 @@ class AccountFragment : Fragment() {
     private val musicList = ArrayList<Music>()
 
     private lateinit var emailValueTextView: TextView
-    private lateinit var logoutButton: Button
     private lateinit var uploadMusicBtn: ImageButton
     private lateinit var uploadedMusicRecyclerView: RecyclerView
     private lateinit var noUploadedMusicText: TextView
@@ -57,7 +55,6 @@ class AccountFragment : Fragment() {
         firebaseAuth = FirebaseAuth.getInstance()
 
         emailValueTextView = binding.emailValue
-        logoutButton = binding.logoutButton
         uploadMusicBtn = binding.uploadMusicBtn
         uploadedMusicRecyclerView = binding.uploadedMusicRecyclerView
         noUploadedMusicText = binding.noUploadedMusicText
@@ -99,12 +96,6 @@ class AccountFragment : Fragment() {
 
     private fun initAccountFunctionality() {
         emailValueTextView.text = firebaseAuth.currentUser?.email ?: "N/A"
-
-        logoutButton.setOnClickListener {
-            firebaseAuth.signOut()
-            startActivity(Intent(requireContext(), LoginActivity::class.java))
-            activity?.finish()
-        }
 
         uploadMusicBtn.setOnClickListener {
             startActivity(Intent(requireContext(), UploadActivity::class.java))
@@ -219,7 +210,7 @@ class AccountFragment : Fragment() {
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("Firebase", "Load failed: ${error.message}")
-                Toast.makeText(requireContext(), getString(R.string.load_music_failed, error.message), Toast.LENGTH_SHORT).show()
+//                Toast.makeText(requireContext(), getString(R.string.load_music_failed, error.message), Toast.LENGTH_SHORT).show()
                 noUploadedMusicText.visibility = View.VISIBLE
                 uploadedMusicRecyclerView.visibility = View.GONE
             }
