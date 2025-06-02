@@ -2,21 +2,31 @@ package com.example.musicplayer.onprg
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.example.musicplayer.R
 import com.example.musicplayer.SelectionActivity
 import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.adapter.MusicAdapter
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.GsonBuilder
 import com.example.musicplayer.databinding.ActivityPlaylistDetailsBinding
+import com.example.musicplayer.databinding.BottomSheetPlaylistOptionsBinding
 import com.example.musicplayer.utils.checkPlaylist
 import com.example.musicplayer.utils.setDialogBtnBackground
+import jp.wasabeef.glide.transformations.BlurTransformation
 
 class PlaylistDetails : AppCompatActivity() {
 
@@ -36,7 +46,7 @@ class PlaylistDetails : AppCompatActivity() {
 
         try{
             PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist =
-            checkPlaylist(playlist = PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist)
+                checkPlaylist(playlist = PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist)
         }
         catch(e: Exception){}
 
@@ -49,22 +59,122 @@ class PlaylistDetails : AppCompatActivity() {
 
         // Set up toolbar
         binding.toolbarPD.setNavigationOnClickListener { finish() }
-        binding.collapsingToolbar.title = PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].name
 
-        // Set up FAB and buttons
-        binding.shuffleBtnPD.setOnClickListener {
+        // Set up FAB buttons
+        binding.playBtnPD.setOnClickListener {
+            val intent = Intent(this, PlayerActivity::class.java)
+            intent.putExtra("index", 0)
+            intent.putExtra("class", "PlaylistDetails")
+            startActivity(intent)
+        }
+
+        binding.editBtnPD.setOnClickListener {
+            startActivity(Intent(this, SelectionActivity::class.java))
+        }
+
+        binding.moreFeaturesBtn.setOnClickListener {
+            showPlaylistOptionsBottomSheet()
+        }
+
+        // Update UI
+        updateUI()
+    }
+
+    private fun showPlaylistOptionsBottomSheet() {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val bottomSheetBinding = BottomSheetPlaylistOptionsBinding.inflate(LayoutInflater.from(this))
+        bottomSheetDialog.setContentView(bottomSheetBinding.root)
+
+        // Set up bottom sheet options
+        bottomSheetBinding.addToQueueOption.setOnClickListener {
+            // Add playlist to queue functionality
+            if(PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist.isNotEmpty()) {
+                PlayerActivity.musicListPA.addAll(PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist)
+                bottomSheetDialog.dismiss()
+            }
+        }
+
+        bottomSheetBinding.playNextOption.setOnClickListener {
+            // Play next functionality
+            if(PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist.isNotEmpty()) {
+                PlayerActivity.musicListPA.addAll(0, PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist)
+                bottomSheetDialog.dismiss()
+            }
+        }
+
+        bottomSheetBinding.shuffleOption.setOnClickListener {
+            // Shuffle functionality
             val intent = Intent(this, PlayerActivity::class.java)
             intent.putExtra("index", 0)
             intent.putExtra("class", "PlaylistDetailsShuffle")
             startActivity(intent)
+            bottomSheetDialog.dismiss()
         }
 
-        binding.addBtnPD.setOnClickListener {
-            startActivity(Intent(this, SelectionActivity::class.java))
+        bottomSheetBinding.deleteOption.setOnClickListener {
+            // Delete playlist functionality
+            showDeletePlaylistDialog()
+            bottomSheetDialog.dismiss()
         }
 
-        binding.removeAllPD.setOnClickListener {
-            showRemoveAllDialog()
+        bottomSheetDialog.show()
+    }
+
+    private fun showDeletePlaylistDialog() {
+        val builder = MaterialAlertDialogBuilder(this, R.style.MaterialAlertDialogTheme)
+        builder.setTitle("Delete Playlist")
+            .setMessage("Are you sure you want to delete this playlist?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                PlaylistActivity.musicPlaylist.ref.removeAt(currentPlaylistPos)
+                adapter.refreshPlaylist()
+                dialog.dismiss()
+                finish() // Close this activity after deletion
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+        val customDialog = builder.create()
+        customDialog.show()
+        setDialogBtnBackground(this, customDialog)
+    }
+
+    private fun updateUI() {
+        val playlist = PlaylistActivity.musicPlaylist.ref[currentPlaylistPos]
+        binding.playlistTitleTV.text = playlist.name
+
+        // Set the song count, creation date, and creator in one line separated by dots
+        val songCount = playlist.playlist.size
+        val songCountText = if (songCount == 1) "1 song" else "$songCount songs"
+        val infoText = "${playlist.createdBy} • ${playlist.createdOn} • $songCountText"
+        binding.playlistInfoTV.text = infoText
+
+        // Set songs title
+        binding.songsTitleTV.text = "Songs"
+
+        // Load album art and set blurred background
+        if (playlist.playlist.isNotEmpty()) {
+            val firstSongArt = playlist.playlist[0].artUri
+
+            // Load the regular album art
+            Glide.with(this)
+                .load(firstSongArt)
+                .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
+                .into(binding.playlistImgPD)
+
+            // Load blurred background with Glide blur transformation
+            Glide.with(this)
+                .load(firstSongArt)
+                .transform(BlurTransformation(25, 3))
+                .into(object : CustomTarget<Drawable>() {
+                    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                        binding.backgroundBlurImage.setImageDrawable(resource)
+                    }
+                    override fun onLoadCleared(placeholder: Drawable?) {}
+                })
+
+            binding.playBtnPD.visibility = View.VISIBLE
+        } else {
+            binding.playBtnPD.visibility = View.GONE
         }
     }
 
@@ -76,6 +186,7 @@ class PlaylistDetails : AppCompatActivity() {
                 PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist.clear()
                 adapter.refreshPlaylist()
                 dialog.dismiss()
+                updateUI() // Update UI after removal
             }
             .setNegativeButton("No"){dialog, _ ->
                 dialog.dismiss()
@@ -85,27 +196,12 @@ class PlaylistDetails : AppCompatActivity() {
         setDialogBtnBackground(this, customDialog)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onResume() {
         super.onResume()
-        binding.collapsingToolbar.title = PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].name
-        binding.moreInfoPD.text = "Total ${adapter.itemCount} Songs.\n\n" +
-                "Created On:\n${PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].createdOn}\n\n" +
-                "  -- ${PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].createdBy}"
+        // Update UI every time activity resumes
+        updateUI()
 
-        if(adapter.itemCount > 0) {
-            Glide.with(this)
-                .load(PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist[0].artUri)
-                .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
-                .into(binding.playlistImgPD)
-            binding.shuffleBtnPD.visibility = android.view.View.VISIBLE
-        } else {
-            binding.shuffleBtnPD.visibility = android.view.View.GONE
-        }
-
-        adapter.notifyDataSetChanged()
-
-        //for storing favourites data using shared preferences
+        // Save playlist data
         val editor = getSharedPreferences("FAVOURITES", MODE_PRIVATE).edit()
         val jsonStringPlaylist = GsonBuilder().create().toJson(PlaylistActivity.musicPlaylist)
         editor.putString("MusicPlaylist", jsonStringPlaylist)

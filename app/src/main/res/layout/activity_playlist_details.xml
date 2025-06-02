@@ -7,55 +7,32 @@
     android:background="?attr/colorSurface"
     tools:context=".onprg.PlaylistDetails">
 
+    <!-- Blurred Background Image -->
+    <ImageView
+        android:id="@+id/backgroundBlurImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:alpha="0.4"
+        app:layout_collapseMode="parallax"/>
+
+    <!-- Top App Bar with back and more buttons -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="340dp"
-        android:fitsSystemWindows="true"
+        android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         app:elevation="0dp">
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/collapsingToolbar"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarPD"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            app:collapsedTitleTextAppearance="@style/CollapsedAppBarTitle"
-            app:contentScrim="?attr/colorPrimaryContainer"
-            app:expandedTitleMarginStart="24dp"
-            app:expandedTitleMarginBottom="96dp"
-            app:expandedTitleTextAppearance="@style/ExpandedAppBarTitle"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
-            app:title="@string/playlist_btn">
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="0dp"
+            app:navigationIcon="@drawable/back_icon"
+            app:navigationIconTint="?attr/colorOnSurface"
+            app:title="" />
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/playlistImgPD"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/music_player_icon_slash_screen"
-                android:fitsSystemWindows="true"
-                app:layout_collapseMode="parallax"
-                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.RoundedImageView"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_gravity="bottom"
-                android:background="@drawable/gradient_overlay"
-                app:layout_collapseMode="parallax"/>
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbarPD"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:elevation="0dp"
-                app:layout_collapseMode="pin"
-                app:navigationIcon="@drawable/back_icon"
-                app:navigationIconTint="@color/white"
-                app:title="@string/playlist_btn"/>
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -70,31 +47,113 @@
             android:layout_height="match_parent"
             android:paddingBottom="90dp">
 
+            <!-- Square Album Art -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/infoCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
+                android:id="@+id/albumCoverCard"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="48dp"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
+                app:cardElevation="8dp"
                 app:strokeWidth="0dp"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer"
+                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-                <TextView
-                    android:id="@+id/moreInfoPD"
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/playlistImgPD"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="20dp"
-                    android:lineSpacingMultiplier="1.2"
-                    android:textColor="?attr/colorOnPrimaryContainer"
-                    android:text="@string/playlist_name"
-                    android:textSize="16sp" />
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/music_player_icon_slash_screen"/>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Playlist Title -->
+            <TextView
+                android:id="@+id/playlistTitleTV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="24dp"
+                android:text="@string/playlist_btn"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                android:maxLines="2"
+                android:ellipsize="end"
+                app:layout_constraintTop_toBottomOf="@id/albumCoverCard"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- Playlist Info (creator • date • song count) -->
+            <TextView
+                android:id="@+id/playlistInfoTV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginHorizontal="24dp"
+                android:text=""
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                app:layout_constraintTop_toBottomOf="@id/playlistTitleTV"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- Button Container for Play, Edit, and More Features -->
+            <LinearLayout
+                android:id="@+id/playlistControlsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginHorizontal="24dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@id/playlistInfoTV">
+
+                <!-- Play Button -->
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/playBtnPD"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Play playlist"
+                    android:src="@drawable/play_icon"
+                    android:layout_marginHorizontal="24dp"
+                    app:fabSize="normal"
+                    app:tint="?attr/colorOnPrimary"
+                    app:backgroundTint="?attr/colorPrimary"
+                    app:elevation="6dp"/>
+
+                <!-- Edit Button (opens add song interface) -->
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/editBtnPD"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Edit playlist"
+                    android:src="@drawable/edit_icon"
+                    app:fabSize="mini"
+                    app:tint="?attr/colorOnSecondaryContainer"
+                    app:backgroundTint="?attr/colorSecondaryContainer"
+                    app:elevation="4dp"/>
+
+                <!-- More Features Button (opens bottom sheet) -->
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/moreFeaturesBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:contentDescription="More features"
+                    android:src="@drawable/ellipsis_vertical_solid"
+                    app:fabSize="mini"
+                    app:tint="?attr/colorOnSecondaryContainer"
+                    app:backgroundTint="?attr/colorSecondaryContainer"
+                    app:elevation="4dp"/>
+            </LinearLayout>
+
+            <!-- Songs Title with Count -->
             <TextView
                 android:id="@+id/songsTitleTV"
                 android:layout_width="wrap_content"
@@ -104,10 +163,11 @@
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="32dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/infoCard"/>
+                app:layout_constraintTop_toBottomOf="@id/playlistControlsContainer"/>
 
+            <!-- Song List -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/playlistDetailsRV"
                 android:layout_width="match_parent"
@@ -124,75 +184,5 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/bottomAppBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:fabCradleMargin="12dp"
-        app:fabCradleRoundedCornerRadius="24dp"
-        app:fabCradleVerticalOffset="6dp"
-        app:backgroundTint="?attr/colorSurfaceVariant"
-        app:elevation="6dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="8dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/addBtnPD"
-                style="@style/Widget.Material3.Button.TonalButton.Icon"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:paddingVertical="12dp"
-                android:text="@string/add_song"
-                android:textSize="14sp"
-                app:cornerRadius="16dp"
-                app:icon="@drawable/add_icon"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp"
-                app:iconSize="20dp"
-                android:contentDescription="@string/add_song"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/removeAllPD"
-                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:paddingVertical="12dp"
-                android:text="@string/remove_all"
-                android:textSize="14sp"
-                app:cornerRadius="16dp"
-                app:icon="@drawable/remove_icon"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp"
-                app:iconSize="20dp"
-                app:iconTint="?attr/colorError"
-                android:textColor="?attr/colorError"
-                app:strokeColor="?attr/colorErrorContainer"
-                android:contentDescription="@string/remove_all"/>
-
-        </LinearLayout>
-    </com.google.android.material.bottomappbar.BottomAppBar>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/shuffleBtnPD"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/shuffle_btn"
-        android:src="@drawable/shuffle_icon"
-        app:layout_anchor="@id/bottomAppBar"
-        app:backgroundTint="?attr/colorPrimary"
-        app:tint="?attr/colorOnPrimary"
-        android:visibility="visible"
-        app:fabSize="normal"
-        app:elevation="8dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
