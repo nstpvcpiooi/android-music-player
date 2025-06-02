@@ -1,111 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".activity.UploadActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:fitsSystemWindows="true"
+        android:background="?attr/colorOnPrimary"
+        app:elevation="0dp">
 
-        <include
-            android:id="@+id/loading_view"
-            layout="@layout/progress_layout"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="@string/upload_music_title"
+            app:navigationIcon="@drawable/back_icon"
+            app:navigationIconTint="?attr/colorOnSurface"
+            app:titleTextColor="?attr/colorOnSurface" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"/>
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="20dp">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginStart="20dp"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="20dp">
-
-            <LinearLayout
+            <include
+                android:id="@+id/loading_view"
+                layout="@layout/progress_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center_horizontal"
-                android:padding="20dp"
-                android:background="@drawable/edit_text_border">
+                android:visibility="gone"/>
 
-                <TextView
+            <!-- Upload File Area -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/card_dashed_border">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Upload music"
-                    android:textSize="30dp"
-                    android:textAlignment="center"
-                    android:textColor="@color/cool_green"/>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:src="@drawable/upload_icon"
-                    android:id="@+id/uploadImage"
-                    android:layout_marginTop="10dp"/>
+                    <ImageView
+                        android:id="@+id/uploadImage"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="16dp"
+                        android:src="@drawable/upload_icon"
+                        app:tint="@color/black_level2"
+                        android:contentDescription="@string/upload_music_image_desc"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:id="@+id/song_name"
-                    android:gravity="start|center_vertical"/>
+                    <TextView
+                        android:id="@+id/song_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:text="No file selected"
+                        android:textColor="@color/black_level2"
+                        android:layout_marginBottom="16dp"/>
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/browseButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Browse Files"
+                        android:textAllCaps="false"
+                        app:cornerRadius="8dp"
+                        android:backgroundTint="#E9E9E9"
+                        android:textColor="@color/black_level2"
+                        app:iconGravity="textStart"/>
+                </LinearLayout>
+            </FrameLayout>
 
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/uploadTopicLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:hint="@string/hint_enter_music_name"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/uploadTopic"
-                    android:background="@drawable/edit_text_border"
-                    android:layout_marginTop="20dp"
-                    android:padding="10dp"
-                    android:hint="Enter music name"
-                    android:gravity="start|center_vertical"
-                    android:textColor="@color/cool_green"/>
-
-                <EditText
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapSentences"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/uploadSingerLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:hint="@string/hint_enter_singer"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/uploadSinger"
-                    android:background="@drawable/edit_text_border"
-                    android:layout_marginTop="20dp"
-                    android:padding="10dp"
-                    android:hint="Enter singer"
-                    android:gravity="start|center_vertical"
-                    android:textColor="@color/cool_green"/>
-
-                <EditText
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/uploadAlbumLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:hint="@string/hint_enter_album"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/uploadAlbum"
-                    android:background="@drawable/edit_text_border"
-                    android:layout_marginTop="20dp"
-                    android:padding="10dp"
-                    android:hint="Enter album"
-                    android:gravity="start|center_vertical"
-                    android:textColor="@color/cool_green"/>
-
-                <Button
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="Save"
-                    android:id="@+id/saveButton"
-                    android:textSize="18sp"
-                    android:layout_marginTop="20dp"
-                    app:cornerRadius="20dp"/>
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/saveButton"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="@string/save_button_text"
+                android:textSize="18sp"
+                android:layout_marginTop="30dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                app:cornerRadius="16dp"
+                android:textColor="@color/tonal_button_background_blue"
+                android:backgroundTint="#2980FF"/>
 
-        </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
-    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-
-</ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

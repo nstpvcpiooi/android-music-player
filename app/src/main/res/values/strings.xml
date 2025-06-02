@@ -118,5 +118,13 @@
     <string name="downloading_music">Đang tải %s…</string>
     <string name="download_error">Lỗi khi tải: %s</string>
     <string name="load_music_failed">Failed to load music: %s</string>
+
+    <!-- Strings for UploadActivity -->
+    <string name="upload_music_title">Upload music</string>
+    <string name="upload_music_image_desc">Upload music icon</string>
+    <string name="hint_enter_music_name">Enter music name</string>
+    <string name="hint_enter_singer">Enter singer</string>
+    <string name="hint_enter_album">Enter album</string>
+    <string name="save_button_text">Save</string>
 </resources>
 

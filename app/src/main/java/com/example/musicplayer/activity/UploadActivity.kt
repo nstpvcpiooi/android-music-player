@@ -63,7 +63,11 @@ class UploadActivity : AppCompatActivity() {
     private fun setupViews() {
         binding.loadingView.root.visibility = View.GONE
 
-        binding.uploadImage.setOnClickListener {
+        // Set initial empty state text
+        binding.songName.text = "No file selected"
+
+        // Browse button for file selection
+        binding.browseButton.setOnClickListener {
             pickFileFromStorage()
         }
 
@@ -192,8 +196,11 @@ class UploadActivity : AppCompatActivity() {
         if (requestCode == FILE_PICK_CODE && resultCode == Activity.RESULT_OK) {
             fileUri = data?.data
 
-            // Lấy tên file nhạc (title)
+            // Show selected file name in UI
             val fileName = getFileNameFromMediaStoreUri(this, fileUri)
+            binding.songName.text = fileName ?: "Unknown file"
+
+            // Lấy tên file nhạc (title)
             binding.uploadTopic.setText(fileName ?: "")
 
             // Lấy album
