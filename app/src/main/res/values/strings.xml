@@ -16,6 +16,7 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="app_icon">Icon</string>
+    <string name="app_icon_description">Application Icon</string>
     <string name="text_nav">Welcome to\nWorld of Music</string>
     <string name="feedback">Feedback</string>
     <string name="settings">Settings</string>
@@ -126,5 +127,16 @@
     <string name="hint_enter_singer">Enter singer</string>
     <string name="hint_enter_album">Enter album</string>
     <string name="save_button_text">Save</string>
+
+    <!-- Strings for Login and Signup screens -->
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button_text">Login</string>
+    <string name="signup_prompt_text">Don\'t have an account? Sign up</string>
+    <string name="create_account_text">Create Account</string>
+    <string name="signup_button_text">Sign Up</string>
+    <string name="login_prompt_text">Already registered? Login</string>
+    <string name="music_player_icon_desc">Music Player Icon</string>
 </resources>
 

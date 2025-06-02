@@ -129,7 +129,7 @@ class PlayerActivityOnline : AppCompatActivity(), ServiceConnection, MediaPlayer
         binding.repeatBtnPA.setOnClickListener {
             if (!repeat) {
                 repeat = true
-                binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.purple_500))
+                binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.yellow))
             } else {
                 repeat = false
                 binding.repeatBtnPA.setColorFilter(ContextCompat.getColor(this, R.color.black_level2))

@@ -9,7 +9,30 @@
     <attr name="dialogTextColor" format="color"/>
     <attr name="dialogBtnBackground" format="color"/>
 
-    //Theme for Activities
+    <!-- Base application theme. -->
+    <style name="Theme.MusicPlayer" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/tonal_button_icon_blue</item>
+        <item name="colorPrimaryVariant">@color/cool_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/tonal_button_icon_blue</item>
+        <item name="colorSecondaryVariant">@color/blue_app_icon</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <!-- Custom attributes -->
+        <item name="dialogBtnBackground">@color/tonal_button_icon_blue</item>
+        <item name="dialogTextColor">@color/white</item>
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+        <!-- Add colorAccent and colorControlActivated for cursor color -->
+        <item name="colorAccent">@color/tonal_button_icon_blue</item>
+        <item name="colorControlActivated">@color/tonal_button_icon_blue</item>
+        <item name="colorControlNormal">@color/light_grey</item>
+    </style>
+
+    <!-- Theme for Activities -->
     <style name="coolPink" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -63,7 +86,7 @@
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
-    //Theme for Navigation Drawer
+    <!-- Theme for Navigation Drawer -->
     <style name="coolPinkNav" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryVariant">@color/black</item>
@@ -116,7 +139,8 @@
         <item name="dialogTextColor">@color/white</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
-    //new dark Theme
+
+    <!-- New dark Theme -->
     <style name="coolBlack" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/black</item>

@@ -20,7 +20,7 @@
     </style>
 
     <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textColor">@color/tonal_button_icon_blue</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:paddingStart">16dp</item>
@@ -28,7 +28,7 @@
     </style>
 
     <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textColor">@color/cool_blue</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:paddingStart">16dp</item>
