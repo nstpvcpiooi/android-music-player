@@ -1,24 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/loadingLayout"
-    android:orientation="horizontal"
-    android:padding="20dp"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="8dp">
 
-    <ProgressBar
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:indeterminateTint="@color/cool_green"/>
+    <LinearLayout
+        android:id="@+id/loadingLayout"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="4"
-        android:text="Uploading...."
-        android:textSize="20sp"
-        android:textColor="@color/cool_green"
-        android:gravity="start|center_vertical"/>
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            app:indicatorColor="@color/tonal_button_icon_blue"
+            app:trackColor="@color/tonal_button_icon_blue"
+            android:alpha="0.6"
+            app:indicatorSize="48dp"
+            app:trackThickness="4dp"
+            android:indeterminate="true" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Uploading..."
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/tonal_button_icon_blue" />
+
+            <TextView
+                android:id="@+id/progress_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Your music is being uploaded"
+                android:textSize="14sp"
+                android:alpha="0.7"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
