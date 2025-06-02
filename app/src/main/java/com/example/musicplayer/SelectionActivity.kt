@@ -65,6 +65,7 @@ class SelectionActivity : AppCompatActivity() {
                 PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist.clear()
                 PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist.addAll(songsToSelectForPlaylist)
                 Toast.makeText(this, "Playlist updated", Toast.LENGTH_SHORT).show()
+                setResult(AppCompatActivity.RESULT_OK) // Set result to OK
                 finish()
             } catch (e: IndexOutOfBoundsException) {
                 Toast.makeText(this, "Error saving playlist", Toast.LENGTH_SHORT).show()

@@ -35,6 +35,7 @@ class PlaylistDetails : AppCompatActivity() {
 
     companion object{
         var currentPlaylistPos: Int = -1
+        private const val SELECTION_ACTIVITY_REQUEST_CODE = 1 // Added request code
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +70,9 @@ class PlaylistDetails : AppCompatActivity() {
         }
 
         binding.editBtnPD.setOnClickListener {
-            startActivity(Intent(this, SelectionActivity::class.java))
+            val intent = Intent(this, SelectionActivity::class.java)
+            // intent.putExtra("playlist_index", currentPlaylistPos) // Optional: if SelectionActivity needs it directly
+            startActivityForResult(intent, SELECTION_ACTIVITY_REQUEST_CODE) // Start for result
         }
 
         binding.moreFeaturesBtn.setOnClickListener {
@@ -78,6 +81,18 @@ class PlaylistDetails : AppCompatActivity() {
 
         // Update UI
         updateUI()
+    }
+
+    // Add onActivityResult to handle the result from SelectionActivity
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == SELECTION_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == AppCompatActivity.RESULT_OK) {
+                // Playlist was updated in SelectionActivity, refresh UI here
+                adapter.refreshPlaylist()
+                updateUI()
+            }
+        }
     }
 
     private fun showPlaylistOptionsBottomSheet() {
