@@ -44,7 +44,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-
             <!-- Account Info Title from activity_account.xml -->
             <TextView
                 android:id="@+id/accountInfoTitle"
@@ -59,56 +58,19 @@
                 app:layout_constraintTop_toBottomOf="@id/profile_image"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Email Label and Value from activity_account.xml -->
-            <TextView
-                android:id="@+id/emailLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="30dp"
-                android:textSize="15sp"
-                android:text="@string/email_label"
-                android:textColor="?colorOnBackground"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/accountInfoTitle" />
-
             <TextView
                 android:id="@+id/emailValue"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="30dp"
                 android:layout_marginEnd="30dp"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:text="@string/email_placeholder"
                 android:textColor="?colorOnBackground"
-                app:layout_constraintStart_toEndOf="@id/emailLabel"
-                app:layout_constraintTop_toTopOf="@id/emailLabel"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <!-- Password Label and Value from activity_account.xml -->
-            <TextView
-                android:id="@+id/passwordLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="30dp"
-                android:textSize="15sp"
-                android:text="@string/password_label"
-                android:textColor="?colorOnBackground"
+                android:textAlignment="center"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/emailValue" />
-
-            <TextView
-                android:id="@+id/passwordValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="30dp"
-                android:textSize="14sp"
-                android:text="@string/password_placeholder"
-                android:textColor="?colorOnBackground"
-                app:layout_constraintStart_toEndOf="@id/passwordLabel"
-                app:layout_constraintTop_toTopOf="@id/passwordLabel"
+                app:layout_constraintTop_toBottomOf="@id/accountInfoTitle"
                 app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- Uploaded Music Header from activity_account.xml -->
@@ -118,11 +80,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:layout_marginStart="20dp"
-                android:layout_marginEnd="15dp"
+                android:layout_marginEnd="13dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/passwordValue"
+                app:layout_constraintTop_toBottomOf="@id/emailValue"
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <TextView
@@ -137,11 +99,12 @@
 
                 <ImageButton
                     android:id="@+id/uploadMusicBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:padding="8dp"
-                    android:src="@drawable/add_icon"
+                    android:padding="15dp"
+                    android:src="@drawable/upload_icon_2"
+                    android:scaleType="fitCenter"
                     android:contentDescription="@string/upload_music_button_desc"/>
             </LinearLayout>
 

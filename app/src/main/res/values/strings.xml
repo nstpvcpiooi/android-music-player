@@ -94,14 +94,14 @@
     <!-- Strings for AccountFragment -->
     <string name="profile_image_desc">Profile image</string>
     <string name="username_placeholder">Username</string>
-    <string name="account_info_title">Thông tin tài khoản</string>
+    <string name="account_info_title">My account</string>
     <string name="email_label">Email:</string>
     <string name="email_placeholder">user@example.com</string>
     <string name="password_label">Mật khẩu:</string>
     <string name="password_placeholder">********</string>
     <string name="change_password_button">Đổi mật khẩu</string>
     <string name="logout_button">Đăng xuất</string>
-    <string name="uploaded_music_title">Các file nhạc đã tải lên</string>
+    <string name="uploaded_music_title">My cloud</string>
     <string name="upload_music_button_desc">Upload music</string>
     <string name="no_uploaded_music">Chưa có file nhạc nào được tải lên.</string>
 
