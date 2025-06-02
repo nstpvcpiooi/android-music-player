@@ -361,7 +361,15 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             }
             "MusicAdapterSearch"-> initServiceAndPlaylist(MainActivity.musicListSearch, shuffle = false)
             "MusicAdapter" -> initServiceAndPlaylist(MainActivity.MusicListMA, shuffle = false)
-            "FavouriteAdapter"-> initServiceAndPlaylist(FavouriteActivity.favouriteSongs, shuffle = false)
+            // "FavouriteAdapter"-> initServiceAndPlaylist(FavouriteActivity.favouriteSongs, shuffle = false) // Commented out or remove old/unused case
+            "FavouritePlayAll" -> { // Added case for playing all favourite songs
+                // songPosition is already set from intent's "index" (should be 0)
+                initServiceAndPlaylist(FavouriteActivity.favouriteSongs, shuffle = false)
+            }
+            "FavouriteSongClick" -> { // Added case for playing a specific favourite song
+                // songPosition is already set from intent's "index"
+                initServiceAndPlaylist(FavouriteActivity.favouriteSongs, shuffle = false)
+            }
             "MainActivity"-> initServiceAndPlaylist(MainActivity.MusicListMA, shuffle = true)
             "MainActivityLimited"-> {
                 // Create a copy of music list with maximum 30 songs
