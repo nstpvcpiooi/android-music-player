@@ -64,7 +64,7 @@ class PlaylistDetails : AppCompatActivity() {
         binding.playBtnPD.setOnClickListener {
             val intent = Intent(this, PlayerActivity::class.java)
             intent.putExtra("index", 0)
-            intent.putExtra("class", "PlaylistDetails")
+            intent.putExtra("class", "PlaylistDetailsAdapter") // Changed "PlaylistDetails" to "PlaylistDetailsAdapter"
             startActivity(intent)
         }
 
