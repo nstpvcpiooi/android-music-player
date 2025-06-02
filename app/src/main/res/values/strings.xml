@@ -82,5 +82,6 @@
     <string name="history_btn">History</string> <!-- Added for creator text -->
     <string name="queue_btn">Queue</string>
     <string name="empty_queue_message">Your queue is empty.</string>
+    <string name="editBtnPD">edit button</string>
 </resources>
 

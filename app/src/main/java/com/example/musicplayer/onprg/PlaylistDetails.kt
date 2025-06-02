@@ -60,7 +60,7 @@ class PlaylistDetails : AppCompatActivity() {
         // Set up toolbar
         binding.toolbarPD.setNavigationOnClickListener { finish() }
 
-        // Set up FAB buttons
+        // Set up buttons
         binding.playBtnPD.setOnClickListener {
             val intent = Intent(this, PlayerActivity::class.java)
             intent.putExtra("index", 0)
@@ -149,9 +149,9 @@ class PlaylistDetails : AppCompatActivity() {
         binding.playlistInfoTV.text = infoText
 
         // Set songs title
-        binding.songsTitleTV.text = "Songs"
+//        binding.songsTitleTV.text = "Songs"
 
-        // Load album art and set blurred background
+        // Load album art
         if (playlist.playlist.isNotEmpty()) {
             val firstSongArt = playlist.playlist[0].artUri
 
@@ -160,17 +160,6 @@ class PlaylistDetails : AppCompatActivity() {
                 .load(firstSongArt)
                 .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
                 .into(binding.playlistImgPD)
-
-            // Load blurred background with Glide blur transformation
-            Glide.with(this)
-                .load(firstSongArt)
-                .transform(BlurTransformation(25, 3))
-                .into(object : CustomTarget<Drawable>() {
-                    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                        binding.backgroundBlurImage.setImageDrawable(resource)
-                    }
-                    override fun onLoadCleared(placeholder: Drawable?) {}
-                })
 
             binding.playBtnPD.visibility = View.VISIBLE
         } else {
