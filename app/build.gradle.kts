@@ -83,5 +83,7 @@ dependencies {
     implementation(libs.firebase.database)
 
     implementation("jp.wasabeef:glide-transformations:4.3.0")
-}
 
+    // Shimmer effect for loading placeholders
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
+}

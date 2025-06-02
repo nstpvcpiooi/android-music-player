@@ -123,6 +123,18 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 tools:listitem="@layout/music_view" />
 
+            <!-- Shimmer loading effect for uploaded music list -->
+            <include
+                android:id="@+id/shimmer_uploaded_music"
+                layout="@layout/uploaded_music_shimmer"
+                android:layout_width="0dp"
+                android:layout_marginTop="8dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/uploadedMusicHeader"
+                app:layout_constraintEnd_toEndOf="parent" />
+
             <!-- No Uploaded Music Text from activity_account.xml -->
             <TextView
                 android:id="@+id/noUploadedMusicText"

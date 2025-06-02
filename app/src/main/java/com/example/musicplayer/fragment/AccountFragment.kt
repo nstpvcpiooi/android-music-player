@@ -45,6 +45,7 @@ class AccountFragment : Fragment() {
     private lateinit var uploadMusicBtn: ImageButton
     private lateinit var uploadedMusicRecyclerView: RecyclerView
     private lateinit var noUploadedMusicText: TextView
+    private lateinit var shimmerLayout: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,6 +59,7 @@ class AccountFragment : Fragment() {
         uploadMusicBtn = binding.uploadMusicBtn
         uploadedMusicRecyclerView = binding.uploadedMusicRecyclerView
         noUploadedMusicText = binding.noUploadedMusicText
+        shimmerLayout = binding.shimmerUploadedMusic.root
 
         return binding.root
     }
@@ -201,9 +203,11 @@ class AccountFragment : Fragment() {
                     }
                     noUploadedMusicText.visibility = View.GONE
                     uploadedMusicRecyclerView.visibility = View.VISIBLE
+                    shimmerLayout.visibility = View.GONE
                 } else {
                     noUploadedMusicText.visibility = View.VISIBLE
                     uploadedMusicRecyclerView.visibility = View.GONE
+                    shimmerLayout.visibility = View.GONE
                 }
                 musicAdapter.notifyDataSetChanged()
             }
@@ -213,7 +217,9 @@ class AccountFragment : Fragment() {
 //                Toast.makeText(requireContext(), getString(R.string.load_music_failed, error.message), Toast.LENGTH_SHORT).show()
                 noUploadedMusicText.visibility = View.VISIBLE
                 uploadedMusicRecyclerView.visibility = View.GONE
+                shimmerLayout.visibility = View.GONE
             }
         })
+        shimmerLayout.visibility = View.VISIBLE
     }
 }
