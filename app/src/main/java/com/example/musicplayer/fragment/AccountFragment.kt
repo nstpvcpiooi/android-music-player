@@ -50,15 +50,15 @@ class AccountFragment : Fragment() {
             }
         }
 
-        // Add click listener for My Uploaded Files
-        view.findViewById<View>(R.id.my_uploaded_files).setOnClickListener {
-            // Open uploaded files screen
-            try {
-                startActivity(Intent(requireContext(), DownloadActivity::class.java))
-            } catch (e: Exception) {
-                Toast.makeText(context, "Cannot open My Uploaded Files: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
+//        // Add click listener for My Uploaded Files
+//        view.findViewById<View>(R.id.my_uploaded_files).setOnClickListener {
+//            // Open uploaded files screen
+//            try {
+//                startActivity(Intent(requireContext(), DownloadActivity::class.java))
+//            } catch (e: Exception) {
+//                Toast.makeText(context, "Cannot open My Uploaded Files: ${e.message}", Toast.LENGTH_SHORT).show()
+//            }
+//        }
 
         view.findViewById<View>(R.id.app_settings).setOnClickListener {
             // Open app settings screen
@@ -105,13 +105,13 @@ class AccountFragment : Fragment() {
             }
         }
 
-        // Setup click listeners for the 4 buttons moved from HomeFragment
-        view.findViewById<View>(R.id.favouriteBtn).setOnClickListener {
-            (activity as? MainActivity)?.openFavorites()
-        }
-
-        view.findViewById<View>(R.id.playNextBtn).setOnClickListener {
-            (activity as? MainActivity)?.openPlayNext()
-        }
+//        // Setup click listeners for the 4 buttons moved from HomeFragment
+//        view.findViewById<View>(R.id.favouriteBtn).setOnClickListener {
+//            (activity as? MainActivity)?.openFavorites()
+//        }
+//
+//        view.findViewById<View>(R.id.playNextBtn).setOnClickListener {
+//            (activity as? MainActivity)?.openPlayNext()
+//        }
     }
 }
