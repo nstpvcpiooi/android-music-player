@@ -90,5 +90,33 @@
     <string name="system_default">DEFAULT</string>
     <string name="change_password">Change Password</string>
     <string name="logout">Logout</string>
+
+    <!-- Strings for AccountFragment -->
+    <string name="profile_image_desc">Profile image</string>
+    <string name="username_placeholder">Username</string>
+    <string name="account_info_title">Thông tin tài khoản</string>
+    <string name="email_label">Email:</string>
+    <string name="email_placeholder">user@example.com</string>
+    <string name="password_label">Mật khẩu:</string>
+    <string name="password_placeholder">********</string>
+    <string name="change_password_button">Đổi mật khẩu</string>
+    <string name="logout_button">Đăng xuất</string>
+    <string name="uploaded_music_title">Các file nhạc đã tải lên</string>
+    <string name="upload_music_button_desc">Upload music</string>
+    <string name="no_uploaded_music">Chưa có file nhạc nào được tải lên.</string>
+
+    <!-- Strings for AccountFragment Kotlin file -->
+    <string name="settings_error">Cannot open Settings: %s</string>
+    <string name="invalid_music_url">URL nhạc không hợp lệ</string>
+    <string name="music_action_prompt">Bạn muốn làm gì với bài này?</string>
+    <string name="play_music">Phát nhạc</string>
+    <string name="check_network_connection">Vui lòng kiểm tra kết nối mạng</string>
+    <string name="download_music">Tải về</string>
+    <string name="cancel">Hủy</string>
+    <string name="download_title">Tải: %s</string>
+    <string name="download_description">Đang tải file nhạc…</string>
+    <string name="downloading_music">Đang tải %s…</string>
+    <string name="download_error">Lỗi khi tải: %s</string>
+    <string name="load_music_failed">Failed to load music: %s</string>
 </resources>
 

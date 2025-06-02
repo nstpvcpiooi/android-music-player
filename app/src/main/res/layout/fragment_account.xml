@@ -19,7 +19,8 @@
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="?attr/colorOnSurface"
             app:title=" "
-            app:menu="@menu/account_toolbar_menu"/>
+            app:menu="@menu/account_toolbar_menu"
+            app:layout_scrollFlags="scroll|snap"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -29,77 +30,176 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp">
 
             <ImageView
                 android:id="@+id/profile_image"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:layout_marginTop="48dp"
+                android:layout_marginTop="24dp"
                 android:src="@drawable/account_circle"
+                android:contentDescription="@string/profile_image_desc"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+
+            <!-- Account Info Title from activity_account.xml -->
             <TextView
-                android:id="@+id/username_text"
+                android:id="@+id/accountInfoTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/account_info_title"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/profile_image"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Email Label and Value from activity_account.xml -->
+            <TextView
+                android:id="@+id/emailLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Username"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginStart="30dp"
+                android:textSize="15sp"
+                android:text="@string/email_label"
+                android:textColor="?colorOnBackground"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+                app:layout_constraintTop_toBottomOf="@id/accountInfoTitle" />
 
             <TextView
-                android:id="@+id/email_text"
+                android:id="@+id/emailValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="30dp"
+                android:textSize="14sp"
+                android:text="@string/email_placeholder"
+                android:textColor="?colorOnBackground"
+                app:layout_constraintStart_toEndOf="@id/emailLabel"
+                app:layout_constraintTop_toTopOf="@id/emailLabel"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Password Label and Value from activity_account.xml -->
+            <TextView
+                android:id="@+id/passwordLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="user@example.com"
-                android:textSize="16sp"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="30dp"
+                android:textSize="15sp"
+                android:text="@string/password_label"
+                android:textColor="?colorOnBackground"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/emailValue" />
+
+            <TextView
+                android:id="@+id/passwordValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="30dp"
+                android:textSize="14sp"
+                android:text="@string/password_placeholder"
+                android:textColor="?colorOnBackground"
+                app:layout_constraintStart_toEndOf="@id/passwordLabel"
+                app:layout_constraintTop_toTopOf="@id/passwordLabel"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Change Password Button from activity_account.xml -->
+            <Button
+                android:id="@+id/changePasswordButton"
+                android:background="@drawable/edit_text_border"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:text="@string/change_password_button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/passwordValue"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Logout Button from activity_account.xml -->
+            <Button
+                android:id="@+id/logoutButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/edit_text_border"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:text="@string/logout_button"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/username_text" />
+                app:layout_constraintTop_toBottomOf="@id/changePasswordButton" />
 
-            <!-- Account options -->
+            <!-- Uploaded Music Header from activity_account.xml -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/uploadedMusicHeader"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="@+id/email_text">
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="15dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/logoutButton"
+                app:layout_constraintEnd_toEndOf="parent">
 
-                <!-- Account settings -->
-                <LinearLayout
-                    android:id="@+id/profile_settings"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/uploadedMusicTitle"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:layout_weight="1"
+                    android:text="@string/uploaded_music_title"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="?colorOnBackground" />
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/account_circle" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:text="Account Settings"
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-
+                <ImageButton
+                    android:id="@+id/uploadMusicBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="8dp"
+                    android:src="@drawable/add_icon"
+                    android:contentDescription="@string/upload_music_button_desc"/>
             </LinearLayout>
+
+            <!-- Uploaded Music RecyclerView from activity_account.xml -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/uploadedMusicRecyclerView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="200dp"
+                android:layout_marginTop="8dp"
+                android:scrollbarThumbVertical="@drawable/scroll_bar_icon"
+                android:scrollbars="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/uploadedMusicHeader"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:listitem="@layout/music_view" />
+
+            <!-- No Uploaded Music Text from activity_account.xml -->
+            <TextView
+                android:id="@+id/noUploadedMusicText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/no_uploaded_music"
+                android:gravity="center"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/uploadedMusicHeader"
+                app:layout_constraintEnd_toEndOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

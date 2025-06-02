@@ -1,48 +1,79 @@
 package com.example.musicplayer.fragment
 
+import android.app.AlertDialog
+import android.app.DownloadManager
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.*
+import android.webkit.MimeTypeMap
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import com.example.musicplayer.R
-import com.example.musicplayer.activity.AccountActivity
-import com.example.musicplayer.activity.DownloadActivity
-import com.example.musicplayer.activity.MainActivity
-import com.example.musicplayer.onprg.AboutActivity
-import com.example.musicplayer.onprg.SettingsActivity
-import com.example.musicplayer.utils.exitApplication
-import com.example.musicplayer.utils.setDialogBtnBackground
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
-import com.google.android.material.appbar.MaterialToolbar
-import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.musicplayer.R
+import com.example.musicplayer.activity.DownloadActivity
+import com.example.musicplayer.activity.LoginActivity
+import com.example.musicplayer.activity.PlayerActivity
+import com.example.musicplayer.activity.UploadActivity
+import com.example.musicplayer.adapter.MusicAdapter
+import com.example.musicplayer.databinding.FragmentAccountBinding
+import com.example.musicplayer.model.Music
+import com.example.musicplayer.onprg.SettingsActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 
 class AccountFragment : Fragment() {
+
+    private lateinit var binding: FragmentAccountBinding
+    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var database: DatabaseReference
+    private lateinit var musicAdapter: MusicAdapter
+    private val musicList = ArrayList<Music>()
+
+    private lateinit var emailValueTextView: TextView
+    private lateinit var logoutButton: Button
+    private lateinit var uploadMusicBtn: ImageButton
+    private lateinit var uploadedMusicRecyclerView: RecyclerView
+    private lateinit var noUploadedMusicText: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_account, container, false)
-        initViews(view)
-        return view
+        binding = FragmentAccountBinding.inflate(inflater, container, false)
+        database = FirebaseDatabase.getInstance().reference
+        firebaseAuth = FirebaseAuth.getInstance()
+
+        emailValueTextView = binding.emailValue
+        logoutButton = binding.logoutButton
+        uploadMusicBtn = binding.uploadMusicBtn
+        uploadedMusicRecyclerView = binding.uploadedMusicRecyclerView
+        noUploadedMusicText = binding.noUploadedMusicText
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupToolbarAndMenu(view)
+        initAccountFunctionality()
     }
 
     private fun setupToolbarAndMenu(view: View) {
-        val toolbar = view.findViewById<MaterialToolbar>(R.id.accountToolbar)
-        // Set this toolbar as the ActionBar for the activity
+        val toolbar = binding.accountToolbar
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
-        // Optionally, configure the action bar (e.g., title, navigation icon if needed)
-        // (requireActivity() as? AppCompatActivity)?.supportActionBar?.title = getString(R.string.account)
 
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
@@ -51,17 +82,12 @@ class AccountFragment : Fragment() {
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                // Debug Toast to see if any menu item selection is captured
-                Toast.makeText(requireContext(), "Menu item selected: " + menuItem.title, Toast.LENGTH_SHORT).show()
                 return when (menuItem.itemId) {
                     R.id.settings_button -> {
-                        // Debug Toast to confirm settings_button branch is entered
-                        Toast.makeText(requireContext(), "Settings button clicked!", Toast.LENGTH_SHORT).show()
                         try {
                             startActivity(Intent(requireContext(), SettingsActivity::class.java))
                         } catch (e: Exception) {
-                            // Using requireContext() and longer duration for the error Toast
-                            Toast.makeText(requireContext(), "Cannot open Settings: " + e.message, Toast.LENGTH_LONG).show()
+                            Toast.makeText(requireContext(), getString(R.string.settings_error, e.message), Toast.LENGTH_LONG).show()
                         }
                         true
                     }
@@ -71,87 +97,132 @@ class AccountFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
-    private fun initViews(view: View) {
-        // Setup username and email with sample data (in real app, get from user account)
-        val usernameText: TextView = view.findViewById(R.id.username_text)
-        val emailText: TextView = view.findViewById(R.id.email_text)
+    private fun initAccountFunctionality() {
+        emailValueTextView.text = firebaseAuth.currentUser?.email ?: "N/A"
 
-        // For demo purposes, set default values
-        usernameText.text = "Music Lover"
-        emailText.text = "user@example.com"
-
-        // Setup click listeners for account options
-        view.findViewById<View>(R.id.profile_settings).setOnClickListener {
-            // Open account settings screen
-            try {
-                startActivity(Intent(requireContext(), AccountActivity::class.java))
-            } catch (e: Exception) {
-                Toast.makeText(context, "Cannot open Account Settings: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        logoutButton.setOnClickListener {
+            firebaseAuth.signOut()
+            startActivity(Intent(requireContext(), LoginActivity::class.java))
+            activity?.finish()
         }
 
-//        // Add click listener for My Uploaded Files
-//        view.findViewById<View>(R.id.my_uploaded_files).setOnClickListener {
-//            // Open uploaded files screen
-//            try {
-//                startActivity(Intent(requireContext(), DownloadActivity::class.java))
-//            } catch (e: Exception) {
-//                Toast.makeText(context, "Cannot open My Uploaded Files: ${e.message}", Toast.LENGTH_SHORT).show()
-//            }
-//        }
+        uploadMusicBtn.setOnClickListener {
+            startActivity(Intent(requireContext(), UploadActivity::class.java))
+        }
 
-//        view.findViewById<View>(R.id.app_settings).setOnClickListener {
-//            // Open app settings screen
-//            try {
-//                startActivity(Intent(requireContext(), SettingsActivity::class.java))
-//            } catch (e: Exception) {
-//                Toast.makeText(context, "Cannot open App Settings: ${e.message}", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//
-//        // Xử lý nút About riêng biệt
-//        view.findViewById<View>(R.id.about_button).setOnClickListener {
-//            // Mở AboutActivity
-//            try {
-//                startActivity(Intent(requireContext(), AboutActivity::class.java))
-//            } catch (e: Exception) {
-//                Toast.makeText(context, "Cannot open About: ${e.message}", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//
-//        // Xử lý nút Exit riêng biệt - giống như nút Exit trong navigation drawer
-//        view.findViewById<View>(R.id.exit_button).setOnClickListener {
-//            val builder = MaterialAlertDialogBuilder(requireContext())
-//            builder.setTitle("Exit")
-//                .setMessage("Do you want to close app?")
-//                .setPositiveButton("Yes") { _, _ ->
-//                    try {
-//                        exitApplication()
-//                    } catch (e: Exception) {
-//                        Toast.makeText(context, "Cannot exit app: ${e.message}", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//                .setNegativeButton("No") { dialog, _ ->
-//                    dialog.dismiss()
-//                }
-//            val customDialog = builder.create()
-//            customDialog.show()
-//
-//            // Áp dụng style cho nút dialog nếu có hàm setDialogBtnBackground
-//            try {
-//                setDialogBtnBackground(requireContext(), customDialog)
-//            } catch (e: Exception) {
-//                // Bỏ qua nếu không có hàm này
-//            }
-//        }
+        setupRecyclerView()
+        fetchUploadedMusic()
+    }
 
-//        // Setup click listeners for the 4 buttons moved from HomeFragment
-//        view.findViewById<View>(R.id.favouriteBtn).setOnClickListener {
-//            (activity as? MainActivity)?.openFavorites()
-//        }
-//
-//        view.findViewById<View>(R.id.playNextBtn).setOnClickListener {
-//            (activity as? MainActivity)?.openPlayNext()
-//        }
+    private fun setupRecyclerView() {
+        musicAdapter = MusicAdapter(requireContext(), musicList)
+        uploadedMusicRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = musicAdapter
+            isNestedScrollingEnabled = false
+        }
+
+        musicAdapter.setOnItemClickListener { position ->
+            val music = musicList[position]
+
+            if (music.path.isBlank() || !music.path.startsWith("http")) {
+                Toast.makeText(requireContext(), getString(R.string.invalid_music_url), Toast.LENGTH_SHORT).show()
+                return@setOnItemClickListener
+            }
+
+            AlertDialog.Builder(requireContext())
+                .setTitle(music.title)
+                .setMessage(getString(R.string.music_action_prompt))
+                .setPositiveButton(getString(R.string.play_music)) { dialog, _ ->
+                    val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val networkInfo = connectivityManager.activeNetworkInfo
+                    if (networkInfo == null || !networkInfo.isConnected) {
+                        Toast.makeText(requireContext(), getString(R.string.check_network_connection), Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+
+                    DownloadActivity.downloadPlaylist = ArrayList(musicList)
+                    DownloadActivity.downloadIndex = position
+                    startActivity(Intent(requireContext(), PlayerActivity::class.java))
+                    dialog.dismiss()
+                }
+                .setNeutralButton(getString(R.string.download_music)) { dialog, _ ->
+                    downloadMusic(music.title, music.path)
+                    dialog.dismiss()
+                }
+                .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
+    }
+
+    private fun downloadMusic(title: String, fileUrl: String) {
+        try {
+            val uri = Uri.parse(fileUrl)
+            val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(requireContext().contentResolver.getType(uri))
+                ?.let { ".$it" } ?: MimeTypeMap.getFileExtensionFromUrl(fileUrl)?.let { ".$it" } ?: ".mp3"
+
+            val request = DownloadManager.Request(uri).apply {
+                setTitle(getString(R.string.download_title, title))
+                setDescription(getString(R.string.download_description))
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, "$title$extension")
+                setAllowedOverMetered(true)
+                setAllowedOverRoaming(true)
+            }
+
+            val manager = requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            manager.enqueue(request)
+            Toast.makeText(requireContext(), getString(R.string.downloading_music, title), Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), getString(R.string.download_error, e.message), Toast.LENGTH_LONG).show()
+            Log.e("DownloadError", "Error downloading music: ${e.message}", e)
+        }
+    }
+
+    private fun fetchUploadedMusic() {
+        val uid = firebaseAuth.currentUser?.uid ?: return
+
+        database.child("uploads").child(uid).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                musicList.clear()
+                if (snapshot.exists()) {
+                    for (item in snapshot.children) {
+                        val title = item.child("title").getValue(String::class.java)
+                        val url = item.child("url").getValue(String::class.java)
+                        val album = item.child("album").getValue(String::class.java) ?: ""
+                        val artist = item.child("singer").getValue(String::class.java) ?: ""
+
+                        if (title != null && url != null) {
+                            musicList.add(
+                                Music(
+                                    id = item.key ?: "",
+                                    title = title,
+                                    album = album,
+                                    artist = artist,
+                                    duration = 0L,
+                                    artUri = "",
+                                    path = url
+                                )
+                            )
+                        }
+                    }
+                    noUploadedMusicText.visibility = View.GONE
+                    uploadedMusicRecyclerView.visibility = View.VISIBLE
+                } else {
+                    noUploadedMusicText.visibility = View.VISIBLE
+                    uploadedMusicRecyclerView.visibility = View.GONE
+                }
+                musicAdapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Load failed: ${error.message}")
+                Toast.makeText(requireContext(), getString(R.string.load_music_failed, error.message), Toast.LENGTH_SHORT).show()
+                noUploadedMusicText.visibility = View.VISIBLE
+                uploadedMusicRecyclerView.visibility = View.GONE
+            }
+        })
     }
 }
