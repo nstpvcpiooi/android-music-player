@@ -102,18 +102,21 @@ class PlayerMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                         .setView(customDialogB)
                         .setOnCancelListener { PlayerActivity.musicService?.playMusic() }
                         .setPositiveButton("OK") { self, _ ->
-                            loudnessEnhancer.setTargetGain(bindingB.verticalBar.progress * 100)
+                            // loudnessEnhancer expects gain in millibels.
+                            // Slider value is 0-500. Multiply by 10 to get 0-5000 millibels.
+                            loudnessEnhancer.setTargetGain(bindingB.audioBoosterSlider.value.toInt() * 10)
                             PlayerActivity.musicService?.playMusic()
                             self.dismiss()
                         }
-                        .setBackground(ColorDrawable(0x803700B3.toInt()))
                         .create()
                     dialogB.show()
 
-                    bindingB.verticalBar.progress = loudnessEnhancer.targetGain.toInt()/100
-                    bindingB.progressText.text = "Audio Boost\n\n${loudnessEnhancer.targetGain.toInt()/10} %"
-                    bindingB.verticalBar.setOnProgressChangeListener {
-                        bindingB.progressText.text = "Audio Boost\n\n${it*10} %"
+                    // Set initial slider value. TargetGain is in millibels. Divide by 10.
+                    bindingB.audioBoosterSlider.value = loudnessEnhancer.targetGain.toInt() / 10f
+                    bindingB.progressText.text = "Audio Boost\n\n${bindingB.audioBoosterSlider.value.toInt()} %"
+
+                    bindingB.audioBoosterSlider.addOnChangeListener { _, value, _ ->
+                        bindingB.progressText.text = "Audio Boost\n\n${value.toInt()} %"
                     }
                     setDialogBtnBackground(requireContext(), dialogB)
                     dismiss()
