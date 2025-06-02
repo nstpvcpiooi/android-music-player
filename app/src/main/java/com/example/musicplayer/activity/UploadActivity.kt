@@ -160,7 +160,7 @@ class UploadActivity : AppCompatActivity() {
         val ref = database.getReference("uploads").child(userId)
 
         val data = mapOf(
-            "url" to fileUrl,  // Đổi "path" thành "url"
+            "url" to fileUrl,
             "title" to binding.uploadTopic.text.toString().trim(),
             "singer" to binding.uploadSinger.text.toString().trim(),
             "album" to binding.uploadAlbum.text.toString().trim(),
@@ -170,7 +170,7 @@ class UploadActivity : AppCompatActivity() {
         ref.push().setValue(data)
             .addOnSuccessListener {
                 showToast("Lưu thành công")
-                startActivity(Intent(this, AccountActivity::class.java))
+                // Return to parent activity instead of starting a new AccountActivity
                 finish()
             }
             .addOnFailureListener {
