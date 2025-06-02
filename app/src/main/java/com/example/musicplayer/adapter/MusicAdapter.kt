@@ -2,6 +2,7 @@ package com.example.musicplayer.adapter
 
 import android.content.Context
 import android.content.Intent
+import android.util.TypedValue
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -22,9 +23,13 @@ import com.example.musicplayer.fragment.MoreFeaturesBottomSheet
 import com.example.musicplayer.utils.formatDuration
 
 
-class MusicAdapter(private val context: Context, private var musicList: ArrayList<Music>, private val playlistDetails: Boolean = false,
-                   private val selectionActivity: Boolean = false)
-    : RecyclerView.Adapter<MyHolder>() {
+class MusicAdapter(
+    private val context: Context,
+    private var musicListToDisplay: ArrayList<Music>, // Renamed from musicList for clarity
+    private val playlistDetails: Boolean = false,
+    private val selectionActivity: Boolean = false,
+    private val currentSelectedSongsForPlaylist: ArrayList<Music>? = null // Added to hold selected songs in SelectionActivity
+) : RecyclerView.Adapter<MyHolder>() {
 
     // Interface for click events
     interface OnMusicItemClickListener {
@@ -68,11 +73,12 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
     }
 
     override fun onBindViewHolder(holder: MyHolder, position: Int) {
-        holder.title.text = musicList[position].title
-        holder.album.text = musicList[position].album
-        holder.duration.text = formatDuration(musicList[position].duration)
+        val currentSongDisplayed = musicListToDisplay[position]
+        holder.title.text = currentSongDisplayed.title
+        holder.album.text = currentSongDisplayed.album
+        holder.duration.text = formatDuration(currentSongDisplayed.duration)
 
-        val artUri = musicList[position].artUri
+        val artUri = currentSongDisplayed.artUri
         if (artUri.isNullOrEmpty()) {
             holder.image.setImageResource(R.drawable.music_player_icon_slash_screen)
         } else {
@@ -89,7 +95,7 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
         // Set OnClickListener for the moreInfoButton
         if (!selectionActivity) {
             holder.moreInfoButton.setOnClickListener {
-                showMoreFeaturesBottomSheet(musicList[position].id)
+                showMoreFeaturesBottomSheet(currentSongDisplayed.id)
             }
         }
 
@@ -100,36 +106,48 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
                 }
             }
             selectionActivity -> {
+                // This block is for SelectionActivity
+                if (currentSelectedSongsForPlaylist == null) return // Should not happen if used correctly
+
+                // Determine initial selection state by checking against currentSelectedSongsForPlaylist
+                var isInitiallySelected = false
+                for (selectedSong in currentSelectedSongsForPlaylist) {
+                    if (selectedSong.id == currentSongDisplayed.id) {
+                        isInitiallySelected = true
+                        break
+                    }
+                }
+
+                // Set initial background based on selection state
+                val initialColorAttr = if (isInitiallySelected) {
+                    com.google.android.material.R.attr.colorSecondaryContainer
+                } else {
+                    com.google.android.material.R.attr.colorSurface
+                }
+                val typedValueInitial = TypedValue()
+                context.theme.resolveAttribute(initialColorAttr, typedValueInitial, true)
+                holder.root.setBackgroundColor(typedValueInitial.data)
+
                 holder.root.setOnClickListener {
-                    if (addSong(musicList[position]))
-                        holder.root.setBackgroundColor(ContextCompat.getColor(context, R.color.cool_pink))
-                    else
-                        holder.root.setBackgroundColor(ContextCompat.getColor(context, R.color.white))
+                    val isNowSelectedAfterClick = toggleSongSelection(currentSongDisplayed)
+                    val colorAttrOnClick = if (isNowSelectedAfterClick) {
+                        com.google.android.material.R.attr.colorSecondaryContainer
+                    } else {
+                        com.google.android.material.R.attr.colorSurface
+                    }
+                    val typedValueOnClick = TypedValue()
+                    context.theme.resolveAttribute(colorAttrOnClick, typedValueOnClick, true)
+                    holder.root.setBackgroundColor(typedValueOnClick.data)
                 }
             }
             else -> {
                 holder.root.setOnClickListener {
-                    // Call the new listener interface method
                     musicItemClickListener?.onSongClicked(position, MainActivity.search)
-
-//                    if (onItemClick != null) {
-//                        // khi dùng DownloadActivity đã gán listener => chỉ download
-//                        onItemClick!!.invoke(position)
-//                    } else {
-//                        // hành động mặc định: play nhạc
-//                        when {
-//                            MainActivity.search -> sendIntent(ref = "MusicAdapterSearch", pos = position)
-//                            musicList[position].id == PlayerActivity.nowPlayingId ->
-//                                sendIntent(ref = "NowPlaying", pos = PlayerActivity.songPosition)
-//                            else -> sendIntent(ref = "MusicAdapter", pos = position)
-//                        }
-//                    }
                 }
-                // Add long-click listener for non-selection and non-playlistDetails cases
-                if (!selectionActivity) { // Ensure not in selection mode
+                if (!selectionActivity) {
                     holder.root.setOnLongClickListener {
-                        showMoreFeaturesBottomSheet(musicList[position].id)
-                        true // Consume the long click
+                        showMoreFeaturesBottomSheet(currentSongDisplayed.id)
+                        true
                     }
                 }
             }
@@ -137,12 +155,12 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
     }
 
     override fun getItemCount(): Int {
-        return musicList.size
+        return musicListToDisplay.size
     }
 
     fun updateMusicList(searchList: ArrayList<Music>) {
-        musicList = ArrayList()
-        musicList.addAll(searchList)
+        musicListToDisplay = ArrayList()
+        musicListToDisplay.addAll(searchList)
         notifyDataSetChanged()
     }
 
@@ -153,21 +171,35 @@ class MusicAdapter(private val context: Context, private var musicList: ArrayLis
         ContextCompat.startActivity(context, intent, null)
     }
 
-    private fun addSong(song: Music): Boolean {
-        PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist.forEachIndexed { index, music ->
-            if (song.id == music.id) {
-                PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist.removeAt(index)
-                return false
+    // Renamed from addSong to toggleSongSelection for clarity in SelectionActivity context
+    private fun toggleSongSelection(song: Music): Boolean {
+        if (currentSelectedSongsForPlaylist == null) return false // Safety check
+
+        var songFound = false
+        var indexOfSong = -1
+        for ((index, selectedSong) in currentSelectedSongsForPlaylist.withIndex()) {
+            if (song.id == selectedSong.id) {
+                songFound = true
+                indexOfSong = index
+                break
             }
         }
-        PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist.add(song)
-        return true
+
+        return if (songFound) {
+            currentSelectedSongsForPlaylist.removeAt(indexOfSong)
+            false // Song was removed, so it's no longer selected
+        } else {
+            currentSelectedSongsForPlaylist.add(song)
+            true // Song was added, so it's now selected
+        }
     }
 
     fun refreshPlaylist() {
-        musicList = ArrayList()
-        musicList = PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist
-        notifyDataSetChanged()
+        // This method is specific to PlaylistDetails context, not SelectionActivity
+        if (playlistDetails && PlaylistDetails.currentPlaylistPos != -1) {
+            musicListToDisplay = ArrayList()
+            musicListToDisplay.addAll(PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist)
+            notifyDataSetChanged()
+        }
     }
 }
-

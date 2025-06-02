@@ -83,5 +83,6 @@
     <string name="queue_btn">Queue</string>
     <string name="empty_queue_message">Your queue is empty.</string>
     <string name="editBtnPD">edit button</string>
+    <string name="save_playlist_changes">Save playlist</string>
 </resources>
 

@@ -1,54 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SelectionActivity">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayoutSA"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="2dp">
+        android:layout_height="wrap_content">
 
-        <ImageButton
-            android:id="@+id/backBtnSA"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:src="@drawable/back_icon"
-            android:contentDescription="@string/back_btn"
-            android:backgroundTint="?colorOnPrimary"
-            app:tint="@color/black"
-            android:layout_margin="5dp"/>
-
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/searchViewSA"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarSA"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            app:queryHint="@string/search_song"
-            app:searchIcon="@drawable/search_icon"
-            android:focusable="false"
-            app:iconifiedByDefault="false"
-            android:background="@drawable/custom_search_view"
-            android:layout_margin="5dp"
-            app:closeIcon="@null"/>
-    </LinearLayout>
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/back_icon"
+            app:navigationIconTint="?attr/colorOnSurface">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchViewSA"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:queryHint="@string/search_song"
+                app:iconifiedByDefault="false"
+                app:searchIcon="@null"
+                android:background="@android:color/transparent"
+                app:queryBackground="@null"
+                android:layout_marginEnd="16dp" />
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/selectionRV"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linearLayout"
-        android:scrollbarThumbVertical="@drawable/scroll_bar_icon"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:scrollbars="vertical"
-        android:paddingBottom="50dp"
-        android:layout_marginTop="10dp"/>
+        android:scrollbarThumbVertical="@drawable/scroll_bar_icon"
+        android:paddingBottom="80dp"
+        android:clipToPadding="false"
+        android:layout_marginTop="8dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/saveSelectionFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/save_icon"
+        app:backgroundTint="@color/white"
+        app:tint="@color/blue_app_icon"
+        app:fabCustomSize="64dp"
+        android:scaleType="fitCenter"
+        app:elevation="2dp"
+        app:pressedTranslationZ="4dp"
+        android:contentDescription="@string/save_playlist_changes" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
