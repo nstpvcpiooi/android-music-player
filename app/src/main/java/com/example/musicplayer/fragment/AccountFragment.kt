@@ -30,6 +30,7 @@ import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.utils.PlayNext
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class AccountFragment : Fragment(), ServiceConnection {
 
@@ -57,7 +58,28 @@ class AccountFragment : Fragment(), ServiceConnection {
         noUploadedMusicText = binding.noUploadedMusicText
         shimmerLayout = binding.shimmerUploadedMusic.root
 
+        // First, load saved selections from SharedPreferences
+        loadSavedSelections()
+
         return binding.root
+    }
+
+    private fun loadSavedSelections() {
+        // Load saved selections from SharedPreferences if it hasn't been loaded yet
+        if (UploadActivity.mySelectionList.isEmpty()) {
+            val sharedPrefs = requireActivity().getSharedPreferences("MY_SELECTIONS", AppCompatActivity.MODE_PRIVATE)
+            val jsonString = sharedPrefs.getString("selections", null)
+
+            if (jsonString != null) {
+                val type = object : TypeToken<ArrayList<Music>>() {}.type
+                try {
+                    UploadActivity.mySelectionList = Gson().fromJson(jsonString, type)
+                } catch (e: Exception) {
+                    Log.e("AccountFragment", "Error loading selections: ${e.message}")
+                    UploadActivity.mySelectionList = ArrayList()
+                }
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -191,18 +213,31 @@ class AccountFragment : Fragment(), ServiceConnection {
             // If service is already running, just update the song and play
             PlayerActivity.musicService!!.createMediaPlayer()
             PlayerActivity.musicService!!.playMusic()
-
-            // Make sure the Now Playing fragment is visible in MainActivity
-            (requireActivity() as? MainActivity)?.let { mainActivity ->
-                val nowPlayingView = mainActivity.findViewById<View>(R.id.nowPlaying)
-                nowPlayingView?.visibility = View.VISIBLE
-            }
+            showNowPlayingFragment()
         } else {
-            // If service isn't running, start it and bind to it
-            val intent = Intent(requireContext(), MusicService::class.java)
-            requireActivity().bindService(intent, this, AppCompatActivity.BIND_AUTO_CREATE)
-            requireActivity().startService(intent)
+            // If service isn't running, start and bind to it
+            try {
+                val intent = Intent(requireContext(), MusicService::class.java)
+                requireActivity().startService(intent)
+                requireActivity().bindService(intent, this, AppCompatActivity.BIND_AUTO_CREATE)
 
+                // We don't show the Now Playing fragment here immediately
+                // It will be shown in onServiceConnected when music actually starts playing
+            } catch (e: Exception) {
+                Log.e("AccountFragment", "Error starting music service: ${e.message}")
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to start music playback: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    // Helper method to show Now Playing fragment
+    private fun showNowPlayingFragment() {
+        (requireActivity() as? MainActivity)?.let { mainActivity ->
+            mainActivity.findViewById<View>(R.id.nowPlaying)?.visibility = View.VISIBLE
         }
     }
 
@@ -217,6 +252,7 @@ class AccountFragment : Fragment(), ServiceConnection {
         // Create and play the media
         PlayerActivity.musicService!!.createMediaPlayer()
         PlayerActivity.musicService!!.playMusic()
+        showNowPlayingFragment()
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
