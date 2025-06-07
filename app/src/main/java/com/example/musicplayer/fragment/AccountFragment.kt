@@ -186,9 +186,24 @@ class AccountFragment : Fragment(), ServiceConnection {
                             musicAdapter.notifyItemChanged(index)
                         }, 3000) // 3 seconds delay
 
-                    } else { // Song is already downloaded, about to 'un-download'
-                        toggleSongDownloadedState(musicId) // Toggle state and save
-                        musicAdapter.notifyItemChanged(index) // Rebind to update icon immediately
+                    } else { // Song is already downloaded, about to 'un-download' -> Show confirmation
+                        val bottomSheetDialog = BottomSheetDialog(requireContext())
+                        val bottomSheetView = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_confirm_delete, null)
+                        bottomSheetDialog.setContentView(bottomSheetView)
+
+                        val positiveButton = bottomSheetView.findViewById<Button>(R.id.bs_positive_button_delete)
+                        val negativeButton = bottomSheetView.findViewById<Button>(R.id.bs_negative_button_delete)
+
+                        positiveButton.setOnClickListener {
+                            toggleSongDownloadedState(musicId) // Toggle state and save
+                            musicAdapter.notifyItemChanged(index) // Rebind to update icon immediately
+                            bottomSheetDialog.dismiss()
+                        }
+
+                        negativeButton.setOnClickListener {
+                            bottomSheetDialog.dismiss()
+                        }
+                        bottomSheetDialog.show()
                     }
                 }
             }

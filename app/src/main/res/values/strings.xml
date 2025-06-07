@@ -146,5 +146,7 @@
     <string name="confirm_download_message">This song is not downloaded. Do you want to download it to play?</string>
     <string name="download_and_play">Download &amp; Play</string>
     <string name="download_button_desc">Download song</string>
+    <string name="confirm_delete_download_title">Confirm</string>
+    <string name="confirm_delete_download_message">Are you sure you want to remove the downloaded version of this song from your device?</string>
 </resources>
 
