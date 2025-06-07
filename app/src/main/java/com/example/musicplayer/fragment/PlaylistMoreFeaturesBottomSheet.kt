@@ -1,20 +1,16 @@
 package com.example.musicplayer.fragment
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.PlayerActivity
-import com.example.musicplayer.adapter.PlaylistViewAdapter
 import com.example.musicplayer.databinding.LayoutPlaylistMoreFeaturesBottomSheetBinding
 import com.example.musicplayer.utils.PlaylistManager
-import com.example.musicplayer.onprg.PlaylistDetails
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class PlaylistMoreFeaturesBottomSheet : BottomSheetDialogFragment() {

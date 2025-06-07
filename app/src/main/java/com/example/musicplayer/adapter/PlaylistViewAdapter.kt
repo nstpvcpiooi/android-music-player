@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.example.musicplayer.onprg.PlaylistDetails
+import com.example.musicplayer.activity.PlaylistDetailsActivity
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.fragment.PlaylistMoreFeaturesBottomSheet
@@ -52,7 +52,7 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
         }
 
         holder.root.setOnClickListener {
-            val intent = Intent(context, PlaylistDetails::class.java)
+            val intent = Intent(context, PlaylistDetailsActivity::class.java)
             intent.putExtra("index", position)
             ContextCompat.startActivity(context, intent, null)
         }

@@ -1,35 +1,26 @@
-package com.example.musicplayer.onprg
+package com.example.musicplayer.activity
 
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.example.musicplayer.R
 import com.example.musicplayer.SelectionActivity
-import com.example.musicplayer.activity.MainActivity
-import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.adapter.MusicAdapter
+import com.example.musicplayer.databinding.ActivityPlaylistDetailsBinding
+import com.example.musicplayer.databinding.BottomSheetPlaylistOptionsBinding
 import com.example.musicplayer.utils.PlaylistManager
+import com.example.musicplayer.utils.checkPlaylist
+import com.example.musicplayer.utils.setDialogBtnBackground
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.GsonBuilder
-import com.example.musicplayer.databinding.ActivityPlaylistDetailsBinding
-import com.example.musicplayer.databinding.BottomSheetPlaylistOptionsBinding
-import com.example.musicplayer.utils.checkPlaylist
-import com.example.musicplayer.utils.setDialogBtnBackground
-import jp.wasabeef.glide.transformations.BlurTransformation
 
-class PlaylistDetails : AppCompatActivity() {
+class PlaylistDetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlaylistDetailsBinding
     private lateinit var adapter: MusicAdapter
@@ -56,7 +47,11 @@ class PlaylistDetails : AppCompatActivity() {
         binding.playlistDetailsRV.setItemViewCacheSize(10)
         binding.playlistDetailsRV.setHasFixedSize(true)
         binding.playlistDetailsRV.layoutManager = LinearLayoutManager(this)
-        adapter = MusicAdapter(this, PlaylistManager.musicPlaylist.ref[currentPlaylistPos].playlist, playlistDetails = true)
+        adapter = MusicAdapter(
+            this,
+            PlaylistManager.musicPlaylist.ref[currentPlaylistPos].playlist,
+            playlistDetails = true
+        )
         binding.playlistDetailsRV.adapter = adapter
 
         // Set up toolbar
@@ -88,7 +83,7 @@ class PlaylistDetails : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == SELECTION_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == AppCompatActivity.RESULT_OK) {
+            if (resultCode == RESULT_OK) {
                 // Playlist was updated in SelectionActivity, refresh UI here
                 adapter.refreshPlaylist()
                 updateUI()
@@ -213,4 +208,3 @@ class PlaylistDetails : AppCompatActivity() {
         editor.apply()
     }
 }
-

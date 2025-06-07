@@ -36,7 +36,7 @@ import com.example.musicplayer.fragment.SearchFragment
 import com.google.gson.GsonBuilder
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.model.MusicPlaylist
-import com.example.musicplayer.onprg.PlayNext
+import com.example.musicplayer.utils.PlayNext
 import com.example.musicplayer.utils.PlaylistManager
 import com.example.musicplayer.utils.exitApplication
 import com.google.gson.reflect.TypeToken

@@ -17,7 +17,7 @@ import com.example.musicplayer.R
 import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.databinding.QueueItemViewBinding
 import com.example.musicplayer.model.Music
-import com.example.musicplayer.onprg.PlayNext
+import com.example.musicplayer.utils.PlayNext
 import java.util.Collections
 
 class QueueAdapter(

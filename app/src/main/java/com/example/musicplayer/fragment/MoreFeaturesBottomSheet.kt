@@ -24,7 +24,7 @@ import com.example.musicplayer.activity.PlayerActivity.Companion.musicListPA
 import com.example.musicplayer.activity.PlayerActivity.Companion.songPosition
 import com.example.musicplayer.databinding.DetailsViewBinding
 import com.example.musicplayer.databinding.MoreFeaturesBinding
-import com.example.musicplayer.onprg.PlayNext
+import com.example.musicplayer.utils.PlayNext
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -78,7 +78,7 @@ class MoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                 R.id.AddToPNBtn -> {
                     try {
                         if (PlayNext.playNextList.isEmpty()) {
-                            PlayNext.playNextList.add(PlayerActivity.musicListPA[PlayerActivity.songPosition])
+                            PlayNext.playNextList.add(musicListPA[songPosition])
                             PlayerActivity.songPosition = 0
                         }
 
@@ -101,12 +101,12 @@ class MoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                         } else if (currentMusic != null) {
                             // If the PlayNext list is empty, first add the currently playing song
                             if (PlayNext.playNextList.isEmpty()) {
-                                PlayNext.playNextList.add(PlayerActivity.musicListPA[PlayerActivity.songPosition])
+                                PlayNext.playNextList.add(musicListPA[songPosition])
                             }
 
                             // Add song to queue right after the current song
                             val currentSongIndex = PlayNext.playNextList.indexOfFirst {
-                                it.id == PlayerActivity.musicListPA[PlayerActivity.songPosition].id
+                                it.id == musicListPA[songPosition].id
                             }
 
                             if (currentSongIndex != -1) {

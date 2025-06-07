@@ -10,20 +10,17 @@ import android.graphics.Bitmap // Added import for Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.media.audiofx.AudioEffect
 import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.SeekBar
 import android.widget.Toast
@@ -43,8 +40,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.example.musicplayer.model.Music
 import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.NowPlaying
-import com.example.musicplayer.onprg.PlayNext
-import com.example.musicplayer.onprg.PlaylistDetails
+import com.example.musicplayer.utils.PlayNext
 import com.example.musicplayer.R
 import com.example.musicplayer.adapter.AlbumCoverPagerAdapter
 import com.example.musicplayer.audio.AudioMixer
@@ -54,7 +50,6 @@ import com.example.musicplayer.transformer.AlbumCoverPageTransformer
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.example.musicplayer.databinding.ActivityPlayerBinding
-import com.example.musicplayer.databinding.AudioBoosterBinding
 import com.example.musicplayer.databinding.TimerBottomSheetBinding
 import com.example.musicplayer.databinding.BottomSheetQueueBinding
 import com.example.musicplayer.fragment.PlayerMoreFeaturesBottomSheet
@@ -385,9 +380,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             }
             "FavouriteShuffle"-> initServiceAndPlaylist(FavouriteActivity.favouriteSongs, shuffle = true)
             "PlaylistDetailsAdapter"->
-                initServiceAndPlaylist(PlaylistManager.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = false)
+                initServiceAndPlaylist(PlaylistManager.musicPlaylist.ref[PlaylistDetailsActivity.currentPlaylistPos].playlist, shuffle = false)
             "PlaylistDetailsShuffle"->
-                initServiceAndPlaylist(PlaylistManager.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = true)
+                initServiceAndPlaylist(PlaylistManager.musicPlaylist.ref[PlaylistDetailsActivity.currentPlaylistPos].playlist, shuffle = true)
             "PlayNext"->initServiceAndPlaylist(PlayNext.playNextList, shuffle = false, playNext = true)
         }
 

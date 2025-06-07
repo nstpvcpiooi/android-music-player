@@ -12,7 +12,7 @@ import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.model.Music
-import com.example.musicplayer.onprg.PlaylistDetails
+import com.example.musicplayer.activity.PlaylistDetailsActivity
 import com.example.musicplayer.R
 import com.example.musicplayer.adapter.MusicAdapter.MyHolder
 import com.example.musicplayer.activity.MainActivity
@@ -196,9 +196,9 @@ class MusicAdapter(
 
     fun refreshPlaylist() {
         // This method is specific to PlaylistDetails context, not SelectionActivity
-        if (playlistDetails && PlaylistDetails.currentPlaylistPos != -1) {
+        if (playlistDetails && PlaylistDetailsActivity.currentPlaylistPos != -1) {
             musicListToDisplay = ArrayList()
-            musicListToDisplay.addAll(PlaylistManager.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist)
+            musicListToDisplay.addAll(PlaylistManager.musicPlaylist.ref[PlaylistDetailsActivity.currentPlaylistPos].playlist)
             notifyDataSetChanged()
         }
     }
