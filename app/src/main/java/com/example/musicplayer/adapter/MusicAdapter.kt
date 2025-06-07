@@ -37,6 +37,8 @@ class MusicAdapter(
     }
 
     private var musicItemClickListener: OnMusicItemClickListener? = null
+    private var onItemClick: ((Int) -> Unit)? = null
+    private var onItemLongClick: ((Int) -> Boolean)? = null
 
     fun setOnMusicItemClickListener(listener: OnMusicItemClickListener) {
         this.musicItemClickListener = listener
@@ -52,10 +54,12 @@ class MusicAdapter(
         val moreInfoButton = binding.moreInfoButtonMV
     }
 
-    private var onItemClick: ((Int) -> Unit)? = null
-
     fun setOnItemClickListener(listener: (Int) -> Unit) {
         onItemClick = listener
+    }
+
+    fun setOnItemLongClickListener(listener: (Int) -> Boolean) {
+        onItemLongClick = listener
     }
 
     //inflate layout
@@ -142,13 +146,19 @@ class MusicAdapter(
             }
             else -> {
                 holder.root.setOnClickListener {
+                    // Handle click via both interfaces for compatibility
                     musicItemClickListener?.onSongClicked(position, MainActivity.search)
+                    onItemClick?.invoke(position)
                 }
-                if (!selectionActivity) {
-                    holder.root.setOnLongClickListener {
-                        showMoreFeaturesBottomSheet(currentSongDisplayed.id)
-                        true
+
+                holder.root.setOnLongClickListener {
+                    // Try the custom long click listener first
+                    if (onItemLongClick != null) {
+                        return@setOnLongClickListener onItemLongClick!!.invoke(position)
                     }
+                    // Fall back to default behavior if no custom listener
+                    showMoreFeaturesBottomSheet(currentSongDisplayed.id)
+                    true
                 }
             }
         }

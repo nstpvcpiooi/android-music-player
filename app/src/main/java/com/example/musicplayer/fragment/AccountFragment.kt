@@ -1,8 +1,11 @@
 package com.example.musicplayer.fragment
 
 import android.app.AlertDialog
+import android.content.ComponentName
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.view.*
 import android.widget.ImageButton
@@ -23,11 +26,12 @@ import com.example.musicplayer.adapter.MusicAdapter
 import com.example.musicplayer.databinding.FragmentAccountBinding
 import com.example.musicplayer.model.Music
 import com.example.musicplayer.activity.SettingsActivity
+import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.utils.PlayNext
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 
-class AccountFragment : Fragment() {
+class AccountFragment : Fragment(), ServiceConnection {
 
     private lateinit var binding: FragmentAccountBinding
     private lateinit var firebaseAuth: FirebaseAuth
@@ -108,10 +112,13 @@ class AccountFragment : Fragment() {
         }
 
         musicAdapter.setOnItemClickListener { position ->
-            // Play the selected song
             playSelectedSong(position)
         }
 
+        musicAdapter.setOnItemLongClickListener { position ->
+            showRemoveDialog(position)
+            true
+        }
     }
 
     private fun showRemoveDialog(position: Int) {
@@ -180,9 +187,40 @@ class AccountFragment : Fragment() {
         PlayNext.playNextList.clear()
         PlayNext.playNextList.addAll(musicList)
 
-        // Start playing
-        val intent = Intent(requireContext(), PlayerActivity::class.java)
-        startActivity(intent)
+        if (PlayerActivity.musicService != null) {
+            // If service is already running, just update the song and play
+            PlayerActivity.musicService!!.createMediaPlayer()
+            PlayerActivity.musicService!!.playMusic()
+
+            // Make sure the Now Playing fragment is visible in MainActivity
+            (requireActivity() as? MainActivity)?.let { mainActivity ->
+                val nowPlayingView = mainActivity.findViewById<View>(R.id.nowPlaying)
+                nowPlayingView?.visibility = View.VISIBLE
+            }
+        } else {
+            // If service isn't running, start it and bind to it
+            val intent = Intent(requireContext(), MusicService::class.java)
+            requireActivity().bindService(intent, this, AppCompatActivity.BIND_AUTO_CREATE)
+            requireActivity().startService(intent)
+
+        }
+    }
+
+    // ServiceConnection implementation
+    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        val binder = service as MusicService.MyBinder
+        PlayerActivity.musicService = binder.currentService()
+        // Initialize audio manager in the service
+        PlayerActivity.musicService!!.audioManager = requireActivity().getSystemService(AppCompatActivity.AUDIO_SERVICE) as android.media.AudioManager
+        PlayerActivity.musicService!!.audioManager.requestAudioFocus(PlayerActivity.musicService, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.AUDIOFOCUS_GAIN)
+
+        // Create and play the media
+        PlayerActivity.musicService!!.createMediaPlayer()
+        PlayerActivity.musicService!!.playMusic()
+    }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+        PlayerActivity.musicService = null
     }
 
     private fun fetchMySelections() {
@@ -215,5 +253,17 @@ class AccountFragment : Fragment() {
         super.onResume()
         // Refresh the list when returning to this fragment
         fetchMySelections()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Make sure to unbind from the service if we're bound
+        try {
+            if (PlayerActivity.musicService != null) {
+                requireActivity().unbindService(this)
+            }
+        } catch (e: Exception) {
+            // Service might not be bound, ignore
+        }
     }
 }
