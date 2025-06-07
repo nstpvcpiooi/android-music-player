@@ -13,7 +13,7 @@ import com.example.musicplayer.adapter.PlaylistViewAdapter
 import com.example.musicplayer.databinding.AddPlaylistDialogBinding
 import com.example.musicplayer.databinding.FragmentPlaylistBinding
 import com.example.musicplayer.model.Playlist
-import com.example.musicplayer.activity.PlaylistActivity // Assuming musicPlaylist is static here
+import com.example.musicplayer.utils.PlaylistManager
 import com.example.musicplayer.utils.setDialogBtnBackground
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
@@ -62,10 +62,10 @@ class PlaylistFragment : Fragment() {
         binding.playlistRVFragment.setItemViewCacheSize(13)
         binding.playlistRVFragment.layoutManager = GridLayoutManager(requireContext(), 2)
 
-        adapter = PlaylistViewAdapter(requireContext(), playlistList = PlaylistActivity.musicPlaylist.ref)
+        adapter = PlaylistViewAdapter(requireContext(), playlistList = PlaylistManager.musicPlaylist.ref)
         binding.playlistRVFragment.adapter = adapter
 
-        if (PlaylistActivity.musicPlaylist.ref.isNotEmpty()) {
+        if (PlaylistManager.musicPlaylist.ref.isNotEmpty()) {
             binding.instructionPAFragment.visibility = View.GONE
         } else {
             binding.instructionPAFragment.visibility = View.VISIBLE
@@ -115,7 +115,7 @@ class PlaylistFragment : Fragment() {
 
     private fun addPlaylist(name: String, createdBy: String) {
         var playlistExists = false
-        for (i in PlaylistActivity.musicPlaylist.ref) {
+        for (i in PlaylistManager.musicPlaylist.ref) {
             if (name == i.name) {
                 playlistExists = true
                 break
@@ -131,9 +131,9 @@ class PlaylistFragment : Fragment() {
             val calendar = Calendar.getInstance().time
             val sdf = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
             tempPlaylist.createdOn = sdf.format(calendar)
-            PlaylistActivity.musicPlaylist.ref.add(tempPlaylist)
+            PlaylistManager.musicPlaylist.ref.add(tempPlaylist)
             adapter.refreshPlaylist()
-            if (PlaylistActivity.musicPlaylist.ref.isNotEmpty()) {
+            if (PlaylistManager.musicPlaylist.ref.isNotEmpty()) {
                 binding.instructionPAFragment.visibility = View.GONE
             }
         }
@@ -143,7 +143,7 @@ class PlaylistFragment : Fragment() {
         super.onResume()
         if (::adapter.isInitialized) {
             adapter.refreshPlaylist()
-            if (PlaylistActivity.musicPlaylist.ref.isNotEmpty()) {
+            if (PlaylistManager.musicPlaylist.ref.isNotEmpty()) {
                 binding.instructionPAFragment.visibility = View.GONE
             } else {
                 binding.instructionPAFragment.visibility = View.VISIBLE

@@ -9,7 +9,7 @@ import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.adapter.MusicAdapter
 import com.example.musicplayer.databinding.ActivitySelectionBinding
 import com.example.musicplayer.model.Music
-import com.example.musicplayer.activity.PlaylistActivity
+import com.example.musicplayer.utils.PlaylistManager
 import com.example.musicplayer.onprg.PlaylistDetails
 
 class SelectionActivity : AppCompatActivity() {
@@ -31,7 +31,7 @@ class SelectionActivity : AppCompatActivity() {
         // Create a mutable copy of the songs in the current playlist being edited.
         // This list ('songsToSelectForPlaylist') will be modified by user interactions.
         songsToSelectForPlaylist = try {
-            ArrayList(PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist)
+            ArrayList(PlaylistManager.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist)
         } catch (e: IndexOutOfBoundsException) {
             // Handle cases where currentPlaylistPos might be invalid or list doesn't exist
             ArrayList()
@@ -62,8 +62,8 @@ class SelectionActivity : AppCompatActivity() {
         // Setup FAB to save changes
         binding.saveSelectionFab.setOnClickListener {
             try {
-                PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist.clear()
-                PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist.addAll(songsToSelectForPlaylist)
+                PlaylistManager.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist.clear()
+                PlaylistManager.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist.addAll(songsToSelectForPlaylist)
                 Toast.makeText(this, "Playlist updated", Toast.LENGTH_SHORT).show()
                 setResult(AppCompatActivity.RESULT_OK) // Set result to OK
                 finish()

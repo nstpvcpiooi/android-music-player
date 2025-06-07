@@ -13,10 +13,10 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.onprg.PlaylistDetails
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.MainActivity
-import com.example.musicplayer.activity.PlaylistActivity
 import com.example.musicplayer.fragment.PlaylistMoreFeaturesBottomSheet
 import com.example.musicplayer.databinding.PlaylistViewBinding
 import com.example.musicplayer.model.Playlist
+import com.example.musicplayer.utils.PlaylistManager
 
 class PlaylistViewAdapter(private val context: Context, private var playlistList: ArrayList<Playlist>) : RecyclerView.Adapter<PlaylistViewAdapter.MyHolder>() {
 
@@ -25,8 +25,8 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
         val name = binding.playlistName
         val root = binding.root
         val songCount = binding.playlistSongCount
-        val creator = binding.playlistCreator // Added creator TextView
-        val separator = binding.playlistMetaSeparator // Added separator TextView
+        val creator = binding.playlistCreator
+        val separator = binding.playlistMetaSeparator
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
@@ -36,7 +36,7 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
     override fun onBindViewHolder(holder: MyHolder, position: Int) {
         val currentPlaylist = playlistList[position]
         if(MainActivity.themeIndex == 4){
-            // holder.root.strokeColor = ContextCompat.getColor(context, R.color.white) // MaterialCardView no longer has stroke
+            // holder.root.strokeColor = ContextCompat.getColor(context, R.color.white)
         }
         holder.name.text = currentPlaylist.name
         holder.name.isSelected = true
@@ -71,17 +71,18 @@ class PlaylistViewAdapter(private val context: Context, private var playlistList
                 .apply(RequestOptions().placeholder(R.drawable.music_player_icon_slash_screen).centerCrop())
                 .into(holder.image)
         } else {
-            Glide.with(context).clear(holder.image) // Clear previous image if view is recycled
-            holder.image.setImageResource(R.drawable.music_player_icon_slash_screen) // Set placeholder
+            Glide.with(context).clear(holder.image)
+            holder.image.setImageResource(R.drawable.music_player_icon_slash_screen)
         }
     }
 
     override fun getItemCount(): Int {
         return playlistList.size
     }
+
     fun refreshPlaylist(){
         playlistList = ArrayList()
-        playlistList.addAll(PlaylistActivity.musicPlaylist.ref)
+        playlistList.addAll(PlaylistManager.musicPlaylist.ref)
         notifyDataSetChanged()
     }
 }

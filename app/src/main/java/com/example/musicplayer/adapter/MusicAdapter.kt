@@ -17,9 +17,9 @@ import com.example.musicplayer.R
 import com.example.musicplayer.adapter.MusicAdapter.MyHolder
 import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.activity.PlayerActivity
-import com.example.musicplayer.activity.PlaylistActivity
 import com.example.musicplayer.databinding.MusicViewBinding
 import com.example.musicplayer.fragment.MoreFeaturesBottomSheet
+import com.example.musicplayer.utils.PlaylistManager
 import com.example.musicplayer.utils.formatDuration
 
 
@@ -198,7 +198,7 @@ class MusicAdapter(
         // This method is specific to PlaylistDetails context, not SelectionActivity
         if (playlistDetails && PlaylistDetails.currentPlaylistPos != -1) {
             musicListToDisplay = ArrayList()
-            musicListToDisplay.addAll(PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist)
+            musicListToDisplay.addAll(PlaylistManager.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist)
             notifyDataSetChanged()
         }
     }

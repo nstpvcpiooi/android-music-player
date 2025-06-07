@@ -13,7 +13,7 @@ import com.example.musicplayer.R
 import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.adapter.PlaylistViewAdapter
 import com.example.musicplayer.databinding.LayoutPlaylistMoreFeaturesBottomSheetBinding
-import com.example.musicplayer.activity.PlaylistActivity
+import com.example.musicplayer.utils.PlaylistManager
 import com.example.musicplayer.onprg.PlaylistDetails
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -42,7 +42,7 @@ class PlaylistMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val playlist = PlaylistActivity.musicPlaylist.ref.getOrNull(playlistPosition)
+        val playlist = PlaylistManager.musicPlaylist.ref.getOrNull(playlistPosition)
         if (playlist == null) {
             Toast.makeText(context, "Playlist not found", Toast.LENGTH_SHORT).show()
             dismiss()
@@ -96,8 +96,7 @@ class PlaylistMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                     true
                 }
                 R.id.playlist_delete_playlist -> {
-                    PlaylistActivity.musicPlaylist.ref.removeAt(playlistPosition)
-                    // Notify adapter in the calling fragment/activity
+                    PlaylistManager.musicPlaylist.ref.removeAt(playlistPosition)
 
                     // Attempt to refresh PlaylistFragment if it's the current fragment in MainActivity
                     val mainActivity = activity as? com.example.musicplayer.activity.MainActivity
@@ -107,9 +106,6 @@ class PlaylistMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                             currentFragmentInMain.adapter.refreshPlaylist()
                         }
                     }
-
-                    // Attempt to refresh PlaylistActivity if the context is PlaylistActivity
-                    (activity as? PlaylistActivity)?.adapter?.refreshPlaylist()
 
                     Toast.makeText(context, "Deleted playlist: ${playlist.name}", Toast.LENGTH_SHORT).show()
                     dismiss()

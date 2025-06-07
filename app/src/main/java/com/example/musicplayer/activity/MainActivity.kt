@@ -31,13 +31,13 @@ import com.example.musicplayer.NowPlaying
 import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.fragment.AccountFragment
 import com.example.musicplayer.fragment.LibraryFragment
-import com.example.musicplayer.fragment.PlaylistFragment // Import PlaylistFragment
-import com.example.musicplayer.fragment.SearchFragment // Import SearchFragment
+import com.example.musicplayer.fragment.PlaylistFragment
+import com.example.musicplayer.fragment.SearchFragment
 import com.google.gson.GsonBuilder
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.model.MusicPlaylist
-import com.example.musicplayer.onprg.PlayNext // PlayNext is now an object
-import com.example.musicplayer.activity.PlaylistActivity
+import com.example.musicplayer.onprg.PlayNext
+import com.example.musicplayer.utils.PlaylistManager
 import com.example.musicplayer.utils.exitApplication
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -125,12 +125,12 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
                 val data: ArrayList<Music> = GsonBuilder().create().fromJson(jsonString, typeToken)
                 FavouriteActivity.favouriteSongs.addAll(data)
             }
-            PlaylistActivity.musicPlaylist = MusicPlaylist()
+            PlaylistManager.musicPlaylist = MusicPlaylist()
             val jsonStringPlaylist = editor.getString("MusicPlaylist", null)
             if (jsonStringPlaylist != null) {
                 val dataPlaylist: MusicPlaylist =
                     GsonBuilder().create().fromJson(jsonStringPlaylist, MusicPlaylist::class.java)
-                PlaylistActivity.musicPlaylist = dataPlaylist
+                PlaylistManager.musicPlaylist = dataPlaylist
             }
         }
         // Initially hide NowPlaying fragment container
@@ -204,7 +204,8 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
     }
 
     fun openPlaylist() {
-        startActivity(Intent(this@MainActivity, PlaylistActivity::class.java))
+        // Switch to playlist tab instead of opening PlaylistActivity
+        binding.bottomNavigation.selectedItemId = R.id.navigation_playlist
     }
 
     fun openPlayNext() {
@@ -290,6 +291,23 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
 
             binding.refreshLayout.isRefreshing = false
         }
+
+        //for retrieving favourites data using shared preferences
+        FavouriteActivity.favouriteSongs = ArrayList()
+        val editor = getSharedPreferences("FAVOURITES", MODE_PRIVATE)
+        val jsonString = editor.getString("FavouriteSongs", null)
+        val typeToken = object : TypeToken<ArrayList<Music>>() {}.type
+        if (jsonString != null) {
+            val data: ArrayList<Music> = GsonBuilder().create().fromJson(jsonString, typeToken)
+            FavouriteActivity.favouriteSongs.addAll(data)
+        }
+        PlaylistManager.musicPlaylist = MusicPlaylist()
+        val jsonStringPlaylist = editor.getString("MusicPlaylist", null)
+        if (jsonStringPlaylist != null) {
+            val dataPlaylist: MusicPlaylist =
+                GsonBuilder().create().fromJson(jsonStringPlaylist, MusicPlaylist::class.java)
+            PlaylistManager.musicPlaylist = dataPlaylist
+        }
     }
 
     @SuppressLint("Recycle", "Range")
@@ -372,7 +390,7 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
         val editor = getSharedPreferences("FAVOURITES", MODE_PRIVATE).edit()
         val jsonString = GsonBuilder().create().toJson(FavouriteActivity.favouriteSongs)
         editor.putString("FavouriteSongs", jsonString)
-        val jsonStringPlaylist = GsonBuilder().create().toJson(PlaylistActivity.musicPlaylist)
+        val jsonStringPlaylist = GsonBuilder().create().toJson(PlaylistManager.musicPlaylist)
         editor.putString("MusicPlaylist", jsonStringPlaylist)
         editor.apply()
 

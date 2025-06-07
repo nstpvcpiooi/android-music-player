@@ -18,8 +18,8 @@ import com.example.musicplayer.R
 import com.example.musicplayer.SelectionActivity
 import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.activity.PlayerActivity
-import com.example.musicplayer.activity.PlaylistActivity
 import com.example.musicplayer.adapter.MusicAdapter
+import com.example.musicplayer.utils.PlaylistManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.GsonBuilder
@@ -47,8 +47,8 @@ class PlaylistDetails : AppCompatActivity() {
         currentPlaylistPos = intent.extras?.get("index") as Int
 
         try{
-            PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist =
-                checkPlaylist(playlist = PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist)
+            PlaylistManager.musicPlaylist.ref[currentPlaylistPos].playlist =
+                checkPlaylist(playlist = PlaylistManager.musicPlaylist.ref[currentPlaylistPos].playlist)
         }
         catch(e: Exception){}
 
@@ -56,7 +56,7 @@ class PlaylistDetails : AppCompatActivity() {
         binding.playlistDetailsRV.setItemViewCacheSize(10)
         binding.playlistDetailsRV.setHasFixedSize(true)
         binding.playlistDetailsRV.layoutManager = LinearLayoutManager(this)
-        adapter = MusicAdapter(this, PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist, playlistDetails = true)
+        adapter = MusicAdapter(this, PlaylistManager.musicPlaylist.ref[currentPlaylistPos].playlist, playlistDetails = true)
         binding.playlistDetailsRV.adapter = adapter
 
         // Set up toolbar
@@ -104,16 +104,16 @@ class PlaylistDetails : AppCompatActivity() {
         // Set up bottom sheet options
         bottomSheetBinding.addToQueueOption.setOnClickListener {
             // Add playlist to queue functionality
-            if(PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist.isNotEmpty()) {
-                PlayerActivity.musicListPA.addAll(PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist)
+            if(PlaylistManager.musicPlaylist.ref[currentPlaylistPos].playlist.isNotEmpty()) {
+                PlayerActivity.musicListPA.addAll(PlaylistManager.musicPlaylist.ref[currentPlaylistPos].playlist)
                 bottomSheetDialog.dismiss()
             }
         }
 
         bottomSheetBinding.playNextOption.setOnClickListener {
             // Play next functionality
-            if(PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist.isNotEmpty()) {
-                PlayerActivity.musicListPA.addAll(0, PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist)
+            if(PlaylistManager.musicPlaylist.ref[currentPlaylistPos].playlist.isNotEmpty()) {
+                PlayerActivity.musicListPA.addAll(0, PlaylistManager.musicPlaylist.ref[currentPlaylistPos].playlist)
                 bottomSheetDialog.dismiss()
             }
         }
@@ -141,7 +141,7 @@ class PlaylistDetails : AppCompatActivity() {
         builder.setTitle("Delete Playlist")
             .setMessage("Are you sure you want to delete this playlist?")
             .setPositiveButton("Yes") { dialog, _ ->
-                PlaylistActivity.musicPlaylist.ref.removeAt(currentPlaylistPos)
+                PlaylistManager.musicPlaylist.ref.removeAt(currentPlaylistPos)
                 adapter.refreshPlaylist()
                 dialog.dismiss()
                 finish() // Close this activity after deletion
@@ -155,7 +155,7 @@ class PlaylistDetails : AppCompatActivity() {
     }
 
     private fun updateUI() {
-        val playlist = PlaylistActivity.musicPlaylist.ref[currentPlaylistPos]
+        val playlist = PlaylistManager.musicPlaylist.ref[currentPlaylistPos]
         binding.playlistTitleTV.text = playlist.name
 
         // Set the song count, creation date, and creator in one line separated by dots
@@ -188,7 +188,7 @@ class PlaylistDetails : AppCompatActivity() {
         builder.setTitle("Remove")
             .setMessage("Do you want to remove all songs from playlist?")
             .setPositiveButton("Yes"){ dialog, _ ->
-                PlaylistActivity.musicPlaylist.ref[currentPlaylistPos].playlist.clear()
+                PlaylistManager.musicPlaylist.ref[currentPlaylistPos].playlist.clear()
                 adapter.refreshPlaylist()
                 dialog.dismiss()
                 updateUI() // Update UI after removal
@@ -208,7 +208,7 @@ class PlaylistDetails : AppCompatActivity() {
 
         // Save playlist data
         val editor = getSharedPreferences("FAVOURITES", MODE_PRIVATE).edit()
-        val jsonStringPlaylist = GsonBuilder().create().toJson(PlaylistActivity.musicPlaylist)
+        val jsonStringPlaylist = GsonBuilder().create().toJson(PlaylistManager.musicPlaylist)
         editor.putString("MusicPlaylist", jsonStringPlaylist)
         editor.apply()
     }

@@ -59,7 +59,7 @@ import com.example.musicplayer.databinding.TimerBottomSheetBinding
 import com.example.musicplayer.databinding.BottomSheetQueueBinding
 import com.example.musicplayer.fragment.PlayerMoreFeaturesBottomSheet
 import com.example.musicplayer.model.toFile
-import com.example.musicplayer.activity.PlaylistActivity
+import com.example.musicplayer.utils.PlaylistManager
 import com.example.musicplayer.adapter.QueueAdapter
 import com.example.musicplayer.adapter.RecommendedSongsAdapter
 import com.example.musicplayer.utils.exitApplication
@@ -385,9 +385,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             }
             "FavouriteShuffle"-> initServiceAndPlaylist(FavouriteActivity.favouriteSongs, shuffle = true)
             "PlaylistDetailsAdapter"->
-                initServiceAndPlaylist(PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = false)
+                initServiceAndPlaylist(PlaylistManager.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = false)
             "PlaylistDetailsShuffle"->
-                initServiceAndPlaylist(PlaylistActivity.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = true)
+                initServiceAndPlaylist(PlaylistManager.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist, shuffle = true)
             "PlayNext"->initServiceAndPlaylist(PlayNext.playNextList, shuffle = false, playNext = true)
         }
 
