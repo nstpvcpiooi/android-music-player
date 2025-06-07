@@ -83,6 +83,14 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
             MediaStore.Audio.Media.DATE_ADDED + " DESC", MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.SIZE + " DESC"
         )
+
+        fun addSongToMusicList(song: Music) {
+            // Kiểm tra để tránh thêm trùng lặp
+            if (!MusicListMA.any { it.path == song.path }) {
+                MusicListMA.add(0, song) // Thêm vào đầu danh sách
+            }
+        }
+        var musicListHasBeenLoaded = false // <-- GIỮ LẠI BIẾN NÀY
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,28 +123,32 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
             Toast.makeText(this, "Black Theme Works Best in Dark Mode!!", Toast.LENGTH_LONG).show()
 
         if (requestRuntimePermission()) {
+            // Chỉ gọi initializeLayout nếu đã có quyền từ trước
             initializeLayout()
-            //for retrieving favourites data using shared preferences
-            FavouriteActivity.favouriteSongs = ArrayList()
-            val editor = getSharedPreferences("FAVOURITES", MODE_PRIVATE)
-            val jsonString = editor.getString("FavouriteSongs", null)
-            val typeToken = object : TypeToken<ArrayList<Music>>() {}.type
-            if (jsonString != null) {
-                val data: ArrayList<Music> = GsonBuilder().create().fromJson(jsonString, typeToken)
-                FavouriteActivity.favouriteSongs.addAll(data)
-            }
-            PlaylistManager.musicPlaylist = MusicPlaylist()
-            val jsonStringPlaylist = editor.getString("MusicPlaylist", null)
-            if (jsonStringPlaylist != null) {
-                val dataPlaylist: MusicPlaylist =
-                    GsonBuilder().create().fromJson(jsonStringPlaylist, MusicPlaylist::class.java)
-                PlaylistManager.musicPlaylist = dataPlaylist
-            }
+            loadFavouritesAndPlaylists() // Tách logic này ra cho sạch
         }
         // Initially hide NowPlaying fragment container
         binding.nowPlaying.visibility = View.GONE
 
         LocalBroadcastManager.getInstance(this).registerReceiver(playbackStateReceiver, IntentFilter(MusicService.ACTION_PLAYBACK_STATE_CHANGED))
+    }
+
+    private fun loadFavouritesAndPlaylists() {
+        FavouriteActivity.favouriteSongs = ArrayList()
+        val editor = getSharedPreferences("FAVOURITES", MODE_PRIVATE)
+        val jsonString = editor.getString("FavouriteSongs", null)
+        val typeToken = object : TypeToken<ArrayList<Music>>() {}.type
+        if (jsonString != null) {
+            val data: ArrayList<Music> = GsonBuilder().create().fromJson(jsonString, typeToken)
+            FavouriteActivity.favouriteSongs.addAll(data)
+        }
+        PlaylistManager.musicPlaylist = MusicPlaylist()
+        val jsonStringPlaylist = editor.getString("MusicPlaylist", null)
+        if (jsonStringPlaylist != null) {
+            val dataPlaylist: MusicPlaylist =
+                GsonBuilder().create().fromJson(jsonStringPlaylist, MusicPlaylist::class.java)
+            PlaylistManager.musicPlaylist = dataPlaylist
+        }
     }
 
     private fun setupBottomNavigation() {
@@ -256,6 +268,7 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
                 initializeLayout()
+                loadFavouritesAndPlaylists()
             }
         }
     }
@@ -269,7 +282,13 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
         search = false
         val sortEditor = getSharedPreferences("SORTING", MODE_PRIVATE)
         sortOrder = sortEditor.getInt("sortOrder", 0)
-        MusicListMA = getAllAudio()
+
+
+        if (!musicListHasBeenLoaded) {
+
+            MusicListMA = getAllAudio()
+            musicListHasBeenLoaded = true
+        }
 
         // Initialize adapter for use by fragments
         musicAdapter = MusicAdapter(this@MainActivity, MusicListMA)
@@ -280,13 +299,15 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
 
         //for refreshing layout on swipe from top
         binding.refreshLayout.setOnRefreshListener {
+            // KHI REFRESH, CHÚNG TA SẼ QUÉT LẠI HOÀN TOÀN
+
             MusicListMA = getAllAudio()
             musicAdapter.updateMusicList(MusicListMA)
 
-            // If current fragment is LibraryFragment, refresh its content
             val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
             if (currentFragment is LibraryFragment) {
-                loadFragment(LibraryFragment())
+                // Thay vì load lại fragment, ta chỉ cần cập nhật adapter của nó
+
             }
 
             binding.refreshLayout.isRefreshing = false
@@ -315,8 +336,9 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
         val tempList = ArrayList<Music>()
 
         // Filter Only Music or Audio Files
-        val selection =
-            MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " + MediaStore.Audio.Media.MIME_TYPE + " LIKE 'audio/%'"
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+
+        // Thêm MediaStore.Audio.Media.DISPLAY_NAME vào projection để lấy tên file
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
@@ -325,40 +347,51 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.DATE_ADDED,
             MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.ALBUM_ID
+            MediaStore.Audio.Media.ALBUM_ID,
+            MediaStore.Audio.Media.DISPLAY_NAME // <-- THÊM DÒNG NÀY
         )
+
         val cursor = this.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null,
             sortingList[sortOrder], null
         )
+
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    val titleC =
-                        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
-                            ?: "Unknown"
-                    val idC = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID))
-                        ?: "Unknown"
-                    val albumC =
-                        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))
-                            ?: "Unknown"
-                    val artistC =
-                        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
-                            ?: "Unknown"
+                    // Lấy các cột dữ liệu
+                    val idC = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID)) ?: "Unknown"
+                    val albumC = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)) ?: "Unknown"
+                    val artistC = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)) ?: "Unknown"
                     val pathC = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
-                    val durationC =
-                        cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
-                    val albumIdC =
-                        cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID))
-                            .toString()
+                    val durationC = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
+                    val albumIdC = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)).toString()
                     val uri = Uri.parse("content://media/external/audio/albumart")
                     val artUriC = Uri.withAppendedPath(uri, albumIdC).toString()
 
-                    // Only add the music file if the duration is greater than 0
+                    // --- BẮT ĐẦU PHẦN SỬA ĐỔI ---
+
+                    // 1. Lấy TITLE từ metadata trước
+                    var titleC = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
+
+                    // 2. Lấy DISPLAY_NAME (tên file)
+                    val displayNameC = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME))
+
+                    // 3. Kiểm tra nếu title từ metadata không hợp lệ
+                    //    "<unknown>" là một giá trị phổ biến mà Android trả về khi không có metadata.
+                    if (titleC.isNullOrEmpty() || titleC == "<unknown>") {
+                        // Nếu không hợp lệ, dùng tên file (bỏ phần mở rộng .mp3, .m4a, ...)
+                        titleC = displayNameC.substringBeforeLast('.')
+                    }
+
+                    // --- KẾT THÚC PHẦN SỬA ĐỔI ---
+
+
+                    // Chỉ thêm bài hát nếu có thời lượng hợp lệ
                     if (durationC > 0) {
                         val music = Music(
                             id = idC,
-                            title = titleC,
+                            title = titleC, // Sử dụng title đã được xử lý
                             album = albumC,
                             artist = artistC,
                             path = pathC,
@@ -402,6 +435,12 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
             MusicListMA = getAllAudio()
             musicAdapter.updateMusicList(MusicListMA)
         }
+
+        if (::musicAdapter.isInitialized) {
+            musicAdapter.updateMusicList(MusicListMA)
+        }
+
+
         // Control visibility of NowPlaying based on service and music list
         if (PlayerActivity.musicService != null && PlayerActivity.musicListPA.isNotEmpty()) {
             binding.nowPlaying.visibility = View.VISIBLE

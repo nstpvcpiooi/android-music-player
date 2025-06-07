@@ -5,6 +5,8 @@ import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
+import java.io.File
+
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -81,7 +83,7 @@ class DownloadActivity : AppCompatActivity() {
                     dialog.dismiss()
                 }
                 .setNeutralButton("Tải về") { dialog, _ ->
-                    downloadMusic(music.title, music.path)
+                    downloadMusic(music.title, music.album, music.artist, music.path)
                     dialog.dismiss()
                 }
                 .setNegativeButton("Hủy") { dialog, _ ->
@@ -136,37 +138,77 @@ class DownloadActivity : AppCompatActivity() {
     /**
      * Tải file nhạc từ URL Cloudinary về thư mục Music của thiết bị
      */
-    private fun downloadMusic(title: String, fileUrl: String) {
+    // Bạn sẽ đặt hàm này trong DownloadActivity.kt
+
+    private fun downloadMusic(title: String, album: String, artist: String, fileUrl: String) {
         try {
+            // --- Bước 1: Chuẩn bị thông tin và đường dẫn ---
+
+            // Tạo URI từ URL của file trên mây
             val uri = Uri.parse(fileUrl)
 
+            // Làm sạch tên file để tránh các ký tự không hợp lệ
+            val safeTitle = title.replace(Regex("[\\\\/:*?\"<>|]"), "_")
+
+            // Lấy phần mở rộng của file, mặc định là ".mp3"
             val extension = MimeTypeMap.getFileExtensionFromUrl(fileUrl)
                 ?.takeIf { it.isNotBlank() }
                 ?.let { ".$it" } ?: ".mp3"
 
+            // Tạo tên file cuối cùng, ví dụ: "Ten_Bai_Hat.mp3"
+            val fileName = "$safeTitle$extension"
+
+            // Lấy đối tượng File của thư mục Music công khai
+            val musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+
+            // Tạo đường dẫn tuyệt đối đến file đích
+            val destinationPath = File(musicDirectory, fileName).path
+
+            // Kiểm tra xem file đã tồn tại trên máy chưa
+            if (File(destinationPath).exists()) {
+                Toast.makeText(this, "'$title' đã có trong thư viện.", Toast.LENGTH_SHORT).show()
+                return // Dừng lại nếu file đã tồn tại
+            }
+
+            // --- Bước 2: Bắt đầu quá trình tải bằng DownloadManager ---
+
+            // Tạo yêu cầu tải
             val request = DownloadManager.Request(uri).apply {
-                setTitle("Tải: $title")
-                setDescription("Đang tải file nhạc…")
-                setNotificationVisibility(
-                    DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
-                )
-                setDestinationInExternalPublicDir(
-                    Environment.DIRECTORY_MUSIC, "$title$extension"
-                )
-                // Cho phép tải qua mạng di động/roaming
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, fileName)
+                setTitle("Đang tải: $title")
+                setDescription("Bài hát sẽ được thêm vào thư viện nhạc của bạn.")
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 setAllowedOverMetered(true)
                 setAllowedOverRoaming(true)
             }
 
+            // Gửi yêu cầu tải đến hệ thống
             val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             manager.enqueue(request)
 
-            Toast.makeText(this,
-                "Đang tải $title…", Toast.LENGTH_SHORT).show()
+
+            // --- Bước 3: Tự thêm bài hát mới vào danh sách nhạc của ứng dụng ---
+
+            // Tạo một đối tượng Music mới với thông tin chính xác
+            val newLocalSong = Music(
+                id = System.currentTimeMillis().toString(), // Dùng timestamp làm ID tạm thời
+                title = title,           // Title từ server
+                album = album,           // Album từ server
+                artist = artist,         // Artist từ server
+                path = destinationPath,  // Đường dẫn cục bộ đã xác định
+                duration = 0L,           // Sẽ được cập nhật khi hệ thống quét lại
+                artUri = ""              // Chưa có ảnh album
+            )
+
+            // Gọi hàm tĩnh trong MainActivity để cập nhật danh sách nhạc
+            MainActivity.addSongToMusicList(newLocalSong)
+
+            // Thông báo cho người dùng rằng quá trình tải đã bắt đầu
+            Toast.makeText(this, "Bắt đầu tải '$title'...", Toast.LENGTH_SHORT).show()
 
         } catch (e: Exception) {
-            Toast.makeText(this,
-                "Lỗi khi tải: ${e.message}", Toast.LENGTH_LONG).show()
+            // Xử lý các lỗi có thể xảy ra
+            Toast.makeText(this, "Lỗi khi tải: ${e.message}", Toast.LENGTH_LONG).show()
             e.printStackTrace()
         }
     }

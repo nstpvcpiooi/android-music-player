@@ -17,6 +17,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.core.content.ContextCompat
+import com.example.musicplayer.adapter.MusicAdapter
 
 class LibraryFragment : Fragment() {
 
@@ -24,6 +25,7 @@ class LibraryFragment : Fragment() {
     private var appBarLayout: AppBarLayout? = null
     private lateinit var musicRV: RecyclerView
     private lateinit var fabScrollToTop: FloatingActionButton
+    private lateinit var musicAdapter: MusicAdapter // Giả sử bạn có biến n
 
     private val appBarOffsetChangedListener = AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
         val mainActivity = activity as? MainActivity
@@ -93,6 +95,11 @@ class LibraryFragment : Fragment() {
                 }
                 else -> false
             }
+        }
+    }
+    fun refreshAdapter() {
+        if (::musicAdapter.isInitialized) {
+            musicAdapter.updateMusicList(MainActivity.MusicListMA)
         }
     }
 
