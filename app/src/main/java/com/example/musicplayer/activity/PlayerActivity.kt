@@ -59,7 +59,7 @@ import com.example.musicplayer.databinding.TimerBottomSheetBinding
 import com.example.musicplayer.databinding.BottomSheetQueueBinding
 import com.example.musicplayer.fragment.PlayerMoreFeaturesBottomSheet
 import com.example.musicplayer.model.toFile
-import com.example.musicplayer.onprg.PlaylistActivity
+import com.example.musicplayer.activity.PlaylistActivity
 import com.example.musicplayer.adapter.QueueAdapter
 import com.example.musicplayer.adapter.RecommendedSongsAdapter
 import com.example.musicplayer.utils.exitApplication

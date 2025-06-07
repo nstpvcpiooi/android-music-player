@@ -13,7 +13,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.onprg.PlaylistDetails
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.MainActivity
-import com.example.musicplayer.onprg.PlaylistActivity
+import com.example.musicplayer.activity.PlaylistActivity
 import com.example.musicplayer.fragment.PlaylistMoreFeaturesBottomSheet
 import com.example.musicplayer.databinding.PlaylistViewBinding
 import com.example.musicplayer.model.Playlist

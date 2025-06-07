@@ -1,18 +1,14 @@
-package com.example.musicplayer.onprg
+package com.example.musicplayer.activity
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import com.example.musicplayer.BuildConfig
 import com.example.musicplayer.R
-import com.example.musicplayer.activity.LoginActivity
-import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.databinding.ActivitySettingsBinding
 import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.utils.exitApplication

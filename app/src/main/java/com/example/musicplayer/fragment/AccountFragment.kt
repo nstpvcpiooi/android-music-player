@@ -28,7 +28,7 @@ import com.example.musicplayer.activity.UploadActivity
 import com.example.musicplayer.adapter.MusicAdapter
 import com.example.musicplayer.databinding.FragmentAccountBinding
 import com.example.musicplayer.model.Music
-import com.example.musicplayer.onprg.SettingsActivity
+import com.example.musicplayer.activity.SettingsActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 

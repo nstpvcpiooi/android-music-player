@@ -9,7 +9,7 @@ import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.adapter.MusicAdapter
 import com.example.musicplayer.databinding.ActivitySelectionBinding
 import com.example.musicplayer.model.Music
-import com.example.musicplayer.onprg.PlaylistActivity
+import com.example.musicplayer.activity.PlaylistActivity
 import com.example.musicplayer.onprg.PlaylistDetails
 
 class SelectionActivity : AppCompatActivity() {

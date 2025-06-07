@@ -1,4 +1,4 @@
-package com.example.musicplayer.onprg
+package com.example.musicplayer.activity
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,19 +6,17 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.musicplayer.model.MusicPlaylist
-import com.example.musicplayer.adapter.PlaylistViewAdapter
 import com.example.musicplayer.R
-import com.example.musicplayer.activity.MainActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.example.musicplayer.adapter.PlaylistViewAdapter
 import com.example.musicplayer.databinding.ActivityPlaylistBinding
 import com.example.musicplayer.databinding.AddPlaylistDialogBinding
+import com.example.musicplayer.model.MusicPlaylist
 import com.example.musicplayer.model.Playlist
 import com.example.musicplayer.utils.setDialogBtnBackground
-
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
+import java.util.Calendar
+import java.util.Locale
 
 class PlaylistActivity : AppCompatActivity() {
 
@@ -91,4 +89,3 @@ class PlaylistActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 }
-

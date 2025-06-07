@@ -13,7 +13,7 @@ import com.example.musicplayer.R
 import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.adapter.PlaylistViewAdapter
 import com.example.musicplayer.databinding.LayoutPlaylistMoreFeaturesBottomSheetBinding
-import com.example.musicplayer.onprg.PlaylistActivity
+import com.example.musicplayer.activity.PlaylistActivity
 import com.example.musicplayer.onprg.PlaylistDetails
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -109,7 +109,7 @@ class PlaylistMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                     }
 
                     // Attempt to refresh PlaylistActivity if the context is PlaylistActivity
-                    (activity as? com.example.musicplayer.onprg.PlaylistActivity)?.adapter?.refreshPlaylist()
+                    (activity as? PlaylistActivity)?.adapter?.refreshPlaylist()
 
                     Toast.makeText(context, "Deleted playlist: ${playlist.name}", Toast.LENGTH_SHORT).show()
                     dismiss()

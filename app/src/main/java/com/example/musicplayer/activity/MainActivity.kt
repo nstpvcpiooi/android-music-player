@@ -37,7 +37,7 @@ import com.google.gson.GsonBuilder
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.model.MusicPlaylist
 import com.example.musicplayer.onprg.PlayNext // PlayNext is now an object
-import com.example.musicplayer.onprg.PlaylistActivity
+import com.example.musicplayer.activity.PlaylistActivity
 import com.example.musicplayer.utils.exitApplication
 import com.google.gson.reflect.TypeToken
 import java.io.File

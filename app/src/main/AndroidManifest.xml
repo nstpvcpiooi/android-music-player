@@ -46,7 +46,7 @@
             android:name=".activity.UploadActivity"
             android:exported="true" />
         <activity
-            android:name=".onprg.SettingsActivity"
+            android:name=".activity.SettingsActivity"
             android:configChanges="uiMode|orientation"
             android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
@@ -61,7 +61,7 @@
             android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".onprg.PlaylistActivity"
+            android:name=".activity.PlaylistActivity"
             android:configChanges="uiMode|orientation"
             android:screenOrientation="sensorPortrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />

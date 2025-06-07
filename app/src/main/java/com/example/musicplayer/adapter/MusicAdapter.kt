@@ -17,7 +17,7 @@ import com.example.musicplayer.R
 import com.example.musicplayer.adapter.MusicAdapter.MyHolder
 import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.activity.PlayerActivity
-import com.example.musicplayer.onprg.PlaylistActivity
+import com.example.musicplayer.activity.PlaylistActivity
 import com.example.musicplayer.databinding.MusicViewBinding
 import com.example.musicplayer.fragment.MoreFeaturesBottomSheet
 import com.example.musicplayer.utils.formatDuration

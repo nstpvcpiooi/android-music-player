@@ -13,7 +13,7 @@ import com.example.musicplayer.adapter.PlaylistViewAdapter
 import com.example.musicplayer.databinding.AddPlaylistDialogBinding
 import com.example.musicplayer.databinding.FragmentPlaylistBinding
 import com.example.musicplayer.model.Playlist
-import com.example.musicplayer.onprg.PlaylistActivity // Assuming musicPlaylist is static here
+import com.example.musicplayer.activity.PlaylistActivity // Assuming musicPlaylist is static here
 import com.example.musicplayer.utils.setDialogBtnBackground
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
