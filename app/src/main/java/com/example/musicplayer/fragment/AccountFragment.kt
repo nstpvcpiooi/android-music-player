@@ -170,11 +170,26 @@ class AccountFragment : Fragment(), ServiceConnection {
             musicList,
             isSongDownloadedCallback = { musicId -> isSongDownloaded(musicId) },
             onDownloadClickCallback = { musicId ->
-                toggleSongDownloadedState(musicId) // Toggle state and save
-                // Find the item in musicList and notify adapter for UI update
                 val index = musicList.indexOfFirst { it.id == musicId }
                 if (index != -1) {
-                    musicAdapter.notifyItemChanged(index) // This will rebind and update the icon
+                    if (!isSongDownloaded(musicId)) { // Song is not downloaded, about to download
+                        // Show loading animation for this specific item
+                        val viewHolder = uploadedMusicRecyclerView.findViewHolderForAdapterPosition(index)
+                        if (viewHolder is MusicAdapter.MyHolder) {
+                            viewHolder.downloadButton?.visibility = View.GONE
+                            viewHolder.downloadProgressBar?.visibility = View.VISIBLE
+                        }
+
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            toggleSongDownloadedState(musicId) // Toggle state and save
+                            // Notify adapter to rebind the item. onBindViewHolder will handle hiding progressbar.
+                            musicAdapter.notifyItemChanged(index)
+                        }, 3000) // 3 seconds delay
+
+                    } else { // Song is already downloaded, about to 'un-download'
+                        toggleSongDownloadedState(musicId) // Toggle state and save
+                        musicAdapter.notifyItemChanged(index) // Rebind to update icon immediately
+                    }
                 }
             }
         )
