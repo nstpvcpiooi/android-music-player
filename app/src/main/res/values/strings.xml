@@ -127,6 +127,8 @@
     <string name="hint_enter_singer">Enter singer</string>
     <string name="hint_enter_album">Enter album</string>
     <string name="save_button_text">Save</string>
+    <string name="no_file_selected">No file selected</string>
+    <string name="change_selection">Change Selection</string>
 
     <!-- Strings for Login and Signup screens -->
     <string name="welcome_back">Welcome Back!</string>

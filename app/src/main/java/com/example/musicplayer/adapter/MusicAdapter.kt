@@ -164,6 +164,11 @@ class MusicAdapter(
         notifyDataSetChanged()
     }
 
+    // New method to get current displayed list
+    fun getCurrentList(): ArrayList<Music> {
+        return musicListToDisplay
+    }
+
     private fun sendIntent(ref: String, pos: Int) {
         val intent = Intent(context, PlayerActivity::class.java)
         intent.putExtra("index", pos)

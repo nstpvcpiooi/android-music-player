@@ -1,19 +1,18 @@
 package com.example.musicplayer.activity
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.cloudinary.android.MediaManager
 import com.example.musicplayer.R
+import com.example.musicplayer.adapter.MusicAdapter
 import com.example.musicplayer.databinding.ActivityUploadBinding
+import com.example.musicplayer.model.Music
 import com.example.musicplayer.service.CloudinaryApi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -22,11 +21,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class UploadActivity : AppCompatActivity() {
+class UploadActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener {
     private lateinit var binding: ActivityUploadBinding
-    private var fileUri: Uri? = null
-    private val FILE_PICK_CODE = 1001
+    private var selectedMusic: Music? = null
     private val cloudApi = CloudinaryApi()
+    private lateinit var musicAdapter: MusicAdapter
+    private var allMusicList = ArrayList<Music>()
 
     companion object {
         private var isCloudinaryInit = false
@@ -57,33 +57,119 @@ class UploadActivity : AppCompatActivity() {
             }
         }
 
+        setupToolbar()
         setupViews()
+        setupMusicList()
+        setupSearchView()
+    }
+
+    private fun setupToolbar() {
+        setSupportActionBar(binding.topAppBar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        binding.topAppBar.setNavigationOnClickListener {
+            finish()
+        }
     }
 
     private fun setupViews() {
-        binding.loadingView.root.visibility = View.GONE
+        // Initially hide the loading overlay
+        binding.loadingOverlay.visibility = View.GONE
 
-        // Set initial empty state text
-        binding.songName.text = "No file selected"
+        // Set initial state
+        binding.songPreviewContainer.visibility = View.GONE
+        binding.musicListContainer.visibility = View.VISIBLE
 
-        // Browse button for file selection
-        binding.browseButton.setOnClickListener {
-            pickFileFromStorage()
+        // Setup save button (FAB)
+        binding.saveButton.setOnClickListener {
+            if (selectedMusic != null && validateInputs()) {
+                uploadSelectedMusic()
+            } else {
+                showToast("Vui lòng chọn bài hát và điền đầy đủ thông tin")
+            }
         }
 
-        binding.saveButton.setOnClickListener {
-            if (fileUri != null && validateInputs()) {
-                uploadSelectedFile()
-            } else {
-                showToast("Vui lòng chọn file và điền đầy đủ thông tin")
-            }
+        // Setup the "Change Selection" button
+        binding.browseButton.setOnClickListener {
+            binding.songPreviewContainer.visibility = View.GONE
+            binding.musicListContainer.visibility = View.VISIBLE
+            binding.topAppBar.visibility = View.VISIBLE
         }
     }
 
-    private fun pickFileFromStorage() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.setType("audio/*") // Chỉ chọn file audio
-        startActivityForResult(intent, FILE_PICK_CODE)
+    private fun setupMusicList() {
+        // Get music list from MainActivity
+        allMusicList = ArrayList(MainActivity.MusicListMA)
+
+        // Setup RecyclerView
+        binding.musicListRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.musicListRecyclerView.setHasFixedSize(true)
+        musicAdapter = MusicAdapter(this, allMusicList)
+        musicAdapter.setOnMusicItemClickListener(this)
+        binding.musicListRecyclerView.adapter = musicAdapter
+
+        // Show message if list is empty
+        if (allMusicList.isEmpty()) {
+            binding.emptyMusicListText.visibility = View.VISIBLE
+            binding.musicListRecyclerView.visibility = View.GONE
+        } else {
+            binding.emptyMusicListText.visibility = View.GONE
+            binding.musicListRecyclerView.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setupSearchView() {
+        binding.searchViewUA.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean = true
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (!newText.isNullOrEmpty()) {
+                    val searchResultList = ArrayList<Music>()
+                    val userInput = newText.lowercase()
+
+                    for (song in allMusicList) {
+                        if (song.title.lowercase().contains(userInput) ||
+                            song.artist.lowercase().contains(userInput) ||
+                            song.album.lowercase().contains(userInput)) {
+                            searchResultList.add(song)
+                        }
+                    }
+
+                    musicAdapter.updateMusicList(searchResultList)
+                } else {
+                    musicAdapter.updateMusicList(allMusicList)
+                }
+                return true
+            }
+        })
+    }
+
+    override fun onSongClicked(position: Int, isSearch: Boolean) {
+        // Update selected music - the isSearch parameter is not relevant here
+        // as we're using our own filtered list
+        val currentList = musicAdapter.getCurrentList()
+        selectedMusic = if (position < currentList.size) currentList[position] else null
+
+        // Update UI to show selected song
+        selectedMusic?.let { music ->
+            // Hide search bar and show details view
+            binding.songPreviewContainer.visibility = View.VISIBLE
+            binding.musicListContainer.visibility = View.GONE
+
+            // Update preview fields
+            binding.songName.text = music.title
+            binding.uploadTopic.setText(music.title)
+            binding.uploadSinger.setText(music.artist)
+            binding.uploadAlbum.setText(music.album)
+
+            // Load image with proper error handling
+            com.bumptech.glide.Glide.with(this)
+                .load(music.artUri)
+                .apply(com.bumptech.glide.request.RequestOptions()
+                    .placeholder(R.drawable.music_player_icon_slash_screen)
+                    .error(R.drawable.music_player_icon_slash_screen))
+                .into(binding.uploadImage)
+        }
     }
 
     private fun validateInputs(): Boolean {
@@ -92,28 +178,38 @@ class UploadActivity : AppCompatActivity() {
                 binding.uploadAlbum.text.toString().trim().isNotEmpty()
     }
 
-    private fun uploadSelectedFile() {
-        val uri = fileUri ?: return showToast("File chưa được chọn")
+    private fun uploadSelectedMusic() {
+        val music = selectedMusic ?: return showToast("Bài hát chưa được chọn")
+
         lifecycleScope.launch {
             showLoading(true)
             try {
-                // 1) Đọc file trên IO thread
+                // Create a temporary file copy of the music
                 val tempFile = withContext(Dispatchers.IO) {
-                    contentResolver.openInputStream(uri)?.use { inputStream ->
-                        File.createTempFile("upload_", ".tmp", cacheDir).apply {
-                            outputStream().use { output -> inputStream.copyTo(output) }
+                    val originalFile = File(music.path)
+                    if (!originalFile.exists()) {
+                        throw IllegalStateException("Không tìm thấy file nhạc")
+                    }
+
+                    // Create a temp file and copy the content
+                    File.createTempFile("upload_", ".tmp", cacheDir).apply {
+                        originalFile.inputStream().use { input ->
+                            outputStream().use { output ->
+                                input.copyTo(output)
+                            }
                         }
-                    } ?: throw IllegalStateException("Không thể đọc file")
+                    }
                 }
-                // 2) Upload (CloudinaryApi vẫn dùng callback nội bộ)
+
+                // Upload the file
                 uploadToCloudinary(tempFile)
             } catch (e: Exception) {
                 showLoading(false)
                 showToast("Lỗi xử lý file: ${e.localizedMessage}")
+                Log.e("UploadError", "Error processing file", e)
             }
         }
     }
-
 
     private fun uploadToCloudinary(file: File) {
         showLoading(true)
@@ -129,7 +225,7 @@ class UploadActivity : AppCompatActivity() {
                 runOnUiThread {
                     showLoading(false)
                     file.delete()
-                    Log.e("Cloudinary", response?.secureUrl.toString())
+                    Log.i("Cloudinary", "Upload successful: ${response?.secureUrl}")
                     val url = response?.secureUrl
                     if (url != null) {
                         saveToFirebase(url)
@@ -152,7 +248,7 @@ class UploadActivity : AppCompatActivity() {
     private fun saveToFirebase(fileUrl: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId == null) {
-            showToast("Người dùng chưa đăng nhập")
+            showToast("Người dùng chưa ��ăng nhập")
             return
         }
 
@@ -170,7 +266,6 @@ class UploadActivity : AppCompatActivity() {
         ref.push().setValue(data)
             .addOnSuccessListener {
                 showToast("Lưu thành công")
-                // Return to parent activity instead of starting a new AccountActivity
                 finish()
             }
             .addOnFailureListener {
@@ -179,86 +274,16 @@ class UploadActivity : AppCompatActivity() {
     }
 
     private fun showLoading(show: Boolean) {
-        binding.loadingView.root.visibility = if (show) View.VISIBLE else View.GONE
-        binding.saveButton.isEnabled = !show
+        binding.loadingOverlay.visibility = if (show) View.VISIBLE else View.GONE
+        binding.saveButton.visibility = if (show) View.GONE else View.VISIBLE
     }
 
     private fun updateProgress(progress: Int) {
-        binding.loadingView.loadingLayout.visibility = View.VISIBLE
+        // You could add a text view in the progress_layout to display the percentage
+        // binding.loadingView.progressText?.text = "$progress%"
     }
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == FILE_PICK_CODE && resultCode == Activity.RESULT_OK) {
-            fileUri = data?.data
-
-            // Show selected file name in UI
-            val fileName = getFileNameFromMediaStoreUri(this, fileUri)
-            binding.songName.text = fileName ?: "Unknown file"
-
-            // Lấy tên file nhạc (title)
-            binding.uploadTopic.setText(fileName ?: "")
-
-            // Lấy album
-            val albumName = getAlbumNameFromUri(this, fileUri)
-            binding.uploadAlbum.setText(albumName)
-
-            // Lấy ca sĩ (artist)
-            val artistName = getArtistNameFromUri(this, fileUri)
-            binding.uploadSinger.setText(artistName)
-
-            Log.e("UploadActivity", "FileUri: $fileUri, title=$fileName, album=$albumName, artist=$artistName")
-        }
-    }
-
-    fun getFileNameFromMediaStoreUri(context: Context, uri: Uri?): String? {
-        if (uri == null) return null
-
-        var fileName: String? = null
-        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
-        context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
-                fileName = cursor.getString(columnIndex)
-            }
-        }
-        return fileName
-    }
-
-    fun getAlbumNameFromUri(context: Context, uri: Uri?): String {
-        var albumName = "Unknown Album"
-        if (uri == null) return albumName
-
-        val projection = arrayOf(MediaStore.Audio.Media.ALBUM)
-        try {
-            context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-                    albumName = cursor.getString(albumColumn)
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return albumName
-    }
-
-    fun getArtistNameFromUri(context: Context, uri: Uri?): String {
-        if (uri == null) return ""
-        val mmr = android.media.MediaMetadataRetriever()
-        try {
-            mmr.setDataSource(context, uri)
-            val artist = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_ARTIST)
-            return artist ?: ""
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            mmr.release()
-        }
-        return ""
     }
 }
