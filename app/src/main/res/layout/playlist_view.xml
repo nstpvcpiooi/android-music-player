@@ -23,7 +23,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
             android:contentDescription="@string/playlist_img_cd" />
 
         <LinearLayout
@@ -43,7 +43,6 @@
                 android:text="@string/playlist_name"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="?attr/colorOnSurface"
-                android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:maxLines="2"
                 android:ellipsize="end" />
@@ -52,7 +51,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingStart="8dp"
                 android:paddingEnd="8dp">
 
                 <TextView

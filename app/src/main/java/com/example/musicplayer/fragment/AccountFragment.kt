@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.R
 import com.example.musicplayer.activity.DownloadActivity
 import com.example.musicplayer.activity.LoginActivity
-import com.example.musicplayer.activity.PlayerActivityOnline
+import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.activity.UploadActivity
 import com.example.musicplayer.adapter.MusicAdapter
 import com.example.musicplayer.databinding.FragmentAccountBinding
@@ -136,7 +136,7 @@ class AccountFragment : Fragment() {
 
                     DownloadActivity.downloadPlaylist = ArrayList(musicList)
                     DownloadActivity.downloadIndex = position
-                    startActivity(Intent(requireContext(), PlayerActivityOnline::class.java))
+                    startActivity(Intent(requireContext(), PlayerActivity::class.java))
                     dialog.dismiss()
                 }
                 .setNeutralButton(getString(R.string.download_music)) { dialog, _ ->
