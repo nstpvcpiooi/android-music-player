@@ -3,6 +3,7 @@ package com.example.musicplayer.adapter
 import android.content.Context
 import android.content.Intent
 import android.util.TypedValue
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -28,7 +29,9 @@ class MusicAdapter(
     private var musicListToDisplay: ArrayList<Music>, // Renamed from musicList for clarity
     private val playlistDetails: Boolean = false,
     private val selectionActivity: Boolean = false,
-    private val currentSelectedSongsForPlaylist: ArrayList<Music>? = null // Added to hold selected songs in SelectionActivity
+    private val currentSelectedSongsForPlaylist: ArrayList<Music>? = null, // Added to hold selected songs in SelectionActivity
+    private val isSongDownloadedCallback: ((String) -> Boolean)? = null,
+    private val onDownloadClickCallback: ((String) -> Unit)? = null
 ) : RecyclerView.Adapter<MyHolder>() {
 
     // Interface for click events
@@ -52,6 +55,7 @@ class MusicAdapter(
         val duration = binding.songDuration
         val root = binding.root
         val moreInfoButton = binding.moreInfoButtonMV
+        val downloadButton: ImageButton? = binding.downloadBtnMV // Added for download button
     }
 
     fun setOnItemClickListener(listener: (Int) -> Unit) {
@@ -94,6 +98,23 @@ class MusicAdapter(
                     .error(R.drawable.music_player_icon_slash_screen)
                     .centerCrop()
                 ).into(holder.image)
+        }
+
+        // Handle download button visibility and state if callbacks are provided
+        if (holder.downloadButton != null && isSongDownloadedCallback != null && onDownloadClickCallback != null) {
+            holder.downloadButton.visibility = android.view.View.VISIBLE
+            val isDownloaded = isSongDownloadedCallback.invoke(currentSongDisplayed.id)
+            if (isDownloaded) {
+                holder.downloadButton.setImageResource(R.drawable.download_icon_filled) // Placeholder
+            } else {
+                holder.downloadButton.setImageResource(R.drawable.download_icon_outline) // Placeholder
+            }
+            holder.downloadButton.setOnClickListener {
+                onDownloadClickCallback.invoke(currentSongDisplayed.id)
+                // The icon update will be handled by notifyItemChanged from the fragment
+            }
+        } else {
+            holder.downloadButton?.visibility = android.view.View.GONE
         }
 
         // Set OnClickListener for the moreInfoButton

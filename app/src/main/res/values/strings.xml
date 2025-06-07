@@ -140,6 +140,11 @@
     <string name="signup_button_text">Sign Up</string>
     <string name="login_prompt_text">Already registered? Login</string>
     <string name="music_player_icon_desc">Music Player Icon</string>
-</resources>
 
+    <!-- Strings for Download Feature -->
+    <string name="confirm_download_title">Download Song?</string>
+    <string name="confirm_download_message">This song is not downloaded. Do you want to download it to play?</string>
+    <string name="download_and_play">Download &amp; Play</string>
+    <string name="download_button_desc">Download song</string>
+</resources>
 

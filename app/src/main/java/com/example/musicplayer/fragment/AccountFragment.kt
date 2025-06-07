@@ -45,6 +45,11 @@ class AccountFragment : Fragment(), ServiceConnection {
     private lateinit var noUploadedMusicText: TextView
     private lateinit var shimmerLayout: View
 
+    // For managing downloaded songs state
+    private lateinit var downloadedSongIds: MutableSet<String>
+    private val DOWNLOADED_SONGS_PREFS = "DOWNLOADED_SONGS_PREFS"
+    private val DOWNLOADED_SONGS_KEY = "downloaded_ids"
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,6 +65,8 @@ class AccountFragment : Fragment(), ServiceConnection {
 
         // First, load saved selections from SharedPreferences
         loadSavedSelections()
+        // Load downloaded song IDs
+        loadDownloadedSongIds()
 
         return binding.root
     }
@@ -80,6 +87,31 @@ class AccountFragment : Fragment(), ServiceConnection {
                 }
             }
         }
+    }
+
+    private fun loadDownloadedSongIds() {
+        val prefs = requireActivity().getSharedPreferences(DOWNLOADED_SONGS_PREFS, AppCompatActivity.MODE_PRIVATE)
+        downloadedSongIds = prefs.getStringSet(DOWNLOADED_SONGS_KEY, HashSet())?.toMutableSet() ?: HashSet()
+    }
+
+    private fun saveDownloadedSongIds() {
+        val prefs = requireActivity().getSharedPreferences(DOWNLOADED_SONGS_PREFS, AppCompatActivity.MODE_PRIVATE)
+        prefs.edit().putStringSet(DOWNLOADED_SONGS_KEY, downloadedSongIds).apply()
+    }
+
+    private fun toggleSongDownloadedState(musicId: String): Boolean {
+        val isCurrentlyDownloaded = downloadedSongIds.contains(musicId)
+        if (isCurrentlyDownloaded) {
+            downloadedSongIds.remove(musicId)
+        } else {
+            downloadedSongIds.add(musicId)
+        }
+        saveDownloadedSongIds()
+        return !isCurrentlyDownloaded // Return the new state (true if it is now downloaded)
+    }
+
+    private fun isSongDownloaded(musicId: String): Boolean {
+        return downloadedSongIds.contains(musicId)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -126,7 +158,19 @@ class AccountFragment : Fragment(), ServiceConnection {
     }
 
     private fun setupRecyclerView() {
-        musicAdapter = MusicAdapter(requireContext(), musicList)
+        musicAdapter = MusicAdapter(
+            requireContext(),
+            musicList,
+            isSongDownloadedCallback = { musicId -> isSongDownloaded(musicId) },
+            onDownloadClickCallback = { musicId ->
+                toggleSongDownloadedState(musicId) // Toggle state and save
+                // Find the item in musicList and notify adapter for UI update
+                val index = musicList.indexOfFirst { it.id == musicId }
+                if (index != -1) {
+                    musicAdapter.notifyItemChanged(index) // This will rebind and update the icon
+                }
+            }
+        )
         uploadedMusicRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = musicAdapter
@@ -197,6 +241,32 @@ class AccountFragment : Fragment(), ServiceConnection {
 
     private fun playSelectedSong(position: Int) {
         if (musicList.isEmpty() || position >= musicList.size) return
+        val music = musicList[position]
+
+        if (!isSongDownloaded(music.id)) {
+            AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.confirm_download_title))
+                .setMessage(getString(R.string.confirm_download_message))
+                .setPositiveButton(getString(R.string.download_and_play)) { dialog, _ ->
+                    if (!isSongDownloaded(music.id)) { // Ensure it's still not downloaded
+                        toggleSongDownloadedState(music.id)
+                        musicAdapter.notifyItemChanged(position) // Update icon in the list
+                    }
+                    proceedWithPlayback(position)
+                    dialog.dismiss()
+                }
+                .setNegativeButton(R.string.cancel) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+                .show()
+        } else {
+            proceedWithPlayback(position)
+        }
+    }
+
+    private fun proceedWithPlayback(position: Int) {
+        if (musicList.isEmpty() || position >= musicList.size) return
 
         // Create playlist from selection list
         PlayerActivity.musicListPA = ArrayList(musicList)
@@ -246,8 +316,14 @@ class AccountFragment : Fragment(), ServiceConnection {
         val binder = service as MusicService.MyBinder
         PlayerActivity.musicService = binder.currentService()
         // Initialize audio manager in the service
-        PlayerActivity.musicService!!.audioManager = requireActivity().getSystemService(AppCompatActivity.AUDIO_SERVICE) as android.media.AudioManager
-        PlayerActivity.musicService!!.audioManager.requestAudioFocus(PlayerActivity.musicService, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.AUDIOFOCUS_GAIN)
+        if (PlayerActivity.musicService != null && PlayerActivity.musicService!!.mediaPlayer != null && PlayerActivity.musicService!!.mediaPlayer!!.isPlaying) {
+            // If music is already playing, likely from another source, we might not want to immediately request focus
+            // or we might want to ensure this new playback context is the one taking over.
+            // For now, let's assume if service is connected, we are good to proceed with current logic.
+        } else if (PlayerActivity.musicService != null) {
+            PlayerActivity.musicService!!.audioManager = requireActivity().getSystemService(AppCompatActivity.AUDIO_SERVICE) as android.media.AudioManager
+            PlayerActivity.musicService!!.audioManager.requestAudioFocus(PlayerActivity.musicService, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.AUDIOFOCUS_GAIN)
+        }
 
         // Create and play the media
         PlayerActivity.musicService!!.createMediaPlayer()

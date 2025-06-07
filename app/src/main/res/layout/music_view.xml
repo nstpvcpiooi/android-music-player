@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/imageMV"
-            android:layout_toStartOf="@+id/moreInfoButtonMV"
+            android:layout_toStartOf="@id/downloadBtnMV"
             android:layout_marginStart="16dp"
             android:layout_centerVertical="true"
             android:orientation="vertical">
@@ -84,6 +84,20 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/downloadBtnMV"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/download_button_desc"
+            android:src="@drawable/download_icon_outline"
+            app:tint="?attr/colorOnSurfaceVariant"
+
+            android:scaleType="fitXY"
+            android:layout_toStartOf="@id/moreInfoButtonMV"
+            android:layout_centerVertical="true" />
 
         <ImageView
             android:id="@+id/moreInfoButtonMV"
