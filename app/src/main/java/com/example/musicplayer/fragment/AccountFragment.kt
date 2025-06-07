@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -12,6 +13,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -28,6 +30,7 @@ import com.example.musicplayer.model.Music
 import com.example.musicplayer.activity.SettingsActivity
 import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.utils.PlayNext
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -244,7 +247,7 @@ class AccountFragment : Fragment(), ServiceConnection {
         val music = musicList[position]
 
         if (!isSongDownloaded(music.id)) {
-            AlertDialog.Builder(requireContext())
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.confirm_download_title))
                 .setMessage(getString(R.string.confirm_download_message))
                 .setPositiveButton(getString(R.string.download_and_play)) { dialog, _ ->
@@ -258,6 +261,7 @@ class AccountFragment : Fragment(), ServiceConnection {
                 .setNegativeButton(R.string.cancel) { dialog, _ ->
                     dialog.dismiss()
                 }
+                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.dialog_background_rounded_all))
                 .create()
                 .show()
         } else {
