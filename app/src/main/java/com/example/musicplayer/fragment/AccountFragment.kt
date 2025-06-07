@@ -228,20 +228,31 @@ class AccountFragment : Fragment(), ServiceConnection {
         if (position < 0 || position >= musicList.size) return
 
         val music = musicList[position]
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Remove song")
-            .setMessage("Do you want to remove \"${music.title}\" from My Selections?")
-            .setPositiveButton(getString(R.string.download_music)) { dialog, _ ->
-                // Remove from the list
-                if (position < musicList.size) {
-                    removeFromSelections(position)
-                }
-                dialog.dismiss()
+
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        val bottomSheetView = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_remove_song, null)
+        bottomSheetDialog.setContentView(bottomSheetView)
+
+        val titleTextView = bottomSheetView.findViewById<TextView>(R.id.bs_title_remove_song)
+        val messageTextView = bottomSheetView.findViewById<TextView>(R.id.bs_message_remove_song)
+        val positiveButton = bottomSheetView.findViewById<Button>(R.id.bs_positive_button_remove_song)
+        val negativeButton = bottomSheetView.findViewById<Button>(R.id.bs_negative_button_remove_song)
+
+        titleTextView.text = getString(R.string.confirm_remove_song_title)
+        messageTextView.text = getString(R.string.confirm_remove_song_message, music.title)
+
+        positiveButton.setOnClickListener {
+            if (position < musicList.size) { // Re-check position in case list changed
+                removeFromSelections(position)
             }
-            .setNegativeButton(R.string.cancel) { dialog, _ ->
-                dialog.dismiss()
-            }
-        builder.create().show()
+            bottomSheetDialog.dismiss()
+        }
+
+        negativeButton.setOnClickListener {
+            bottomSheetDialog.dismiss()
+        }
+
+        bottomSheetDialog.show()
     }
 
     private fun removeFromSelections(position: Int) {
@@ -352,9 +363,9 @@ class AccountFragment : Fragment(), ServiceConnection {
         // Set source for "Now Playing" to identify it came from My Selections
         PlayerActivity.currentPlaylistOrigin = "MySelections"
 
-        // Clear PlayNext list and add the selection
+        // Clear the dedicated "Play Next" queue, as a new playback context is starting.
+        // PlayerActivity should primarily use musicListPA for this new context.
         PlayNext.playNextList.clear()
-        PlayNext.playNextList.addAll(musicList)
 
         if (PlayerActivity.musicService != null) {
             // If service is already running, just update the song and play
