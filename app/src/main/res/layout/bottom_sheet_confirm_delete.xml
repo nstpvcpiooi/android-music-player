@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/delete"
-        android:backgroundTint="?attr/colorError"
+        android:backgroundTint="@color/black_level1"
         android:textColor="?attr/colorOnError"
         android:layout_marginBottom="8dp"/>
 
