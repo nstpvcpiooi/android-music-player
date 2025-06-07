@@ -398,7 +398,7 @@ class MainActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener,
         // Removing search_view_menu inflation as search is now handled by HomeFragment
 
         //for setting gradient
-        findViewById<LinearLayout>(R.id.linearLayoutNav)?.setBackgroundResource(currentGradient[themeIndex])
+//        findViewById<LinearLayout>(R.id.linearLayoutNav)?.setBackgroundResource(currentGradient[themeIndex])
 
         return true
     }

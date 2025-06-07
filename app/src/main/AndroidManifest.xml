@@ -31,12 +31,6 @@
 <!--            android:exported="false"-->
 <!--            tools:ignore="DiscouragedApi,LockedOrientationActivity" />-->
         <activity
-            android:name=".activity.DownloadActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.AccountActivity"
-            android:exported="false" />
-        <activity
             android:name=".activity.SignupActivity"
             android:exported="false" />
         <activity
@@ -51,14 +45,6 @@
         <activity
             android:name=".activity.UploadActivity"
             android:exported="true" />
-        <activity
-            android:name=".onprg.PlayNext"
-            android:exported="false" />
-        <activity
-            android:name=".onprg.AboutActivity"
-            android:configChanges="uiMode|orientation"
-            android:screenOrientation="sensorPortrait"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
             android:name=".onprg.SettingsActivity"
             android:configChanges="uiMode|orientation"

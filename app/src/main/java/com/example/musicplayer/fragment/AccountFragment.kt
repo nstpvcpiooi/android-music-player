@@ -22,7 +22,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.R
-import com.example.musicplayer.activity.DownloadActivity
 import com.example.musicplayer.activity.LoginActivity
 import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.activity.UploadActivity
@@ -134,8 +133,6 @@ class AccountFragment : Fragment() {
                         return@setPositiveButton
                     }
 
-                    DownloadActivity.downloadPlaylist = ArrayList(musicList)
-                    DownloadActivity.downloadIndex = position
                     startActivity(Intent(requireContext(), PlayerActivity::class.java))
                     dialog.dismiss()
                 }
