@@ -11,7 +11,7 @@
         android:id="@+id/loadingLayout"
         android:orientation="horizontal"
         android:padding="16dp"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -19,35 +19,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            app:indicatorColor="@color/tonal_button_icon_blue"
-            app:trackColor="@color/tonal_button_icon_blue"
+            app:indicatorColor="@color/white"
+            app:trackColor="@color/white"
             android:alpha="0.6"
             app:indicatorSize="48dp"
             app:trackThickness="4dp"
             android:indeterminate="true" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Uploading..."
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/tonal_button_icon_blue" />
-
-            <TextView
-                android:id="@+id/progress_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Your music is being uploaded"
-                android:textSize="14sp"
-                android:alpha="0.7"
-                android:layout_marginTop="4dp" />
-
-        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
