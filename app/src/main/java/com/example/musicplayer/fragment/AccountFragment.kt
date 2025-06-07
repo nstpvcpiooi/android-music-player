@@ -1,16 +1,10 @@
 package com.example.musicplayer.fragment
 
 import android.app.AlertDialog
-import android.app.DownloadManager
-import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.*
-import android.webkit.MimeTypeMap
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -22,21 +16,21 @@ import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.R
-import com.example.musicplayer.activity.LoginActivity
+import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.activity.UploadActivity
 import com.example.musicplayer.adapter.MusicAdapter
 import com.example.musicplayer.databinding.FragmentAccountBinding
 import com.example.musicplayer.model.Music
 import com.example.musicplayer.activity.SettingsActivity
+import com.example.musicplayer.utils.PlayNext
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
+import com.google.gson.Gson
 
 class AccountFragment : Fragment() {
 
     private lateinit var binding: FragmentAccountBinding
     private lateinit var firebaseAuth: FirebaseAuth
-    private lateinit var database: DatabaseReference
     private lateinit var musicAdapter: MusicAdapter
     private val musicList = ArrayList<Music>()
 
@@ -51,7 +45,6 @@ class AccountFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAccountBinding.inflate(inflater, container, false)
-        database = FirebaseDatabase.getInstance().reference
         firebaseAuth = FirebaseAuth.getInstance()
 
         emailValueTextView = binding.emailValue
@@ -96,14 +89,14 @@ class AccountFragment : Fragment() {
     }
 
     private fun initAccountFunctionality() {
-        emailValueTextView.text = firebaseAuth.currentUser?.email ?: "N/A"
+        emailValueTextView.text = firebaseAuth.currentUser?.email ?: "My Music Collection"
 
         uploadMusicBtn.setOnClickListener {
             startActivity(Intent(requireContext(), UploadActivity::class.java))
         }
 
         setupRecyclerView()
-        fetchUploadedMusic()
+        fetchMySelections()
     }
 
     private fun setupRecyclerView() {
@@ -115,108 +108,112 @@ class AccountFragment : Fragment() {
         }
 
         musicAdapter.setOnItemClickListener { position ->
-            val music = musicList[position]
-
-            if (music.path.isBlank() || !music.path.startsWith("http")) {
-                Toast.makeText(requireContext(), getString(R.string.invalid_music_url), Toast.LENGTH_SHORT).show()
-                return@setOnItemClickListener
-            }
-
-            AlertDialog.Builder(requireContext())
-                .setTitle(music.title)
-                .setMessage(getString(R.string.music_action_prompt))
-                .setPositiveButton(getString(R.string.play_music)) { dialog, _ ->
-                    val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                    val networkInfo = connectivityManager.activeNetworkInfo
-                    if (networkInfo == null || !networkInfo.isConnected) {
-                        Toast.makeText(requireContext(), getString(R.string.check_network_connection), Toast.LENGTH_SHORT).show()
-                        return@setPositiveButton
-                    }
-
-                    startActivity(Intent(requireContext(), PlayerActivity::class.java))
-                    dialog.dismiss()
-                }
-                .setNeutralButton(getString(R.string.download_music)) { dialog, _ ->
-                    downloadMusic(music.title, music.path)
-                    dialog.dismiss()
-                }
-                .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .show()
+            // Play the selected song
+            playSelectedSong(position)
         }
+
     }
 
-    private fun downloadMusic(title: String, fileUrl: String) {
-        try {
-            val uri = Uri.parse(fileUrl)
-            val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(requireContext().contentResolver.getType(uri))
-                ?.let { ".$it" } ?: MimeTypeMap.getFileExtensionFromUrl(fileUrl)?.let { ".$it" } ?: ".mp3"
+    private fun showRemoveDialog(position: Int) {
+        if (position < 0 || position >= musicList.size) return
 
-            val request = DownloadManager.Request(uri).apply {
-                setTitle(getString(R.string.download_title, title))
-                setDescription(getString(R.string.download_description))
-                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, "$title$extension")
-                setAllowedOverMetered(true)
-                setAllowedOverRoaming(true)
+        val music = musicList[position]
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Remove song")
+            .setMessage("Do you want to remove \"${music.title}\" from My Selections?")
+            .setPositiveButton(getString(R.string.download_music)) { dialog, _ ->
+                // Remove from the list
+                if (position < musicList.size) {
+                    removeFromSelections(position)
+                }
+                dialog.dismiss()
             }
-
-            val manager = requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            manager.enqueue(request)
-            Toast.makeText(requireContext(), getString(R.string.downloading_music, title), Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), getString(R.string.download_error, e.message), Toast.LENGTH_LONG).show()
-            Log.e("DownloadError", "Error downloading music: ${e.message}", e)
-        }
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+        builder.create().show()
     }
 
-    private fun fetchUploadedMusic() {
-        val uid = firebaseAuth.currentUser?.uid ?: return
+    private fun removeFromSelections(position: Int) {
+        val removedMusic = musicList[position]
 
-        database.child("uploads").child(uid).addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                musicList.clear()
-                if (snapshot.exists()) {
-                    for (item in snapshot.children) {
-                        val title = item.child("title").getValue(String::class.java)
-                        val url = item.child("url").getValue(String::class.java)
-                        val album = item.child("album").getValue(String::class.java) ?: ""
-                        val artist = item.child("singer").getValue(String::class.java) ?: ""
+        // Remove from both the display list and the saved list
+        musicList.removeAt(position)
+        musicAdapter.notifyItemRemoved(position)
 
-                        if (title != null && url != null) {
-                            musicList.add(
-                                Music(
-                                    id = item.key ?: "",
-                                    title = title,
-                                    album = album,
-                                    artist = artist,
-                                    duration = 0L,
-                                    artUri = "",
-                                    path = url
-                                )
-                            )
-                        }
-                    }
-                    noUploadedMusicText.visibility = View.GONE
-                    uploadedMusicRecyclerView.visibility = View.VISIBLE
-                    shimmerLayout.visibility = View.GONE
-                } else {
-                    noUploadedMusicText.visibility = View.VISIBLE
-                    uploadedMusicRecyclerView.visibility = View.GONE
-                    shimmerLayout.visibility = View.GONE
-                }
-                musicAdapter.notifyDataSetChanged()
-            }
+        // Find and remove from the saved selections list
+        val indexInSelections = UploadActivity.mySelectionList.indexOfFirst { it.id == removedMusic.id }
+        if (indexInSelections != -1) {
+            UploadActivity.mySelectionList.removeAt(indexInSelections)
+            // Save changes to SharedPreferences
+            saveSelectionChanges()
+        }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Firebase", "Load failed: ${error.message}")
-//                Toast.makeText(requireContext(), getString(R.string.load_music_failed, error.message), Toast.LENGTH_SHORT).show()
+        // Show empty view if list is now empty
+        if (musicList.isEmpty()) {
+            uploadedMusicRecyclerView.visibility = View.GONE
+            noUploadedMusicText.visibility = View.VISIBLE
+        }
+
+        Toast.makeText(requireContext(), "Removed \"${removedMusic.title}\" from My Selections", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun saveSelectionChanges() {
+        val sharedPrefs = requireActivity().getSharedPreferences("MY_SELECTIONS", AppCompatActivity.MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        val jsonString = Gson().toJson(UploadActivity.mySelectionList)
+        editor.putString("selections", jsonString)
+        editor.apply()
+    }
+
+    private fun playSelectedSong(position: Int) {
+        if (musicList.isEmpty() || position >= musicList.size) return
+
+        // Create playlist from selection list
+        PlayerActivity.musicListPA = ArrayList(musicList)
+        PlayerActivity.songPosition = position
+
+        // Set source for "Now Playing" to identify it came from My Selections
+        PlayerActivity.currentPlaylistOrigin = "MySelections"
+
+        // Clear PlayNext list and add the selection
+        PlayNext.playNextList.clear()
+        PlayNext.playNextList.addAll(musicList)
+
+        // Start playing
+        val intent = Intent(requireContext(), PlayerActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun fetchMySelections() {
+        // Show shimmer loading effect
+        shimmerLayout.visibility = View.VISIBLE
+        uploadedMusicRecyclerView.visibility = View.GONE
+        noUploadedMusicText.visibility = View.GONE
+
+        // Simulate network loading
+        binding.root.postDelayed({
+            // Clear current list
+            musicList.clear()
+
+            // Load songs from UploadActivity's saved selections
+            if (UploadActivity.mySelectionList.isNotEmpty()) {
+                musicList.addAll(UploadActivity.mySelectionList)
+                noUploadedMusicText.visibility = View.GONE
+                uploadedMusicRecyclerView.visibility = View.VISIBLE
+            } else {
                 noUploadedMusicText.visibility = View.VISIBLE
                 uploadedMusicRecyclerView.visibility = View.GONE
-                shimmerLayout.visibility = View.GONE
             }
-        })
-        shimmerLayout.visibility = View.VISIBLE
+
+            musicAdapter.notifyDataSetChanged()
+            shimmerLayout.visibility = View.GONE
+        }, 800) // Simulate network delay for better UX
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh the list when returning to this fragment
+        fetchMySelections()
     }
 }

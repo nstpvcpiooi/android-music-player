@@ -6,30 +6,27 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.cloudinary.android.MediaManager
 import com.example.musicplayer.R
 import com.example.musicplayer.adapter.MusicAdapter
 import com.example.musicplayer.databinding.ActivityUploadBinding
 import com.example.musicplayer.model.Music
-import com.example.musicplayer.service.CloudinaryApi
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
 class UploadActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListener {
     private lateinit var binding: ActivityUploadBinding
     private var selectedMusic: Music? = null
-    private val cloudApi = CloudinaryApi()
     private lateinit var musicAdapter: MusicAdapter
     private var allMusicList = ArrayList<Music>()
 
     companion object {
-        private var isCloudinaryInit = false
+        // List to store all selected/saved music
+        var mySelectionList: ArrayList<Music> = ArrayList()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,30 +34,28 @@ class UploadActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListene
         binding = ActivityUploadBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if(!isCloudinaryInit) {
-            isCloudinaryInit = true
-            // Cloudinary config
-            val config = mapOf(
-                "cloud_name" to "dzr0oakeq",
-                "api_key" to "518386354398875",
-                "api_secret" to "J3CGcuT6eFhgwaXfqBRf72cd7uE",
-                "secure" to true
-            )
-            try {
-                MediaManager.init(this, config)
-                Log.i("Cloudinary", "MediaManager initialized successfully")
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Log.e("Cloudinary", "Error initializing MediaManager: ${e.message}")
-                showToast("Lỗi khởi tạo Cloudinary")
-                return
-            }
-        }
+        // Load previously selected songs
+        loadSavedSelections()
 
         setupToolbar()
         setupViews()
         setupMusicList()
         setupSearchView()
+    }
+
+    private fun loadSavedSelections() {
+        // Load saved selections from SharedPreferences
+        val sharedPrefs = getSharedPreferences("MY_SELECTIONS", MODE_PRIVATE)
+        val jsonString = sharedPrefs.getString("selections", null)
+
+        if (jsonString != null) {
+            val type = object : TypeToken<ArrayList<Music>>() {}.type
+            mySelectionList = try {
+                Gson().fromJson(jsonString, type)
+            } catch (e: Exception) {
+                ArrayList()
+            }
+        }
     }
 
     private fun setupToolbar() {
@@ -83,7 +78,7 @@ class UploadActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListene
         // Setup save button (FAB)
         binding.saveButton.setOnClickListener {
             if (selectedMusic != null && validateInputs()) {
-                uploadSelectedMusic()
+                saveSelectedMusic()
             } else {
                 showToast("Vui lòng chọn bài hát và điền đầy đủ thông tin")
             }
@@ -178,109 +173,61 @@ class UploadActivity : AppCompatActivity(), MusicAdapter.OnMusicItemClickListene
                 binding.uploadAlbum.text.toString().trim().isNotEmpty()
     }
 
-    private fun uploadSelectedMusic() {
-        val music = selectedMusic ?: return showToast("Bài hát chưa được chọn")
-
-        lifecycleScope.launch {
-            showLoading(true)
-            try {
-                // Create a temporary file copy of the music
-                val tempFile = withContext(Dispatchers.IO) {
-                    val originalFile = File(music.path)
-                    if (!originalFile.exists()) {
-                        throw IllegalStateException("Không tìm thấy file nhạc")
-                    }
-
-                    // Create a temp file and copy the content
-                    File.createTempFile("upload_", ".tmp", cacheDir).apply {
-                        originalFile.inputStream().use { input ->
-                            outputStream().use { output ->
-                                input.copyTo(output)
-                            }
-                        }
-                    }
-                }
-
-                // Upload the file
-                uploadToCloudinary(tempFile)
-            } catch (e: Exception) {
-                showLoading(false)
-                showToast("Lỗi xử lý file: ${e.localizedMessage}")
-                Log.e("UploadError", "Error processing file", e)
-            }
-        }
-    }
-
-    private fun uploadToCloudinary(file: File) {
+    private fun saveSelectedMusic() {
+        // Show loading animation
         showLoading(true)
 
-        cloudApi.uploadFile(
-            filePath = file.absolutePath,
-            onStart = { runOnUiThread { showToast("Bắt đầu upload...") } },
-            onProgress = { bytes, totalBytes ->
-                val progress = (bytes * 100 / totalBytes).toInt()
-                runOnUiThread { updateProgress(progress) }
-            },
-            onSuccess = { response ->
-                runOnUiThread {
-                    showLoading(false)
-                    file.delete()
-                    Log.i("Cloudinary", "Upload successful: ${response?.secureUrl}")
-                    val url = response?.secureUrl
-                    if (url != null) {
-                        saveToFirebase(url)
-                    } else {
-                        showToast("Upload thành công nhưng URL null")
-                    }
-                }
-            },
-            onError = { error ->
-                runOnUiThread {
-                    showLoading(false)
-                    showToast("Lỗi upload: $error")
-                    Log.e("UploadError", "Lỗi khi upload: $error")
-                    file.delete()
-                }
+        // Simulate network delay (for UX purposes)
+        binding.root.postDelayed({
+            val music = selectedMusic
+
+            if (music == null) {
+                showLoading(false)
+                showToast("Bài hát chưa được chọn")
+                return@postDelayed
             }
-        )
+
+            // Create a copy of the music with the user-edited metadata
+            val updatedMusic = Music(
+                id = music.id,
+                title = binding.uploadTopic.text.toString().trim(),
+                album = binding.uploadAlbum.text.toString().trim(),
+                artist = binding.uploadSinger.text.toString().trim(),
+                duration = music.duration,
+                path = music.path,
+                artUri = music.artUri
+            )
+
+            // Check if song already exists in list to avoid duplicates
+            val existingIndex = mySelectionList.indexOfFirst { it.id == updatedMusic.id }
+            if (existingIndex >= 0) {
+                // Replace with updated metadata
+                mySelectionList[existingIndex] = updatedMusic
+            } else {
+                // Add to selections
+                mySelectionList.add(updatedMusic)
+            }
+
+            // Save to SharedPreferences
+            saveSelectionToPrefs()
+
+            showLoading(false)
+            showToast("Đã thêm vào danh sách của tôi")
+            finish()
+        }, 1000) // 1 second delay to simulate "uploading"
     }
 
-    private fun saveToFirebase(fileUrl: String) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            showToast("Người dùng chưa ��ăng nhập")
-            return
-        }
-
-        val database = FirebaseDatabase.getInstance()
-        val ref = database.getReference("uploads").child(userId)
-
-        val data = mapOf(
-            "url" to fileUrl,
-            "title" to binding.uploadTopic.text.toString().trim(),
-            "singer" to binding.uploadSinger.text.toString().trim(),
-            "album" to binding.uploadAlbum.text.toString().trim(),
-            "timestamp" to System.currentTimeMillis()
-        )
-
-        ref.push().setValue(data)
-            .addOnSuccessListener {
-                showToast("Lưu thành công")
-                finish()
-            }
-            .addOnFailureListener {
-                showToast("Lỗi khi lưu vào Firebase: ${it.message}")
-            }
+    private fun saveSelectionToPrefs() {
+        val sharedPrefs = getSharedPreferences("MY_SELECTIONS", MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        val jsonString = Gson().toJson(mySelectionList)
+        editor.putString("selections", jsonString)
+        editor.apply()
     }
 
     private fun showLoading(show: Boolean) {
         binding.loadingOverlay.visibility = if (show) View.VISIBLE else View.GONE
         binding.saveButton.visibility = if (show) View.GONE else View.VISIBLE
-    }
-
-    private fun updateProgress(progress: Int) {
-        // You could add a text view in the progress_layout to display the percentage
-        // binding.loadingView.progressText?.text = "$progress%"
     }
 
     private fun showToast(message: String) {
