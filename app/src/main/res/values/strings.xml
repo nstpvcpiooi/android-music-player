@@ -142,7 +142,7 @@
     <string name="music_player_icon_desc">Music Player Icon</string>
 
     <!-- Strings for Download Feature -->
-    <string name="confirm_download_title">Download Song?</string>
+    <string name="confirm_download_title">Unavailable on this device</string>
     <string name="confirm_download_message">This song is not downloaded. Do you want to download it to play?</string>
     <string name="download_and_play">Download &amp; Play</string>
     <string name="download_button_desc">Download song</string>

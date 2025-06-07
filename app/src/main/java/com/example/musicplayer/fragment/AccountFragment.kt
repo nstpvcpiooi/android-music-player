@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.*
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -30,6 +31,7 @@ import com.example.musicplayer.model.Music
 import com.example.musicplayer.activity.SettingsActivity
 import com.example.musicplayer.service.MusicService
 import com.example.musicplayer.utils.PlayNext
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
@@ -247,23 +249,33 @@ class AccountFragment : Fragment(), ServiceConnection {
         val music = musicList[position]
 
         if (!isSongDownloaded(music.id)) {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(getString(R.string.confirm_download_title))
-                .setMessage(getString(R.string.confirm_download_message))
-                .setPositiveButton(getString(R.string.download_and_play)) { dialog, _ ->
-                    if (!isSongDownloaded(music.id)) { // Ensure it's still not downloaded
-                        toggleSongDownloadedState(music.id)
-                        musicAdapter.notifyItemChanged(position) // Update icon in the list
-                    }
-                    proceedWithPlayback(position)
-                    dialog.dismiss()
+            val bottomSheetDialog = BottomSheetDialog(requireContext())
+            val bottomSheetView = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_confirm_download, null)
+            bottomSheetDialog.setContentView(bottomSheetView)
+
+            val titleTextView = bottomSheetView.findViewById<TextView>(R.id.bs_title)
+            val messageTextView = bottomSheetView.findViewById<TextView>(R.id.bs_message)
+            val positiveButton = bottomSheetView.findViewById<Button>(R.id.bs_positive_button)
+            val negativeButton = bottomSheetView.findViewById<Button>(R.id.bs_negative_button)
+
+            // Texts are already set in XML, but can be overridden if needed
+            // titleTextView.text = getString(R.string.confirm_download_title)
+            // messageTextView.text = getString(R.string.confirm_download_message)
+
+            positiveButton.setOnClickListener {
+                if (!isSongDownloaded(music.id)) { // Ensure it's still not downloaded
+                    toggleSongDownloadedState(music.id)
+                    musicAdapter.notifyItemChanged(position) // Update icon in the list
                 }
-                .setNegativeButton(R.string.cancel) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.dialog_background_rounded_all))
-                .create()
-                .show()
+                proceedWithPlayback(position)
+                bottomSheetDialog.dismiss()
+            }
+
+            negativeButton.setOnClickListener {
+                bottomSheetDialog.dismiss()
+            }
+
+            bottomSheetDialog.show()
         } else {
             proceedWithPlayback(position)
         }
