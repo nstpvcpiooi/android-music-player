@@ -88,7 +88,7 @@ class PlayerMoreFeaturesBottomSheet : BottomSheetDialogFragment() {
                         eqIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, musicService!!.mediaPlayer!!.audioSessionId)
                         eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, requireContext().packageName)
                         eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
-                        startActivity(eqIntent)
+                        startActivityForResult(eqIntent, 13)
                     } catch (e: Exception) {
                         Toast.makeText(context, "Equalizer Feature not Supported!!", Toast.LENGTH_SHORT).show()
                     }

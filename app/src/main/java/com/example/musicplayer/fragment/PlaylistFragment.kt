@@ -1,5 +1,6 @@
 package com.example.musicplayer.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.musicplayer.R
+import com.example.musicplayer.activity.DownloadActivity
 import com.example.musicplayer.activity.MainActivity
 import com.example.musicplayer.adapter.PlaylistViewAdapter
 import com.example.musicplayer.databinding.AddPlaylistDialogBinding
@@ -76,8 +78,10 @@ class PlaylistFragment : Fragment() {
         }
 
         binding.playlistHistoryBtn.setOnClickListener {
-            Toast.makeText(context, "History Clicked", Toast.LENGTH_SHORT).show()
-            // TODO: Implement History functionality
+            startActivity(Intent(requireContext(), DownloadActivity::class.java))
+
+            Toast.makeText(context, "Download Clicked", Toast.LENGTH_SHORT).show()
+
         }
     }
 

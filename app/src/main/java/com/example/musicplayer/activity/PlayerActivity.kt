@@ -384,6 +384,14 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             "PlaylistDetailsShuffle"->
                 initServiceAndPlaylist(PlaylistManager.musicPlaylist.ref[PlaylistDetailsActivity.currentPlaylistPos].playlist, shuffle = true)
             "PlayNext"->initServiceAndPlaylist(PlayNext.playNextList, shuffle = false, playNext = true)
+
+
+            // THÊM TRƯỜNG HỢP MỚI NÀY VÀO
+            "OnlineSong" -> {
+                // Danh sách nhạc (musicListPA) đã được gán từ DownloadActivity
+                // Chúng ta chỉ cần khởi tạo service và giao diện
+                initServiceAndPlaylist(musicListPA, shuffle = false)
+            }
         }
 
         // Set viewpager to current song position
