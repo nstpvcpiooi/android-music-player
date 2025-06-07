@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.TypedValue
 import android.widget.ImageButton
+import android.widget.ProgressBar // Added import for ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -55,7 +56,8 @@ class MusicAdapter(
         val duration = binding.songDuration
         val root = binding.root
         val moreInfoButton = binding.moreInfoButtonMV
-        val downloadButton: ImageButton? = binding.downloadBtnMV // Added for download button
+        val downloadButton: ImageButton? = binding.downloadBtnMV
+        val downloadProgressBar: ProgressBar? = binding.downloadProgressBarMV // Added ProgressBar reference
     }
 
     fun setOnItemClickListener(listener: (Int) -> Unit) {
@@ -100,9 +102,12 @@ class MusicAdapter(
                 ).into(holder.image)
         }
 
+        // Ensure ProgressBar is hidden by default when binding
+        holder.downloadProgressBar?.visibility = android.view.View.GONE
+
         // Handle download button visibility and state if callbacks are provided
         if (holder.downloadButton != null && isSongDownloadedCallback != null && onDownloadClickCallback != null) {
-            holder.downloadButton.visibility = android.view.View.VISIBLE
+            holder.downloadButton.visibility = android.view.View.VISIBLE // Ensure button is visible
             val isDownloaded = isSongDownloadedCallback.invoke(currentSongDisplayed.id)
             if (isDownloaded) {
                 holder.downloadButton.setImageResource(R.drawable.download_icon_filled) // Placeholder
@@ -115,6 +120,7 @@ class MusicAdapter(
             }
         } else {
             holder.downloadButton?.visibility = android.view.View.GONE
+            holder.downloadProgressBar?.visibility = android.view.View.GONE // Also hide progress bar if download button is gone
         }
 
         // Set OnClickListener for the moreInfoButton

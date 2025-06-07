@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/imageMV"
-            android:layout_toStartOf="@id/downloadBtnMV"
+            android:layout_toStartOf="@id/downloadAction"
             android:layout_marginStart="16dp"
             android:layout_centerVertical="true"
             android:orientation="vertical">
@@ -85,19 +85,33 @@
 
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/downloadBtnMV"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:padding="12dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/download_button_desc"
-            android:src="@drawable/download_icon_outline"
-            app:tint="?attr/colorOnSurfaceVariant"
+        <LinearLayout
+            android:id="@+id/downloadAction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_toStartOf="@id/moreInfoButtonMV">
 
-            android:scaleType="fitXY"
-            android:layout_toStartOf="@id/moreInfoButtonMV"
-            android:layout_centerVertical="true" />
+            <ImageButton
+                android:id="@+id/downloadBtnMV"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/download_button_desc"
+                android:src="@drawable/download_icon_outline"
+                app:tint="?attr/colorOnSurfaceVariant"
+                android:scaleType="fitXY" />
+
+            <ProgressBar
+                android:id="@+id/downloadProgressBarMV"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:visibility="gone"
+                android:indeterminateTint="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/moreInfoButtonMV"

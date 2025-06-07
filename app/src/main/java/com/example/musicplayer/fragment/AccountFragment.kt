@@ -6,7 +6,9 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.widget.Button
@@ -247,14 +249,13 @@ class AccountFragment : Fragment(), ServiceConnection {
     private fun playSelectedSong(position: Int) {
         if (musicList.isEmpty() || position >= musicList.size) return
         val music = musicList[position]
+        val songId = music.id // Store for use in delayed runnable
 
-        if (!isSongDownloaded(music.id)) {
+        if (!isSongDownloaded(songId)) {
             val bottomSheetDialog = BottomSheetDialog(requireContext())
             val bottomSheetView = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_confirm_download, null)
             bottomSheetDialog.setContentView(bottomSheetView)
 
-            val titleTextView = bottomSheetView.findViewById<TextView>(R.id.bs_title)
-            val messageTextView = bottomSheetView.findViewById<TextView>(R.id.bs_message)
             val positiveButton = bottomSheetView.findViewById<Button>(R.id.bs_positive_button)
             val negativeButton = bottomSheetView.findViewById<Button>(R.id.bs_negative_button)
 
@@ -263,12 +264,41 @@ class AccountFragment : Fragment(), ServiceConnection {
             // messageTextView.text = getString(R.string.confirm_download_message)
 
             positiveButton.setOnClickListener {
-                if (!isSongDownloaded(music.id)) { // Ensure it's still not downloaded
-                    toggleSongDownloadedState(music.id)
-                    musicAdapter.notifyItemChanged(position) // Update icon in the list
+                bottomSheetDialog.dismiss() // Dismiss dialog immediately
+
+                // Show ProgressBar, Hide Button
+                val currentPositionInListBeforeDelay = musicList.indexOfFirst { it.id == songId }
+                if (currentPositionInListBeforeDelay != -1) {
+                    val viewHolder = uploadedMusicRecyclerView.findViewHolderForAdapterPosition(currentPositionInListBeforeDelay)
+                    if (viewHolder is MusicAdapter.MyHolder) {
+                        viewHolder.downloadButton?.visibility = View.GONE
+                        viewHolder.downloadProgressBar?.visibility = View.VISIBLE
+                    }
                 }
-                proceedWithPlayback(position)
-                bottomSheetDialog.dismiss()
+
+                // Start a 3-second delay to simulate download
+                Handler(Looper.getMainLooper()).postDelayed({
+                    // After 3 seconds, mark as downloaded and update UI
+                    val stillNotDownloaded = !isSongDownloaded(songId)
+                    if (stillNotDownloaded) {
+                        toggleSongDownloadedState(songId) // This adds to downloadedSongIds and saves
+                    }
+
+                    // Notify adapter to change icon to "download_icon_filled"
+                    // Find the current position of the item, as it might have changed if list is dynamic
+                    val currentPositionInList = musicList.indexOfFirst { it.id == songId }
+                    if (currentPositionInList != -1) {
+                        if (stillNotDownloaded) { // Only notify if state actually changed
+                             musicAdapter.notifyItemChanged(currentPositionInList) // This will trigger rebind and hide progressbar
+                        }
+                        proceedWithPlayback(currentPositionInList)
+                    } else {
+                        // Song might have been removed from list during the delay
+                        Log.w("AccountFragment", "Song $songId not found in list after delay for playback.")
+                        Toast.makeText(requireContext(), "Song not found, playback cancelled.", Toast.LENGTH_SHORT).show()
+                    }
+
+                }, 3000) // 3000 milliseconds = 3 seconds
             }
 
             negativeButton.setOnClickListener {
@@ -277,6 +307,7 @@ class AccountFragment : Fragment(), ServiceConnection {
 
             bottomSheetDialog.show()
         } else {
+            // Song is already downloaded, proceed to play immediately
             proceedWithPlayback(position)
         }
     }
