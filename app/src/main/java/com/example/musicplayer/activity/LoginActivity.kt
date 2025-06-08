@@ -46,6 +46,30 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        binding.forgotPasswordText.setOnClickListener {
+            val email = binding.loginEmail.text.toString().trim()
+            if (email.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập email để đặt lại mật khẩu", Toast.LENGTH_SHORT).show()
+            } else {
+                firebaseAuth.sendPasswordResetEmail(email)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(
+                                this,
+                                "Đã gửi mail đặt lại mật khẩu đến $email",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                this,
+                                "Gửi mail thất bại: ${task.exception?.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+            }
+        }
+
         binding.signupText.setOnClickListener {
             val intent = Intent(this, SignupActivity::class.java)
             startActivity(intent)
