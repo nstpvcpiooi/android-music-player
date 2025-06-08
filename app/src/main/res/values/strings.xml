@@ -151,5 +151,6 @@
     <string name="confirm_remove_song_title">Remove Song</string>
     <string name="confirm_remove_song_message">Do you want to remove \"%1$s\" from My Cloud?</string>
     <string name="remove_song_confirm">Remove</string>
+    <string name="download_list_title">Danh sách nhạc có thể tải</string>
 </resources>
 

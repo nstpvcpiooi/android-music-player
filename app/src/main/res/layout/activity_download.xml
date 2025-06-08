@@ -1,60 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@android:color/white"
     tools:context=".activity.DownloadActivity">
 
-    <LinearLayout
-        android:id="@+id/linearLayoutdown"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayoutDownload"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="2dp">
+        android:layout_height="wrap_content">
 
-        <ImageButton
-            android:id="@+id/backBtndown"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:src="@drawable/back_icon"
-            android:contentDescription="@string/back_btn"
-            android:backgroundTint="@android:color/transparent"
-            android:padding="5dp"/>
-
-        <TextView
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarDownload"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/playlist_btn"
-            android:gravity="center"
-            android:text="@string/playlist_btn"
-            android:textColor="@color/white"
-            android:textSize="25sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:layout_height="?attr/actionBarSize">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Danh sách nhạc có thể tải"
-        android:id="@+id/titledownload"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayoutdown"
-        app:layout_constraintBottom_toTopOf="@id/playlistRV"/>
+            <LinearLayout
+                android:id="@+id/linearLayoutdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/backBtndown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:src="@drawable/back_icon"
+                    android:contentDescription="@string/back_btn"
+                    android:backgroundTint="@android:color/transparent"
+                    android:padding="5dp"
+                    app:tint="?attr/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/playlist_btn"
+                    android:gravity="center_vertical|start"
+                    android:text="@string/download_list_title"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="16dp"/>
+            </LinearLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/playlistRV"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/titledownload"
-        android:scrollbars="vertical"
-        android:paddingBottom="40dp"
-        android:layout_marginTop="10dp"/>
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:scrollbars="vertical" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
     <!-- android:scrollbarThumbVertical="@drawable/scroll_bar_icon" -->

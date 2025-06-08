@@ -93,7 +93,7 @@
                     android:layout_weight="1"
                     android:text="@string/history_btn"
                     android:textSize="12sp"
-                    app:icon="@drawable/history_icon"
+                    app:icon="@drawable/download_icon_filled"
                     app:iconTint="@color/tonal_button_icon_green"
                     android:textColor="@color/tonal_button_icon_green"
                     app:strokeColor="@color/tonal_button_icon_green"
