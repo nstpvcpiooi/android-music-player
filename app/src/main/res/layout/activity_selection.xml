@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".SelectionActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayoutSA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarSA"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/back_icon"
+            app:navigationIconTint="?attr/colorOnSurface">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchViewSA"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:queryHint="@string/search_song"
+                app:iconifiedByDefault="false"
+                app:searchIcon="@null"
+                android:background="@android:color/transparent"
+                app:queryBackground="@null"
+                android:layout_marginEnd="16dp" />
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/selectionRV"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:scrollbars="none"
+        android:paddingBottom="80dp"
+        android:clipToPadding="false"
+        android:layout_marginTop="8dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/saveSelectionFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/save_icon"
+        app:backgroundTint="@color/white"
+        app:tint="@color/blue_app_icon"
+        app:fabCustomSize="64dp"
+        android:scaleType="fitCenter"
+        app:elevation="2dp"
+        app:pressedTranslationZ="4dp"
+        android:contentDescription="@string/save_playlist_changes" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

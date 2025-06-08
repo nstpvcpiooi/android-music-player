@@ -1,10 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
+    <color name="purple_200">#86B1FC</color>
+    <color name="purple_500">#002CEE</color>
+    <color name="purple_700">#0027B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!--Custom colors-->
+    <color name="cool_blue">#0091EA</color>
+    <color name="cool_green">#64DD17</color>
+    <color name="cool_pink">#F50057</color>
+    <color name="yellow">#FFD600</color>
+    <color name="icon_color">#FF000000</color> <!-- Black for light mode -->
+
+    <color name="tonal_button_background_green">#ebfbf3</color>
+    <color name="tonal_button_icon_green">#119c75</color>
+
+    <color name="tonal_button_background_pink">#fff2f9</color>
+    <color name="tonal_button_icon_pink">#f91e9e</color>
+
+    <color name="tonal_button_background_blue">#f2f7ff</color>
+    <color name="tonal_button_icon_blue">#0067fb</color>
+
+    <color name="tonal_button_background_yellow">#fef9e6</color>
+    <color name="tonal_button_icon_yellow">#daab00</color>
+    <color name="black_level1">#353535</color>
+    <color name="black_level2">#595959</color>
+    <color name="blue_app_icon">#4C7BEA</color>
+
+    <color name="light_grey">#9E9E9E</color>
 </resources>
+

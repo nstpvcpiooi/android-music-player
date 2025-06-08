@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".NowPlaying"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/top_rounded_corners_bg"
+    android:paddingHorizontal="5dp"
+    android:paddingVertical="10dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/songImgNP"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="10dp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.SmallComponent"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/music_player_icon_slash_screen"/>
+
+    <TextView
+        android:id="@+id/songNameNP"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:text="@string/song_name"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorOnSurface" />
+
+    <ImageButton
+        android:id="@+id/playPauseBtnNP"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="14dp"
+        android:src="@drawable/play_icon"
+        android:scaleType="fitCenter"
+        app:tint="?attr/colorOnSurfaceVariant"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/play_pause_btn" />
+
+    <ImageButton
+        android:id="@+id/nextBtnNP"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="14dp"
+        android:scaleType="fitCenter"
+        app:tint="?attr/colorOnSurfaceVariant"
+        android:src="@drawable/next_icon"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/next_btn" />
+
+</LinearLayout>
+

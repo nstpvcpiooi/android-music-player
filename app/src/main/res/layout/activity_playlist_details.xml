@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.PlaylistDetailsActivity">
+
+    <!-- Top App Bar with back and more buttons -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarPD"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="0dp"
+            app:navigationIcon="@drawable/back_icon"
+            app:navigationIconTint="?attr/colorOnSurface"
+            app:title="" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="none"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="90dp">
+
+            <!-- Square Album Art -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/albumCoverCard"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="70dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/playlistImgPD"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/music_player_icon_slash_screen"/>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Playlist Title -->
+            <TextView
+                android:id="@+id/playlistTitleTV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/playlist_btn"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                android:maxLines="2"
+                android:ellipsize="end"
+                app:layout_constraintTop_toBottomOf="@id/albumCoverCard"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- Playlist Info (creator • date • song count) -->
+            <TextView
+                android:id="@+id/playlistInfoTV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                app:layout_constraintTop_toBottomOf="@id/playlistTitleTV"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- Button Container for Play, Edit, and More Features -->
+            <LinearLayout
+                android:id="@+id/playlistControlsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@id/playlistInfoTV">
+
+                <!-- Play Button with text and icon -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/playBtnPD"
+                    android:layout_width="100dp"
+                    android:layout_height="56dp"
+                    android:text="Play"
+                    android:textAllCaps="false"
+                    android:padding="12dp"
+                    app:icon="@drawable/play_icon"
+                    app:iconGravity="textStart"
+                    android:backgroundTint="@color/tonal_button_icon_blue"
+                    android:textColor="@color/white"
+                    app:iconTint="@color/white" />
+
+                <!-- Edit Button with circular tonal button -->
+                <ImageView
+                    android:id="@+id/editBtnPD"
+                    android:layout_width="70dp"
+                    android:layout_height="56dp"
+                    android:contentDescription="@string/editBtnPD"
+                    android:src="@drawable/edit_icon"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="17dp"
+                    app:tint="@color/black_level1"
+                    />
+
+                <!-- More Features Button with circular tonal button -->
+                <ImageView
+                    android:id="@+id/moreFeaturesBtn"
+                    android:layout_width="20dp"
+                    android:layout_height="56dp"
+                    android:contentDescription="@string/more_features_playlist"
+                    android:scaleType="fitCenter"
+                    android:paddingVertical="19dp"
+                    android:src="@drawable/ellipsis_vertical_solid"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:tint="@color/black_level1" />
+            </LinearLayout>
+
+            <!-- Song List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/playlistDetailsRV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/playlistControlsContainer" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

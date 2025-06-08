@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorSurfaceContainerLowest"
+    app:behavior_peekHeight="256dp"
+    style="?attr/bottomSheetStyle">
+
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:id="@+id/playlist_drag_handle"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        app:tint="?attr/colorOnSurfaceVariant" />
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/playlistMoreFeaturesNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:itemIconTint="?attr/colorOnSurfaceVariant"
+        app:itemTextColor="?attr/colorOnSurface"
+        app:itemTextAppearance="@style/CustomNavigationItemAppearance"
+        app:itemIconSize="20dp"
+        app:itemIconPadding="30dp"
+        android:paddingHorizontal="10dp"
+        app:menu="@menu/menu_playlist_more_features" />
+
+</LinearLayout>
+

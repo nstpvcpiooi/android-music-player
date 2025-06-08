@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="curved">
+        <item name="cornerSize">15%</item>
+    </style>
+
+    <style name="cover_curved_in_player">
+        <item name="cornerSize">5%</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+
+    <style name="CustomNavigationItemAppearance" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">15sp</item> <!-- Cỡ chữ -->
+<!--        <item name="android:paddingStart">40dp</item> &lt;!&ndash; Padding bên trái cho văn bản &ndash;&gt;-->
+<!--        <item name="android:paddingEnd">24dp</item> &lt;!&ndash; Padding bên phải cho văn bản &ndash;&gt;-->
+<!--        <item name="android:paddingTop">12dp</item> &lt;!&ndash; Padding phía trên cho văn bản &ndash;&gt;-->
+<!--        <item name="android:paddingBottom">12dp</item> &lt;!&ndash; Padding phía dưới cho văn bản &ndash;&gt;-->
+        <!-- Bạn có thể thêm các thuộc tính khác như android:textColor, android:fontFamily, v.v. -->
+    </style>
+</resources>
+

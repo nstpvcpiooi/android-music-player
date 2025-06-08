@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_add_playlist"
+        android:icon="@drawable/plus_icon_with_padding"
+        app:iconTint="?attr/colorOnSurface"
+        android:title="@string/add_playlist"
+        app:showAsAction="ifRoom" />
+</menu>
+
